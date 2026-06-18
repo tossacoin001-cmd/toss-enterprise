@@ -220,9 +220,9 @@ export default function PricingPage() {
               <div className="text-xs tracking-wider uppercase" style={{ color: "rgba(250,247,242,0.4)" }}>
                 Per month — scope-dependent
               </div>
-              <div className="mt-8">
-                <Link href="/contact" className="btn-gold inline-block px-8 py-3 text-xs tracking-[0.2em] uppercase">
-                  Get a Retainer Quote
+              <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                <Link href="/retainer" className="btn-gold inline-block px-8 py-3.5 text-xs tracking-[0.2em] uppercase text-center">
+                  Build My Retainer Plan →
                 </Link>
               </div>
             </div>
