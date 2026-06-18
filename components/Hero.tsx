@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
+import Link from "next/link";
 
 export default function Hero() {
   const taglineRef = useRef<HTMLDivElement>(null);
@@ -109,18 +110,18 @@ export default function Hero() {
 
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12">
-          <a
-            href="#contact"
+          <Link
+            href="/contact"
             className="btn-gold px-10 py-4 text-sm tracking-[0.2em] uppercase w-full sm:w-auto text-center"
           >
             Book Strategy Call
-          </a>
-          <a
-            href="#portfolio"
+          </Link>
+          <Link
+            href="/work"
             className="btn-outline-gold px-10 py-4 text-sm tracking-[0.2em] uppercase w-full sm:w-auto text-center"
           >
             View Our Work
-          </a>
+          </Link>
         </div>
 
         {/* Stats row */}
