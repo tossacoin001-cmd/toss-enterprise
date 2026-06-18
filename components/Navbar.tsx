@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 const links = [
   { label: "Services", href: "/services" },
   { label: "Work", href: "/work" },
+  { label: "Products", href: "/products", highlight: true },
   { label: "Process", href: "/process" },
   { label: "Pricing", href: "/pricing" },
 ];
@@ -54,9 +55,33 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-10">
+        <div className="hidden md:flex items-center gap-8">
           {links.map((l) => {
             const active = pathname === l.href;
+            if (l.highlight) {
+              return (
+                <Link
+                  key={l.label}
+                  href={l.href}
+                  className="text-xs tracking-[0.2em] uppercase px-4 py-1.5 transition-all duration-300"
+                  style={{
+                    border: "1px solid rgba(201,169,110,0.45)",
+                    color: active ? "#092D22" : "#C9A96E",
+                    background: active ? "#C9A96E" : "rgba(201,169,110,0.06)",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.background = "#C9A96E";
+                    (e.currentTarget as HTMLElement).style.color = "#092D22";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.background = active ? "#C9A96E" : "rgba(201,169,110,0.06)";
+                    (e.currentTarget as HTMLElement).style.color = active ? "#092D22" : "#C9A96E";
+                  }}
+                >
+                  {l.label}
+                </Link>
+              );
+            }
             return (
               <Link
                 key={l.label}
@@ -70,10 +95,7 @@ export default function Navbar() {
               >
                 {l.label}
                 {active && (
-                  <span
-                    className="block mt-0.5 h-px"
-                    style={{ background: "#C9A96E" }}
-                  />
+                  <span className="block mt-0.5 h-px" style={{ background: "#C9A96E" }} />
                 )}
               </Link>
             );
@@ -132,7 +154,7 @@ export default function Navbar() {
               key={l.label}
               href={l.href}
               className="font-display text-2xl tracking-wide"
-              style={{ color: pathname === l.href ? "#C9A96E" : "#FAF7F2" }}
+              style={{ color: l.highlight || pathname === l.href ? "#C9A96E" : "#FAF7F2" }}
             >
               {l.label}
             </Link>

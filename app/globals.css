@@ -99,3 +99,22 @@ body {
 .work-card:hover {
   border-color: rgba(201,169,110,0.3);
 }
+
+.products-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border: 1px solid rgba(201,169,110,0.35);
+  color: #C9A96E;
+  background: rgba(201,169,110,0.05);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.3s, border-color 0.3s;
+}
+.products-cta:hover {
+  background: rgba(201,169,110,0.12);
+  border-color: rgba(201,169,110,0.6);
+}
