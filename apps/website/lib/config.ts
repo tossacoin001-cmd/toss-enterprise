@@ -1,8 +1,8 @@
-// Replace this with your Google Calendar appointment scheduling URL
-// Setup: calendar.google.com → Create → Appointment schedule → Copy booking link
 export const BOOKING_URL =
   process.env.NEXT_PUBLIC_BOOKING_URL ||
-  "https://calendar.google.com/calendar/appointments/schedules/YOUR_SCHEDULE_ID";
+  "https://calendly.com/tossacoin001/how-can-marketing-automation-help-your-business-grow";
 
-export const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP || "+27000000000";
-export const EMAIL = "hello@tossEnterprise.com";
+export const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP || "+2348087919951";
+export const WHATSAPP_URL = `https://wa.me/2348087919951`;
+export const EMAIL = process.env.NEXT_PUBLIC_EMAIL || "tossacoin001@gmail.com";
+export const ADDRESS = "Remote. Global";

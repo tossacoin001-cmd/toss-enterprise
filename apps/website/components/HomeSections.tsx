@@ -20,23 +20,23 @@ const featuredWork = [
     headline: "Luxury Spa Platform with Booking & WhatsApp Automation",
     stat: "3×",
     statLabel: "Inquiry Growth",
-    color: "#C9A96E",
+    badge: "Live",
   },
   {
-    client: "Prestige Properties",
-    category: "AI Application",
-    headline: "Real Estate Portal with AI Lead Qualification",
-    stat: "70%",
-    statLabel: "Lead Quality Up",
-    color: "#C9A96E",
+    client: "OJ Clothings",
+    category: "Revenue Website",
+    headline: "Heritage Fashion E-Commerce for the Modern Nigerian Man",
+    stat: "24/7",
+    statLabel: "WhatsApp Concierge",
+    badge: "Live",
   },
   {
-    client: "Toss Visibility OS",
-    category: "SaaS Platform",
-    headline: "Business Visibility Management Dashboard",
-    stat: "MRR",
-    statLabel: "Recurring Revenue",
-    color: "#C9A96E",
+    client: "Shopkyluxury",
+    category: "Revenue Website",
+    headline: "Global Luxury Womenswear Platform — Lagos to New York",
+    stat: "Global",
+    statLabel: "Worldwide Shipping",
+    badge: "Live",
   },
 ];
 
@@ -170,6 +170,16 @@ export default function HomeSections() {
                         </span>
                         <span className="text-xs" style={{ color: "rgba(250,247,242,0.3)" }}>
                           {p.client}
+                        </span>
+                        <span
+                          className="text-[10px] tracking-[0.2em] uppercase px-2 py-0.5"
+                          style={{
+                            border: `1px solid ${p.badge === "Live" ? "rgba(201,169,110,0.35)" : "rgba(201,169,110,0.12)"}`,
+                            color: p.badge === "Live" ? "#C9A96E" : "rgba(201,169,110,0.4)",
+                            background: p.badge === "Live" ? "rgba(201,169,110,0.06)" : "transparent",
+                          }}
+                        >
+                          {p.badge}
                         </span>
                       </div>
                       <h3 className="font-display text-xl md:text-2xl font-medium" style={{ color: "#FAF7F2" }}>
