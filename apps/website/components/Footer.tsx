@@ -51,19 +51,24 @@ export default function Footer() {
 
           {/* Brand */}
           <div className="md:col-span-2">
-            <Link href="/" className="flex items-center gap-3 mb-6 w-fit">
-              <div className="relative w-10 h-10">
-                <Image src="/logo.svg" alt="Toss Enterprise" fill className="object-contain" />
+            <Link href="/" className="flex items-center gap-3 mb-6 w-fit group">
+              <div className="relative w-11 h-11 shrink-0">
+                <Image
+                  src="/logo-mark.png"
+                  alt="Toss Enterprise"
+                  fill
+                  className="object-contain transition-opacity duration-300 group-hover:opacity-90"
+                />
               </div>
-              <div>
-                <span className="font-display text-lg font-semibold tracking-widest gold-text uppercase">
-                  Toss
+              <div className="flex flex-col leading-none">
+                <span className="font-display text-base font-semibold tracking-[0.25em] uppercase gold-text">
+                  TOSS
                 </span>
                 <span
-                  className="block text-[10px] tracking-[0.3em] uppercase"
-                  style={{ color: "#C9A96E", opacity: 0.6, marginTop: "-2px" }}
+                  className="text-[9px] tracking-[0.35em] uppercase font-light"
+                  style={{ color: "rgba(201,169,110,0.6)", marginTop: "1px" }}
                 >
-                  Enterprise
+                  ENTERPRISE
                 </span>
               </div>
             </Link>

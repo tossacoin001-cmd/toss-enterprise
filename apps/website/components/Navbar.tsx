@@ -38,19 +38,27 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12 h-20 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3">
-          <div className="relative w-10 h-10">
-            <Image src="/logo.svg" alt="Toss Enterprise" fill className="object-contain" priority />
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="relative w-11 h-11 shrink-0">
+            <Image
+              src="/logo-mark.png"
+              alt="Toss Enterprise"
+              fill
+              className="object-contain transition-opacity duration-300 group-hover:opacity-90"
+              priority
+            />
           </div>
-          <div>
-            <span className="font-display text-lg font-semibold tracking-widest gold-text uppercase">
-              Toss
+          <div className="flex flex-col leading-none">
+            <span
+              className="font-display text-base font-semibold tracking-[0.25em] uppercase gold-text"
+            >
+              TOSS
             </span>
             <span
-              className="block text-[10px] tracking-[0.3em] uppercase"
-              style={{ color: "#C9A96E", opacity: 0.65, marginTop: "-2px" }}
+              className="text-[9px] tracking-[0.35em] uppercase font-light"
+              style={{ color: "rgba(201,169,110,0.6)", marginTop: "1px" }}
             >
-              Enterprise
+              ENTERPRISE
             </span>
           </div>
         </Link>
