@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { BOOKING_URL, WHATSAPP_URL } from "@/lib/config";
+import { BOOKING_URL } from "@/lib/config";
 
 const tiers = [
   {
@@ -217,9 +217,6 @@ export default function PricingContent() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" className="btn-gold px-10 py-4 text-xs tracking-[0.2em] uppercase">
                 Book Free Strategy Call
-              </a>
-              <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="btn-outline-gold px-10 py-4 text-xs tracking-[0.2em] uppercase">
-                Chat on WhatsApp
               </a>
             </div>
           </motion.div>

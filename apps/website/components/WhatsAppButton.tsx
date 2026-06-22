@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { WHATSAPP_URL } from "@/lib/config";
+const WHATSAPP_CHAT_URL =
+  "https://wa.me/2348087919951?text=Hi%20Toss%20Enterprise!%20I%20have%20a%20question%3A%0A";
 
 export default function WhatsAppButton() {
   const [visible, setVisible] = useState(false);
@@ -36,13 +37,13 @@ export default function WhatsAppButton() {
                   color: "#FAF7F2",
                 }}
               >
-                Chat with us
+                Send us a message
               </motion.div>
             )}
           </AnimatePresence>
 
           <a
-            href={WHATSAPP_URL}
+            href={WHATSAPP_CHAT_URL}
             target="_blank"
             rel="noopener noreferrer"
             onMouseEnter={() => setShowTooltip(true)}

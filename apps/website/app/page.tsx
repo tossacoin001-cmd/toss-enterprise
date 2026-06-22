@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { BOOKING_URL } from "@/lib/config";
 import Hero from "@/components/Hero";
-import Services from "@/components/Services";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import HomeSections from "@/components/HomeSections";
 
@@ -9,7 +8,6 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <Services />
       <HomeSections />
 
       {/* Stats */}
