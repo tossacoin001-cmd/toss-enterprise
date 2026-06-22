@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 const WHATSAPP_CHAT_URL =
-  "https://wa.me/2348087919951?text=Hi%20Toss%20Enterprise!%20I%20have%20a%20question%3A%0A";
+  "https://wa.me/2348087919951?text=Hi%20Toss%20Enterprise!%20I%27d%20like%20to%20join%20the%20community.%20Here%27s%20my%20info%3A%0A";
 
 export default function WhatsAppButton() {
   const [visible, setVisible] = useState(false);
@@ -37,7 +37,7 @@ export default function WhatsAppButton() {
                   color: "#FAF7F2",
                 }}
               >
-                Send us a message
+                Join our WhatsApp Community
               </motion.div>
             )}
           </AnimatePresence>

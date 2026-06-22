@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BOOKING_URL } from "@/lib/config";
+import NotifyForm from "@/components/NotifyForm";
 
 export const metadata: Metadata = {
   title: "Digital Products — Toss Enterprise",
@@ -29,14 +29,13 @@ export default function ProductsPage() {
       <h1 className="font-display text-5xl md:text-7xl font-light leading-[1.05] mb-6" style={{ color: "#FAF7F2" }}>
         Digital Products<br /><span className="gold-text italic">Dropping Soon.</span>
       </h1>
-      <p className="text-base leading-relaxed max-w-md mb-12" style={{ color: "rgba(250,247,242,0.5)" }}>
-        Curated digital products, templates, and resources — everything ambitious brands need to grow faster. Launching shortly.
+      <p className="text-base leading-relaxed max-w-md mb-10" style={{ color: "rgba(250,247,242,0.5)" }}>
+        Curated digital products, templates, and resources — everything ambitious brands need to grow faster. Be the first to know when we launch.
       </p>
-      <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer"
-        className="btn-gold inline-block px-10 py-4 text-xs tracking-[0.2em] uppercase">
-        Get Notified at Launch
-      </a>
-      <div className="mt-12">
+
+      <NotifyForm />
+
+      <div className="mt-10">
         <Link href="/" className="text-xs tracking-[0.2em] uppercase transition-colors duration-300"
           style={{ color: "rgba(250,247,242,0.35)" }}>
           ← Back to Home

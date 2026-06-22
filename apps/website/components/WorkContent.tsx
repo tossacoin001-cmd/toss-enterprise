@@ -31,7 +31,8 @@ const projects: Project[] = [
     client: "Julie Luxury Spa",
     location: "Lagos, Nigeria",
     category: "Revenue Website",
-    status: "live",
+    status: "coming-soon",
+    teaser: "Luxury spa platform with booking automation. In development.",
     headline: "Luxury Spa Platform Built to Convert & Automate",
     tagline: "Where luxury meets conversion.",
     description:
