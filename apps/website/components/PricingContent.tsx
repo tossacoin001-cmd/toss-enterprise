@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { BOOKING_URL } from "@/lib/config";
+import { BOOKING_URL, FLUTTERWAVE_URL } from "@/lib/config";
 
 const tiers = [
   {
@@ -126,7 +126,7 @@ export default function PricingContent() {
                       </li>
                     ))}
                   </ul>
-                  <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer"
+                  <a href={t.name === "Enterprise" ? BOOKING_URL : FLUTTERWAVE_URL} target="_blank" rel="noopener noreferrer"
                     className={`block text-center py-3 text-xs tracking-[0.18em] uppercase transition-all duration-300 ${t.highlighted ? "btn-gold" : "btn-outline-gold"}`}>
                     {t.cta}
                   </a>
@@ -135,7 +135,7 @@ export default function PricingContent() {
             ))}
           </div>
           <motion.p className="text-center text-xs mt-6" style={{ color: "rgba(250,247,242,0.3)" }} {...fadeUp(1)}>
-            All prices in USD. Naira estimates based on current rates. Payments accepted via Flutterwave, Paystack, and bank transfer.
+            All prices in USD. Naira estimates based on current rates. Payments processed via Flutterwave — cards, bank transfer, USSD, and mobile money accepted globally.
           </motion.p>
         </div>
       </section>
@@ -187,7 +187,7 @@ export default function PricingContent() {
           </motion.h2>
           <div className="space-y-4">
             {[
-              { q: "Can I pay in Naira?", a: "Yes. We accept payments via Paystack and Flutterwave — both support NGN, USD, and other currencies. We'll agree on the exchange rate at time of invoice." },
+              { q: "Can I pay in Naira?", a: "Yes. We process payments via Flutterwave — supporting NGN, USD, GBP, and other currencies. You can pay by card, bank transfer, USSD, or mobile money. We'll confirm the rate at invoice." },
               { q: "How do I get started?", a: "Book a free 30-minute strategy call. We'll scope your project, recommend the right package, and send a proposal within 24 hours." },
               { q: "What if I need something between tiers?", a: "Custom scopes are always available. Book a call and we'll price it exactly to what you need — no padding." },
               { q: "Do you work with clients outside Nigeria?", a: "Yes — we're remote-first and work with clients globally. All communication is async-friendly across time zones." },
