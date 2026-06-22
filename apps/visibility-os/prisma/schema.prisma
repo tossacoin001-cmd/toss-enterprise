@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String     @id
+  email      String     @unique
+  name       String?
+  plan       Plan       @default(FREE)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  businesses Business[]
+}
+
+model Business {
+  id              String            @id @default(cuid())
+  name            String
+  category        String?
+  city            String?
+  country         String            @default("NG")
+  googlePlaceId   String?
+  googleBizUrl    String?
+  phoneNumber     String?
+  website         String?
+  instagramHandle String?
+  userId          String
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  visibilityScores VisibilityScore[]
+  actionItems     ActionItem[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([userId])
+}
+
+model VisibilityScore {
+  id           String   @id @default(cuid())
+  businessId   String
+  business     Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  total        Int
+  googleScore  Int      @default(0)
+  socialScore  Int      @default(0)
+  websiteScore Int      @default(0)
+  reviewCount  Int      @default(0)
+  avgRating    Float    @default(0)
+  recordedAt   DateTime @default(now())
+
+  @@index([businessId])
+}
+
+model ActionItem {
+  id          String       @id @default(cuid())
+  businessId  String
+  business    Business     @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  priority    Priority     @default(MEDIUM)
+  status      ActionStatus @default(PENDING)
+  category    String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([businessId])
+}
+
+enum Plan {
+  FREE
+  STARTER
+  GROWTH
+  AGENCY
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum ActionStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+}

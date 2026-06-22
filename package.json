@@ -12,7 +12,10 @@
     "lint": "npm run lint --workspace=apps/website",
     "format": "prettier --write \"**/*.{ts,tsx,json,css,md}\"",
     "type-check": "npm run type-check --workspace=apps/website",
-    "website": "npm run dev --workspace=apps/website"
+    "website": "npm run dev --workspace=apps/website",
+    "visibility-os": "npm run dev --workspace=apps/visibility-os",
+    "build:website": "npm run build --workspace=apps/website",
+    "build:visibility-os": "npm run build --workspace=apps/visibility-os"
   },
   "devDependencies": {
     "turbo": "^2.5.0",
