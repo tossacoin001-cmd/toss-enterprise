@@ -166,7 +166,7 @@ const projects: Project[] = [
     client: "Lux Catalog",
     location: "Global",
     category: "AI Application",
-    status: "coming-soon",
+    status: "live",
     headline: "The Definitive Luxury Asset Discovery Platform",
     tagline: "Every luxury asset. One destination.",
     description:
@@ -185,7 +185,7 @@ const projects: Project[] = [
     ],
     tags: ["AI Application", "Luxury Platform", "Real Estate", "Lifestyle", "Discovery Engine"],
     accentColor: "rgba(201,169,110,0.05)",
-    teaser: "Curated luxury assets — discovered, desired, acquired.",
+    url: "https://luxcatalog.vercel.app/",
   },
   {
     id: "toss-visibility-os",
