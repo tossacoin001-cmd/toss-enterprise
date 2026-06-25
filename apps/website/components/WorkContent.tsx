@@ -31,8 +31,7 @@ const projects: Project[] = [
     client: "Julie Luxury Spa",
     location: "Lagos, Nigeria",
     category: "Revenue Website",
-    status: "coming-soon",
-    teaser: "Luxury spa platform with booking automation. In development.",
+    status: "live",
     headline: "Luxury Spa Platform Built to Convert & Automate",
     tagline: "Where luxury meets conversion.",
     description:
@@ -51,6 +50,7 @@ const projects: Project[] = [
     ],
     tags: ["Revenue Website", "Booking System", "WhatsApp API", "Lead Capture", "Next.js"],
     accentColor: "rgba(201,169,110,0.1)",
+    url: "https://julie-luxury-spa.vercel.app/",
   },
   {
     id: "oj-clothings",
@@ -193,7 +193,7 @@ const projects: Project[] = [
     client: "Toss Visibility OS",
     location: "Global SaaS",
     category: "SaaS Platform",
-    status: "coming-soon",
+    status: "live",
     headline: "The Operating System for Business Visibility",
     tagline: "Own your presence. Everywhere.",
     description:
@@ -212,7 +212,7 @@ const projects: Project[] = [
     ],
     tags: ["SaaS Platform", "Local SEO", "AI Automation", "Google Business", "Multi-tenant"],
     accentColor: "rgba(20,82,64,0.18)",
-    teaser: "The OS for local business visibility. Launching soon.",
+    url: "https://visibility-os-jade.vercel.app/",
   },
 ];
 
