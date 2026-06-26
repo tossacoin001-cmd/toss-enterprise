@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useClerk } from "@clerk/nextjs";
 import {
   LayoutDashboard,
   Building2,
@@ -22,7 +21,6 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { signOut } = useClerk();
 
   return (
     <aside
@@ -116,13 +114,10 @@ export default function Sidebar() {
 
       {/* Sign out */}
       <div style={{ borderTop: "1px solid rgba(201,169,110,0.08)" }}>
-        <button
-          onClick={() => signOut({ redirectUrl: "/" })}
-          className="sidebar-item w-full"
-        >
+        <Link href="/" className="sidebar-item w-full">
           <LogOut size={15} strokeWidth={1.5} />
           <span>Sign Out</span>
-        </button>
+        </Link>
       </div>
     </aside>
   );

@@ -1,7 +1,6 @@
 "use client";
-import { UserButton } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
-import { Bell, Menu } from "lucide-react";
+import { Bell, Menu, UserCircle2 } from "lucide-react";
 
 const pageTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
@@ -57,18 +56,13 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
           <Bell size={16} strokeWidth={1.5} />
         </button>
 
-        <UserButton
-          appearance={{
-            elements: {
-              avatarBox: "w-8 h-8",
-              userButtonPopoverCard: {
-                background: "#092D22",
-                border: "1px solid rgba(201,169,110,0.15)",
-                boxShadow: "0 0 40px rgba(0,0,0,0.5)",
-              },
-            },
-          }}
-        />
+        <div
+          className="flex h-8 w-8 items-center justify-center rounded-full"
+          style={{ background: "rgba(201,169,110,0.12)", color: "#C9A96E" }}
+          aria-label="User menu"
+        >
+          <UserCircle2 size={18} />
+        </div>
       </div>
     </header>
   );

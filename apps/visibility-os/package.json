@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbo --port 3001",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start --port 3001",
     "lint": "eslint",
     "type-check": "tsc --noEmit",
@@ -22,6 +22,7 @@
     "@prisma/client": "^6.0.0",
     "framer-motion": "^12.40.0",
     "lucide-react": "^1.21.0",
+    "@anthropic-ai/sdk": "^0.40.0",
     "svix": "^1.0.0",
     "recharts": "^2.15.0",
     "clsx": "^2.1.1",
