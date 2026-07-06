@@ -17,8 +17,8 @@ The monorepo currently lies about itself. Fix the lies before building on them. 
 - [x] Delete dead public assets in `apps/website/public/` (zero-byte logo.png, logo.svg, five create-next-app SVGs). (2026-07-05)
 - [x] Replace boilerplate app READMEs with thin pointers to the docs; add per-folder READMEs across the repo. (2026-07-05)
 - [x] CI: `develop` trigger and `deploy-website` job removed; quality gate runs turbo type-check/lint/build across all packages. (2026-07-05)
-- [ ] Verify Vercel preview deploys are green on PR #1 before merging to main. **This is the merge gate.** (First attempt: visibility-os passed; the three root-rooted projects failed on pnpm framework detection, fixed via the root `next` dependency workaround recorded in infrastructure.md.)
-- [ ] Owner dashboard actions (not doable from the repo): resolve the GitHub Actions billing lock so CI can run; set the `toss-enterprise` project's Root Directory to `apps/website` (then remove the root `next` dep and root `vercel.json`); delete the duplicate `website` and `toss-enterprise-gnw8` Vercel projects.
+- [x] Verify Vercel preview deploys are green on PR #1 before merging to main. (2026-07-05: all four projects pass after the root `next` dependency workaround recorded in infrastructure.md. The two remaining red PR checks, GitHub Actions Quality Gate and Prisma Compute Deploy, are pre-existing account-level failures also present on the old main; see owner actions.)
+- [ ] Owner dashboard actions (not doable from the repo): resolve the GitHub Actions billing lock so CI can run; set the `toss-enterprise` project's Root Directory to `apps/website` (then remove the root `next` dep and root `vercel.json`); delete the duplicate `website` and `toss-enterprise-gnw8` Vercel projects; configure or uninstall the Prisma GitHub App ("Prisma Compute Deploy" has been failing since before this PR).
 - [x] Add `LICENSE` (proprietary, all rights reserved) and root `.editorconfig`. (2026-07-05)
 
 **Exit criteria:** fresh clone + `pnpm install` + `pnpm build` + `pnpm type-check` + `pnpm lint` all succeed locally and in CI across every workspace package; production deploys verified unaffected.
