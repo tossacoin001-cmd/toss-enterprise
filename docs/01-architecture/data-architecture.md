@@ -43,4 +43,4 @@ The scoring formula is a product decision and is owned by [../04-product/visibil
 
 ## Resolved
 
-- The Visibility OS Postgres is a **Supabase instance provisioned through the Vercel integration** (confirmed 2026-07-06 from the project's env set). Prisma reads `POSTGRES_PRISMA_URL` (pooled) and `POSTGRES_URL_NON_POOLING` (direct, migrations). Baseline migration committed; `prisma migrate deploy` runs in the Vercel build (ADR-0007).
+- The Visibility OS Postgres is a **Supabase instance provisioned through the Vercel integration** (confirmed 2026-07-06 from the project's env set). Prisma reads `POSTGRES_PRISMA_URL` (pooled) and `POSTGRES_URL` (session pooler, migrations). Baseline migration committed; `prisma migrate deploy` runs in the Vercel build (ADR-0007).

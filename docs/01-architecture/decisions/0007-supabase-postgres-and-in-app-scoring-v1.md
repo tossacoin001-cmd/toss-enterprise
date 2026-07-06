@@ -10,7 +10,7 @@ Visibility OS was deployed but non-functional: Prisma read `DATABASE_URL`, which
 
 ## Decision
 
-1. **Database wiring:** Prisma reads the integration's own env names: `POSTGRES_PRISMA_URL` (pooled, queries) and `POSTGRES_URL_NON_POOLING` (direct, migrations via `directUrl`). No `DATABASE_URL` alias to maintain.
+1. **Database wiring:** Prisma reads the integration's own env names: `POSTGRES_PRISMA_URL` (pooled, queries) and `POSTGRES_URL` (session pooler, migrations via `directUrl`; the direct host is IPv6-only and unreachable from Vercel builds). No `DATABASE_URL` alias to maintain.
 2. **Migrations are code and run in the pipeline:** a committed baseline migration plus `prisma migrate deploy` in the Vercel build command for visibility-os. Nobody applies migrations by hand against production (this was attempted during implementation and correctly blocked by policy; the pipeline path is the rule).
 3. **Scoring v1 lives in the app**, not the agent: deterministic checks needing no external API keys (website reachability, HTTPS, title, meta description, viewport, response time; Google and social profile completeness), triggered on onboarding and on demand from the dashboard. Weights: Google 40%, website 40%, social 20%.
 
