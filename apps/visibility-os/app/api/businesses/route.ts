@@ -1,20 +1,51 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "@/lib/db";
+
+const optionalTrimmed = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .optional()
+    .transform((v) => (v && v.length > 0 ? v : null));
+
+const createBusinessSchema = z.object({
+  name: z.string().trim().min(2, "Business name is required").max(120),
+  category: optionalTrimmed(80),
+  city: optionalTrimmed(80),
+  country: z
+    .string()
+    .trim()
+    .regex(/^[A-Za-z]{2,3}$/, "Country must be a 2-3 letter code")
+    .transform((v) => v.toUpperCase())
+    .default("NG"),
+  googleBizUrl: optionalTrimmed(300),
+  phoneNumber: optionalTrimmed(30),
+  website: optionalTrimmed(300),
+  instagramHandle: optionalTrimmed(60).transform((v) => (v ? v.replace(/^@/, "") : v)),
+});
 
 export async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = await req.json();
-  const { name, category, city, country, googleBizUrl, phoneNumber, website, instagramHandle } = body;
+  let json: unknown;
+  try {
+    json = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
 
-  if (!name || name.trim().length < 2) {
-    return NextResponse.json({ error: "Business name is required" }, { status: 400 });
+  const parsed = createBusinessSchema.safeParse(json);
+  if (!parsed.success) {
+    const message = parsed.error.issues[0]?.message ?? "Invalid input";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 
   try {
-    // Ensure the user record exists (created by Clerk webhook, but create if missing)
+    // Ensure the user record exists (normally mirrored by the Clerk webhook).
     await db.user.upsert({
       where: { id: userId },
       update: {},
@@ -23,21 +54,14 @@ export async function POST(req: Request) {
 
     const count = await db.business.count({ where: { userId } });
     if (count >= 3) {
-      return NextResponse.json({ error: "Business limit reached for your plan" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Business limit reached for your plan" },
+        { status: 403 }
+      );
     }
 
     const business = await db.business.create({
-      data: {
-        name: name.trim(),
-        category: category || null,
-        city: city?.trim() || null,
-        country: country || "NG",
-        googleBizUrl: googleBizUrl?.trim() || null,
-        phoneNumber: phoneNumber?.trim() || null,
-        website: website?.trim() || null,
-        instagramHandle: instagramHandle?.trim() || null,
-        userId,
-      },
+      data: { ...parsed.data, userId },
     });
 
     return NextResponse.json({ business }, { status: 201 });
@@ -63,6 +87,6 @@ export async function GET() {
     return NextResponse.json({ businesses });
   } catch (e) {
     console.error("[GET /api/businesses]", e);
-    return NextResponse.json({ businesses: [] });
+    return NextResponse.json({ error: "Failed to load businesses" }, { status: 500 });
   }
 }
