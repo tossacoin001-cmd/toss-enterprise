@@ -32,8 +32,11 @@ There is no staging environment; Vercel previews serve that role.
 |---|---|---|
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | No (public) | Clerk client key |
 | `CLERK_SECRET_KEY` | **Yes** | Clerk server key |
-| `DATABASE_URL` | **Yes** | Postgres connection string for Prisma |
-| `CLERK_WEBHOOK_SECRET` | **Yes** | Clerk webhook signature verification. Note: the code reads `CLERK_WEBHOOK_SECRET`; the app's `.env.example` wrongly says `SVIX_SECRET` (Phase 0 fix) |
+| `POSTGRES_PRISMA_URL` | **Yes** | Pooled Postgres URL (queries), set by the Vercel + Supabase integration |
+| `POSTGRES_URL_NON_POOLING` | **Yes** | Non-pooling Postgres URL (migrations), set by the integration; migrations hang on the transaction pooler |
+| `CLERK_WEBHOOK_SECRET` | **Yes** | Clerk webhook signature verification. **Not yet set in production**; add it when the webhook endpoint is created in the Clerk dashboard |
+
+The Supabase integration also injects other `POSTGRES_*`/`SUPABASE_*` variables the app does not read. Clerk sign-in/up URL config vars exist in production. `ANTHROPIC_API_KEY` is present in production for future agent use; nothing reads it yet.
 
 ### agents/* (when implemented)
 

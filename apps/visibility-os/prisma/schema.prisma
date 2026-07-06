@@ -3,8 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  // Migrations must not go through the transaction pooler (POSTGRES_URL):
+  // prisma migrate hangs on its session locks there. The non-pooling URL
+  // is session-capable and only fails when the database is suspended.
+  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 model User {

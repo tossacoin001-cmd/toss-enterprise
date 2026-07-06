@@ -19,18 +19,19 @@ The monorepo currently lies about itself. Fix the lies before building on them. 
 - [x] CI: `develop` trigger and `deploy-website` job removed; quality gate runs turbo type-check/lint/build across all packages. (2026-07-05)
 - [x] Verify Vercel preview deploys are green on PR #1 before merging to main. (2026-07-05: all four projects pass after the root `next` dependency workaround recorded in infrastructure.md. The two remaining red PR checks, GitHub Actions Quality Gate and Prisma Compute Deploy, are pre-existing account-level failures also present on the old main; see owner actions.)
 - [x] Vercel cleanup (2026-07-05, via API with owner authorization): `toss-enterprise` project Root Directory set to `apps/website`; duplicate projects `website` and `toss-enterprise-gnw8` deleted; root `vercel.json` and the temporary root `next` dependency removed.
-- [ ] Owner actions that remain: resolve the GitHub Actions billing lock so CI can run (GitHub Settings, Billing); configure or uninstall the Prisma GitHub App ("Prisma Compute Deploy" has been failing since before this PR; repo Settings, Integrations).
+- [ ] Owner actions that remain: **restore the suspended Supabase database** (Vercel dashboard, Storage tab, resource `supabase-champagne-nest`, open in Supabase, Restore; free-tier projects auto-pause after 7 idle days and this one has never served a query, so it is the root cause of every failed DB connection and of PR #2's red visibility-os preview); resolve the GitHub Actions billing lock so CI can run (GitHub Settings, Billing); configure or uninstall the Prisma GitHub App ("Prisma Compute Deploy" has been failing since before this PR; repo Settings, Integrations).
 - [x] Add `LICENSE` (proprietary, all rights reserved) and root `.editorconfig`. (2026-07-05)
 
 **Exit criteria:** fresh clone + `pnpm install` + `pnpm build` + `pnpm type-check` + `pnpm lint` all succeed locally and in CI across every workspace package; production deploys verified unaffected.
 
 ## Phase 1: Foundations for product work
 
-- [ ] Prisma baseline migration committed for visibility-os (schema-only today); document the migrate-on-deploy step in deployment.md.
+- [x] Prisma baseline migration committed for visibility-os; `prisma migrate deploy` runs in its Vercel build command. Datasource reads the Supabase integration envs directly (ADR-0007). (2026-07-06)
+- [x] Pulled forward from Phase 2, per founder direction to make the product real: deterministic scoring v1 in-app (website/Google-presence/social checks, action item generation, onboarding auto-audit, dashboard audit buttons). Live Google data and scheduled re-scoring remain Phase 2 agent work. (2026-07-06)
 - [ ] Test rig: Vitest wired at the workspace level, first tests per the priority list in [02-engineering/testing-strategy.md](02-engineering/testing-strategy.md) (webhook verification first).
 - [ ] Minimum monitoring per [05-operations/monitoring.md](05-operations/monitoring.md): uptime checks on both production URLs, deploy notifications on.
 - [ ] Verify and record: RLS status on website Supabase tables, `CLERK_WEBHOOK_SECRET` present in production env, which domains attach to which Vercel projects (open questions in security.md and infrastructure.md).
-- [ ] Add Zod to visibility-os and validate `/api/businesses` input with it; stop the GET handler swallowing DB errors into an empty-array response.
+- [x] Add Zod to visibility-os and validate `/api/businesses` input with it; GET no longer swallows DB errors. (2026-07-06)
 - [ ] CI hardening: `pnpm audit` (or equivalent) step, enable GitHub secret push protection, consider Renovate/Dependabot for dependency updates.
 - [ ] Create `packages/config` (shared tsconfig/eslint) and move apps onto it; create `packages/core` only when the first shared runtime code appears.
 

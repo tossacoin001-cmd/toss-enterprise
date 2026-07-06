@@ -79,7 +79,17 @@ export default function OnboardingForm() {
         throw new Error(data.error ?? "Something went wrong");
       }
       setDone(true);
-      setTimeout(() => router.push("/dashboard"), 1800);
+      // Run the first audit before landing on the dashboard, so the user
+      // arrives to a real score instead of an empty shell. Capped so a slow
+      // website check can never trap them on this screen.
+      const { business } = await res.json().catch(() => ({ business: null }));
+      if (business?.id) {
+        await Promise.race([
+          fetch(`/api/businesses/${business.id}/score`, { method: "POST" }).catch(() => null),
+          new Promise((resolve) => setTimeout(resolve, 15000)),
+        ]);
+      }
+      router.push("/dashboard");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to save. Please try again.");
     } finally {
@@ -105,7 +115,7 @@ export default function OnboardingForm() {
           Business connected!
         </h3>
         <p className="text-sm" style={{ color: "rgba(250,247,242,0.5)" }}>
-          Taking you to your dashboard…
+          Running your first visibility audit…
         </p>
       </motion.div>
     );

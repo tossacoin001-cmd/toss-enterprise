@@ -1,4 +1,6 @@
 "use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import VisibilityScoreCard from "@/components/VisibilityScoreCard";
@@ -52,7 +54,27 @@ export default function DashboardClient({
   actionItems,
   allBusinesses,
 }: DashboardClientProps) {
+  const router = useRouter();
+  const [auditing, setAuditing] = useState(false);
+  const [auditError, setAuditError] = useState("");
   const currentScore = score?.total ?? 0;
+
+  async function runAudit() {
+    setAuditing(true);
+    setAuditError("");
+    try {
+      const res = await fetch(`/api/businesses/${business.id}/score`, { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "Audit failed. Please try again.");
+      }
+      router.refresh();
+    } catch (e) {
+      setAuditError(e instanceof Error ? e.message : "Audit failed. Please try again.");
+    } finally {
+      setAuditing(false);
+    }
+  }
 
   const stats = [
     { label: "Reviews", value: score?.reviewCount ?? "—", sub: "Google reviews" },
@@ -83,6 +105,15 @@ export default function DashboardClient({
             )}
           </div>
           <div className="flex items-center gap-3">
+            {currentScore > 0 && (
+              <button
+                onClick={runAudit}
+                disabled={auditing}
+                className="btn-outline-gold px-4 py-2 text-xs tracking-[0.15em] uppercase disabled:opacity-50"
+              >
+                {auditing ? "Auditing…" : "Re-run Audit"}
+              </button>
+            )}
             {allBusinesses.length < 3 && (
               <Link
                 href="/onboarding"
@@ -206,10 +237,23 @@ export default function DashboardClient({
               Your score will be calculated after we audit your Google Business profile, social media, and website.
             </p>
           </div>
-          <button className="btn-gold px-5 py-2 text-xs tracking-[0.15em] uppercase shrink-0 ml-auto">
-            Start Audit
+          <button
+            onClick={runAudit}
+            disabled={auditing}
+            className="btn-gold px-5 py-2 text-xs tracking-[0.15em] uppercase shrink-0 ml-auto disabled:opacity-50"
+          >
+            {auditing ? "Auditing…" : "Start Audit"}
           </button>
         </motion.div>
+      )}
+
+      {auditError && (
+        <div
+          className="p-3 text-xs"
+          style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", color: "#fca5a5" }}
+        >
+          {auditError}
+        </div>
       )}
     </div>
   );
