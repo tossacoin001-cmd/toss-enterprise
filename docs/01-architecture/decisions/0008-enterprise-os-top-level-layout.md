@@ -28,5 +28,5 @@ The approved layout moves to [monorepo.md](../monorepo.md) as before; this ADR r
 - Harder: more top-level surface, and a real risk of duplicate homes for the same fact. Mitigation: each folder README states what does NOT belong there and links to the owning doc. `docs/` remains the only home for decisions, standards, and narrative knowledge.
 - `automation/` (planned, never created) is superseded by `workflows/`.
 - `clients/` (planned, never created) is dropped from the approved list; client records live under `knowledge/` when they first exist.
-- Root gains `PROJECT.md` (at-a-glance current state) and `CHANGELOG.md` (notable changes).
+- Root gains `PROJECT.md` (at-a-glance current state) and `CHANGELOG.md` (notable changes), plus four entry-point files that route into the Knowledge Brain without owning facts of their own: `AI_CONTEXT.md`, `ENGINEERING.md`, `STACK.md`, `ROADMAP.md`. `AGENTS.md` stays the canonical contract; `AI_CONTEXT.md` is subordinate to it.
 - Follow-up: when `services/` gets its first package, add `services/*` to `pnpm-workspace.yaml` in the same change.

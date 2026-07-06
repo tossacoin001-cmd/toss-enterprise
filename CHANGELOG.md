@@ -4,7 +4,7 @@ Notable changes to the Toss Enterprise OS, newest first. The detailed record is 
 
 ## 2026-07-06
 
-- Enterprise OS top-level layout adopted ([ADR-0008](docs/01-architecture/decisions/0008-enterprise-os-top-level-layout.md)): full folder skeleton with scoped READMEs, plus `PROJECT.md` and this changelog.
+- Enterprise OS top-level layout adopted ([ADR-0008](docs/01-architecture/decisions/0008-enterprise-os-top-level-layout.md)): full folder skeleton with scoped READMEs, plus `PROJECT.md`, this changelog, and root entry points `AI_CONTEXT.md`, `ENGINEERING.md`, `STACK.md`, `ROADMAP.md`.
 - Visibility OS scoring MVP live in production: database wiring, scoring v1, audit flow ([ADR-0007](docs/01-architecture/decisions/0007-supabase-postgres-and-in-app-scoring-v1.md)).
 - Visibility OS brand design system and a real landing page.
 - Auth routes pinned in code, immune to corrupted env values.

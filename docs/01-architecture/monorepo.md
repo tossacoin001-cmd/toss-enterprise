@@ -13,6 +13,10 @@ toss-enterprise/
 ├── README.md              # human entry point
 ├── PROJECT.md             # at-a-glance current state
 ├── CHANGELOG.md           # notable changes, newest first
+├── AI_CONTEXT.md          # quick orientation card for AI tools, subordinate to AGENTS.md
+├── ENGINEERING.md         # entry point routing to docs/02-engineering/
+├── STACK.md               # the stack at a glance, one row per ADR
+├── ROADMAP.md             # entry point routing to the planning docs
 ├── .github/               # CI/CD workflows and repo meta
 ├── .claude/               # Claude Code project configuration
 ├── .ai/                   # per-tool AI assistant configuration (non-Claude tools)
