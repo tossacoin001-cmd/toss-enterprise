@@ -19,3 +19,4 @@ Every significant decision gets an ADR: technology choices, structural changes, 
 | [0004](0004-flutterwave-for-payments.md) | Flutterwave for payments | Accepted |
 | [0005](0005-supabase-and-prisma-data-split.md) | Supabase for website, Prisma+Postgres for Visibility OS | Accepted |
 | [0006](0006-anthropic-claude-for-agents.md) | Anthropic Claude + Vercel AI SDK for agents | Accepted |
+| [0007](0007-supabase-postgres-and-in-app-scoring-v1.md) | Supabase Postgres integration envs, in-app scoring v1 | Accepted |

@@ -17,25 +17,27 @@ flowchart LR
 
 The product is the loop, not the dashboard. The dashboard only renders the loop's state.
 
-## What exists today (verified against code)
+## What exists today (verified against code, updated 2026-07-06)
 
-- Clerk sign-in/sign-up, onboarding form, dashboard shell with score card component, businesses page, settings page.
-- API: businesses CRUD route, Clerk webhook (user mirror).
-- Data model in Prisma: User (plan: FREE default), Business, VisibilityScore (append-only), ActionItem. See [../01-architecture/data-architecture.md](../01-architecture/data-architecture.md).
+- Clerk sign-in/sign-up, onboarding, dashboard, businesses page, settings page.
+- **Scoring v1 (live):** deterministic audit in `lib/scoring.ts`, no external API keys. Website checks (reachable, HTTPS, title, meta description, mobile viewport, response time), Google presence (profile URL, phone, category, city), social presence (Instagram handle). Weights: Google 40%, website 40%, social 20%. Runs automatically after onboarding and on demand via the dashboard audit buttons (`POST /api/businesses/[id]/score`).
+- **Action items (live):** every failed check generates a plain-language recommendation with priority (HIGH/MEDIUM/LOW) and category; open PENDING items are regenerated on each audit, IN_PROGRESS and DONE are preserved.
+- API: businesses CRUD (Zod-validated), score route, Clerk webhook handler (Svix-verified; secret not yet configured in prod, lazy user-upsert covers creation).
+- Data: Supabase Postgres via the Vercel integration (`POSTGRES_PRISMA_URL` / `POSTGRES_URL_NON_POOLING`), committed baseline migration, `prisma migrate deploy` in the Vercel build. See [ADR-0007](../01-architecture/decisions/0007-supabase-postgres-and-in-app-scoring-v1.md).
 - Runs on port 3001 locally.
 
 ## What does not exist yet
 
-- Any real score (no agent, no scoring formula).
-- Paid plans: the `Plan` enum has FREE; paid tiers, limits, and Flutterwave billing are undecided (open question in vision-and-strategy.md and ADR-0004).
-- Committed Prisma migrations (schema only): baseline migration is a Phase 1 blocker.
-- Emails of any kind.
+- Live Google data (reviews, ratings): `googleScore` v1 measures profile completeness; `reviewCount`/`avgRating` stay 0 until the visibility-agent lands (Phase 2).
+- Scheduled re-scoring (audits are user-triggered today).
+- Paid plans: the `Plan` enum has FREE; paid tiers, limits, and Flutterwave billing are undecided.
+- Emails of any kind. Action item status toggling in the UI.
 
 ## Product decisions pending (each blocks specific work)
 
 | Decision | Blocks |
 |---|---|
-| Scoring formula and weights | visibility-agent implementation |
+| Google data source and cost ceiling | visibility-agent (live reviews/ratings) |
 | Plan tiers, limits, pricing | billing work, re-score cadence |
 | Score cadence per tier | agent scheduling |
 | NG-only vs multi-country at launch | Google data source choice, copy |
