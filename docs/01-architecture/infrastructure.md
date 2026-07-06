@@ -13,14 +13,14 @@ This document owns hosting, deployment topology, and runtime configuration. Oper
 
 ## Runtime versions
 
-- Node: `>=20` per root `engines`; CI uses Node 22. `.nvmrc` is authoritative for local dev.
-- pnpm 9 (CI pins it via `pnpm/action-setup`).
+- Node: 22 is canonical (`.nvmrc`, CI via `node-version-file`); root `engines` allows `>=20` for local flexibility.
+- pnpm: pinned by the `packageManager` field in root `package.json` (corepack-compatible); CI and Vercel read it from there. `pnpm-lock.yaml` is the only lockfile.
 - Next.js 16, React 19, TypeScript 5.8.
 
 ## Deployment triggers
 
-- Push to `main` triggers both the Vercel GitHub integration and the CI deploy job in `.github/workflows/ci.yml`. This is a known redundancy: two systems can deploy the website. Phase 0 of [../implementation-phases.md](../implementation-phases.md) picks one and disables the other.
-- There is no staging environment. `develop` branch is referenced in CI triggers but has no deploy target.
+- Push to `main` deploys via the Vercel GitHub integration only. CI is a pure quality gate and never deploys (Phase 0 removed the old CI deploy job).
+- There is no staging environment; Vercel preview deployments serve that role. Any change to a `vercel.json` must be verified on a preview deployment before merge.
 
 ## Environment variables
 

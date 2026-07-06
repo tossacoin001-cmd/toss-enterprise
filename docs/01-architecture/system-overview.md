@@ -65,12 +65,10 @@ flowchart TB
 3. **Buy over build for undifferentiated parts.** Auth (Clerk), payments (Flutterwave), booking (Calendly), email (Resend planned).
 4. **Everything documented.** New components require a row in the table above, a product or agent doc, and an ADR if a technology choice was made.
 
-## Honest current state (as of 2026-07-05)
+## Honest current state (as of 2026-07-05, post Phase 0)
 
-- `apps/website` is live and is the only app wired into root scripts and CI.
-- `apps/visibility-os` builds and deploys but its Vercel config history shows fragility (multiple fix commits); treat deploy config as sensitive.
-- `agents/*` contain only `package.json`; running workspace-wide builds will fail on them.
-- No `packages/` exist despite the workspace glob allowing them.
-- No tests anywhere. No monitoring. CI's pnpm frozen-lockfile install cannot pass because only `package-lock.json` is committed.
-
-All of these are scheduled in [../implementation-phases.md](../implementation-phases.md) Phase 0 and 1. Do not fix them ad hoc without following the phase plan.
+- The workspace quality gate is green: `pnpm type-check`, `pnpm lint`, and `pnpm build` pass across all five packages, enforced by CI on every push and PR to `main`.
+- `apps/website` is live. `apps/visibility-os` builds and deploys; its Vercel config has a breakage history, so `vercel.json` changes require preview-deploy verification before merge.
+- `agents/*` are compiling scaffolds with specs but no implementation (spec-first rule; build order in the phase plan).
+- No `packages/*` exist yet (`packages/README.md` documents the plan and triggers).
+- Still missing, scheduled in Phase 1 of [../implementation-phases.md](../implementation-phases.md): tests, monitoring, committed Prisma migrations, Zod at the visibility-os API boundary.

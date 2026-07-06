@@ -43,7 +43,7 @@ There is no staging environment; Vercel previews serve that role.
 
 ### CI (GitHub Actions secrets)
 
-`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (build), `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID_WEBSITE` (deprecated once the CI deploy job is removed, see ci-cd.md).
+`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (website build). The old `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID_WEBSITE` secrets are unused since Phase 0 removed the CI deploy job; delete them from repo settings.
 
 ## Rules
 

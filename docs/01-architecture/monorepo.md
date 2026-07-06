@@ -44,7 +44,8 @@ toss-enterprise/
 ## Workspace configuration (current truth)
 
 - `pnpm-workspace.yaml` declares `apps/*`, `agents/*`, `packages/*`. This is the authoritative list.
-- Known defect: root `package.json` still contains an npm-style `workspaces` field (missing `packages/*`) and npm-based scripts, and a `package-lock.json` is committed while `pnpm-lock.yaml` is missing. Scheduled for repair in Phase 0 of [../implementation-phases.md](../implementation-phases.md). Target: turbo-driven root scripts (`turbo build`, `turbo lint`, `turbo type-check`) and a committed `pnpm-lock.yaml` as the only lockfile.
+- pnpm is pinned via the `packageManager` field in root `package.json` (corepack-compatible). `pnpm-lock.yaml` is the only lockfile; committing any other lockfile is a defect.
+- Root scripts are turbo-driven (`turbo build`, `turbo lint`, `turbo type-check`, `turbo dev`) and run across every workspace package.
 
 ## Turborepo
 

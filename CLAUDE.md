@@ -9,15 +9,15 @@ pnpm + Turborepo monorepo for Toss Enterprise. `apps/website` is the live market
 ## Commands
 
 ```bash
-pnpm install                              # always from root
+pnpm install                              # always from root (pnpm is pinned via packageManager)
 pnpm --filter @toss/website dev           # marketing site, port 3000
 pnpm --filter @toss/visibility-os dev     # Visibility OS, port 3001
 pnpm --filter @toss/website add <pkg>     # add a dep to one app
 pnpm add -D <pkg> -w                      # add a dev dep to root
-pnpm build / pnpm lint / pnpm type-check  # currently route to apps/website only, see Phase 0
+pnpm build / pnpm lint / pnpm type-check  # turbo, runs across every workspace package
 ```
 
-Known gap: root scripts still call npm workspaces and only target `apps/website`. Until Phase 0 of [docs/implementation-phases.md](docs/implementation-phases.md) lands, prefer `pnpm --filter <pkg> <script>` for anything outside the website.
+The quality gate (type-check, lint, build across all packages) must stay green; CI enforces it on every push and PR to main.
 
 ## Stack (actual, verified against code)
 

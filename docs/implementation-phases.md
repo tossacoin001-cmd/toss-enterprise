@@ -6,19 +6,19 @@ This document owns the ordered execution plan. Phases are sequential; a phase is
 
 The monorepo currently lies about itself. Fix the lies before building on them. Findings behind these items: [audits/2026-07-05-repository-audit.md](audits/2026-07-05-repository-audit.md).
 
-- [ ] Replace `package-lock.json` with a committed `pnpm-lock.yaml`; delete the npm lockfile and the `.npmrc` npm workarounds (`legacy-peer-deps`, retry tuning) once pnpm is the real installer.
-- [ ] Rewrite root `package.json`: remove the npm `workspaces` field (pnpm-workspace.yaml is authoritative), convert scripts to turbo (`turbo build`, `turbo lint`, `turbo type-check`, `turbo dev`), add a `packageManager` field pinning pnpm.
-- [ ] Convert both `vercel.json` files off npm: root and visibility-os currently run `npm install`/`npm run ...` with legacy-peer-deps. Use pnpm (corepack) install and build commands. Verify on preview deploys; this config has a breakage history.
-- [ ] Align Node versions: `.nvmrc` says 20.18.0, CI uses 22, engines say >=20. Pick one (recommend 22 LTS everywhere) and pin it in all three places.
-- [ ] Give `agents/*` stub `src/index.ts` files and `tsconfig.json` (they have neither) so workspace-wide `build`/`type-check` pass.
-- [ ] Add an ESLint config to `apps/visibility-os` (its `lint` script currently has no config and checks nothing).
-- [ ] Fix `apps/visibility-os/.env.example`: rename `SVIX_SECRET` to `CLERK_WEBHOOK_SECRET` (the name the code actually reads). Create the missing `apps/website/.env.example` with its six `NEXT_PUBLIC_*` vars.
-- [ ] Remove unused dependencies: `@anthropic-ai/sdk` and `recharts` from visibility-os; `@radix-ui/react-dialog` and `@supabase/ssr` from website (re-verify with grep before removing).
-- [ ] Delete dead public assets in `apps/website/public/`: zero-byte `logo.png`, unreferenced `logo.svg`, and create-next-app leftovers (`file.svg`, `globe.svg`, `next.svg`, `vercel.svg`, `window.svg`).
-- [ ] Replace boilerplate app READMEs (website: default create-next-app text; visibility-os: describes the wrong product) with thin pointers to the docs.
-- [ ] CI: remove the `develop` trigger, delete the `deploy-website` job (Vercel GitHub integration owns deploys, per ci-cd.md), make the quality gate run turbo tasks across all packages.
-- [ ] Verify both Vercel projects still deploy from a preview branch after the above.
-- [ ] Add `LICENSE` decision (private/proprietary notice) and root `.editorconfig` if desired.
+- [x] Replace `package-lock.json` with a committed `pnpm-lock.yaml`; delete the npm lockfile and the `.npmrc` npm workarounds. (2026-07-05, pnpm 9.15.9 pinned via `packageManager`)
+- [x] Rewrite root `package.json`: npm `workspaces` field removed, scripts converted to turbo, `packageManager` pinned. (2026-07-05)
+- [x] Convert both `vercel.json` files off npm to pnpm install/build commands. (2026-07-05; preview verification below still pending)
+- [x] Align Node versions: 22 everywhere (`.nvmrc`, CI via `node-version-file`; engines stay `>=20` for local flexibility). (2026-07-05)
+- [x] Give `agents/*` stub `src/index.ts`, `tsconfig.json`, and READMEs so workspace-wide `build`/`type-check` pass. (2026-07-05)
+- [x] Add an ESLint config to `apps/visibility-os`; fixed the pre-existing lint errors it surfaced in both apps (unescaped entities, unused vars, one setState-in-effect in Navbar). (2026-07-05)
+- [x] Fix `apps/visibility-os/.env.example` (`CLERK_WEBHOOK_SECRET`) and create `apps/website/.env.example`. (2026-07-05)
+- [x] Remove unused dependencies: `@anthropic-ai/sdk`, `recharts` (visibility-os); `@radix-ui/react-dialog`, `@supabase/ssr` (website). (2026-07-05)
+- [x] Delete dead public assets in `apps/website/public/` (zero-byte logo.png, logo.svg, five create-next-app SVGs). (2026-07-05)
+- [x] Replace boilerplate app READMEs with thin pointers to the docs; add per-folder READMEs across the repo. (2026-07-05)
+- [x] CI: `develop` trigger and `deploy-website` job removed; quality gate runs turbo type-check/lint/build across all packages. (2026-07-05)
+- [ ] Verify both Vercel projects deploy from the `chore/phase-0-foundation` preview branch before merging to main. **This is the only gate left before merge.**
+- [x] Add `LICENSE` (proprietary, all rights reserved) and root `.editorconfig`. (2026-07-05)
 
 **Exit criteria:** fresh clone + `pnpm install` + `pnpm build` + `pnpm type-check` + `pnpm lint` all succeed locally and in CI across every workspace package; production deploys verified unaffected.
 
