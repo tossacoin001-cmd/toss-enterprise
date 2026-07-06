@@ -16,9 +16,6 @@
     "website": "pnpm --filter @toss/website dev",
     "visibility-os": "pnpm --filter @toss/visibility-os dev"
   },
-  "dependencies": {
-    "next": "16.2.9"
-  },
   "devDependencies": {
     "prettier": "^3.5.0",
     "prettier-plugin-tailwindcss": "^0.6.11",

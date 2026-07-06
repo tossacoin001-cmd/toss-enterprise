@@ -6,10 +6,10 @@ This document owns hosting, deployment topology, and runtime configuration. Oper
 
 | Workload | Runs on | Config | Notes |
 |---|---|---|---|
-| `apps/website` | Vercel project `toss-enterprise` (production, toss-enterprise.vercel.app) | root `vercel.json` + root `next` dependency (see workaround below) | Live |
-| `apps/visibility-os` | Vercel project `visibility-os` | `apps/visibility-os/vercel.json`, Root Directory set to the app | Correct per-app pattern; use this as the template |
+| `apps/website` | Vercel project `toss-enterprise` (production, toss-enterprise.vercel.app) | Root Directory `apps/website`, framework defaults (pnpm detected from the workspace lockfile) | Live |
+| `apps/visibility-os` | Vercel project `visibility-os` | Root Directory `apps/visibility-os` + `apps/visibility-os/vercel.json` | Live shell, product in development |
 
-**Known workaround (2026-07-05):** the `toss-enterprise` Vercel project builds from the repo root, so Vercel's Next.js detection needs `next` in the root `package.json` (npm used to hoist it; pnpm does not). The root `next` dependency exists only for this. The clean fix, pending an owner dashboard action: set the project's Root Directory to `apps/website`, then delete the root `vercel.json` and the root `next` dependency. Two duplicate Vercel projects (`website`, `toss-enterprise-gnw8`) are also attached to this repo and should be deleted in the dashboard; they serve no traffic.
+Both projects follow the one-project-per-app pattern with Root Directory set to the app. There is no root `vercel.json`; a project building from the repo root is a misconfiguration (pnpm does not hoist `next` to the root, so framework detection fails there). The duplicate projects `website` and `toss-enterprise-gnw8` were deleted on 2026-07-05.
 | `agents/*` | Not deployed yet | n/a | Target: scheduled Node processes (Railway, Fly.io, or GitHub Actions cron). ADR required at build time |
 | Databases | Supabase (website), Postgres via `DATABASE_URL` (visibility-os) | env vars | See [data-architecture.md](data-architecture.md) |
 

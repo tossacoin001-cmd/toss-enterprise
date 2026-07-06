@@ -1,5 +1,0 @@
-{
-  "installCommand": "pnpm install",
-  "buildCommand": "pnpm --filter @toss/website build",
-  "outputDirectory": "apps/website/.next"
-}
