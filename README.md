@@ -9,11 +9,14 @@ This repository is the **single source of truth** for the company. Code, archite
 | Path | What it is |
 |---|---|
 | `apps/website` | Toss Enterprise marketing site (live, Vercel) |
-| `apps/visibility-os` | Visibility OS, SaaS that scores and improves local business visibility |
+| `apps/visibility-os` | Visibility OS, SaaS that scores and improves local business visibility (live, scoring MVP) |
 | `agents/` | Standalone AI agents (visibility, sales, audit) |
-| `packages/` | Shared code (ui, config, utils). Created when first needed |
+| `packages/`, `services/` | Shared code and backend services. Populated when first needed |
 | `docs/` | The Knowledge Brain: all architecture, standards, SOPs, and decisions |
 | `assets/` | Branding and portfolio assets |
+| Everything else | The Enterprise OS skeleton: each folder's README states its scope. Full map: [docs/01-architecture/monorepo.md](docs/01-architecture/monorepo.md) |
+
+Current state at a glance: [PROJECT.md](PROJECT.md). Milestones: [CHANGELOG.md](CHANGELOG.md).
 
 ## Start here
 
