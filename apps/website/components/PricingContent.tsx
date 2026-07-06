@@ -23,7 +23,7 @@ const tiers = [
     tagline: "Full business presence with automation.",
     delivery: "14-day delivery", highlighted: true,
     features: ["Multi-page website (up to 8 pages)","CRM integration & setup","WhatsApp automation sequences","Google Business + local SEO","Conversion funnel design","Lead capture & nurturing","Analytics dashboard","60-day support"],
-    cta: "Most Popular — Start Now",
+    cta: "Most Popular: Start Now",
   },
   {
     name: "Premium", price: "$5,500", naira: "~₦8.25M",
@@ -46,7 +46,7 @@ const retainerFeatures = [
   { name: "Monthly SEO", desc: "On-page optimisation, keyword tracking, and ranking reports every month." },
   { name: "Visibility Management", desc: "Google Business and Maps optimisation, review monitoring and response." },
   { name: "Analytics Reporting", desc: "Clear monthly performance report with actionable growth recommendations." },
-  { name: "Content Updates", desc: "Up to 4 content or design updates per month — no extra charge." },
+  { name: "Content Updates", desc: "Up to 4 content or design updates per month, no extra charge." },
   { name: "Priority Support", desc: "Fast-track response for any technical issues. You're never left waiting." },
 ];
 
@@ -82,7 +82,7 @@ export default function PricingContent() {
             Transparent<br /><span className="gold-text italic">Pricing.</span>
           </motion.h1>
           <motion.p className="max-w-xl text-base leading-relaxed" style={{ color: "rgba(250,247,242,0.5)" }} {...fadeUp(2)}>
-            Fixed-scope packages. No hourly billing. No surprise invoices. Prices in USD — accessible from Nigeria and globally. Naira estimates shown for reference.
+            Fixed-scope packages. No hourly billing. No surprise invoices. Prices in USD, accessible from Nigeria and globally. Naira estimates shown for reference.
           </motion.p>
         </div>
       </section>
@@ -135,7 +135,7 @@ export default function PricingContent() {
             ))}
           </div>
           <motion.p className="text-center text-xs mt-6" style={{ color: "rgba(250,247,242,0.3)" }} {...fadeUp(1)}>
-            All prices in USD. Naira estimates based on current rates. Payments processed via Flutterwave — cards, bank transfer, USSD, and mobile money accepted globally.
+            All prices in USD. Naira estimates based on current rates. Payments processed via Flutterwave: cards, bank transfer, USSD, and mobile money accepted globally.
           </motion.p>
         </div>
       </section>
@@ -155,7 +155,7 @@ export default function PricingContent() {
               A website without ongoing management loses ground every month. Our retainers keep your systems maintained, optimised, and growing.
             </p>
             <div className="font-display text-4xl gold-text font-semibold mb-1">$199 – $999</div>
-            <div className="text-xs tracking-wider uppercase mb-1" style={{ color: "rgba(250,247,242,0.4)" }}>Per month — scope dependent</div>
+            <div className="text-xs tracking-wider uppercase mb-1" style={{ color: "rgba(250,247,242,0.4)" }}>Per month, scope dependent</div>
             <div className="text-xs mb-8" style={{ color: "rgba(201,169,110,0.45)" }}>~₦300k – ₦1.5M/month</div>
             <Link href="/retainer" className="btn-gold inline-block px-8 py-3.5 text-xs tracking-[0.2em] uppercase">
               Build My Retainer Plan →
@@ -187,10 +187,10 @@ export default function PricingContent() {
           </motion.h2>
           <div className="space-y-4">
             {[
-              { q: "Can I pay in Naira?", a: "Yes. We process payments via Flutterwave — supporting NGN, USD, GBP, and other currencies. You can pay by card, bank transfer, USSD, or mobile money. We'll confirm the rate at invoice." },
+              { q: "Can I pay in Naira?", a: "Yes. We process payments via Flutterwave, supporting NGN, USD, GBP, and other currencies. You can pay by card, bank transfer, USSD, or mobile money. We'll confirm the rate at invoice." },
               { q: "How do I get started?", a: "Book a free 30-minute strategy call. We'll scope your project, recommend the right package, and send a proposal within 24 hours." },
-              { q: "What if I need something between tiers?", a: "Custom scopes are always available. Book a call and we'll price it exactly to what you need — no padding." },
-              { q: "Do you work with clients outside Nigeria?", a: "Yes — we're remote-first and work with clients globally. All communication is async-friendly across time zones." },
+              { q: "What if I need something between tiers?", a: "Custom scopes are always available. Book a call and we'll price it exactly to what you need, no padding." },
+              { q: "Do you work with clients outside Nigeria?", a: "Yes. We're remote-first and work with clients globally. All communication is async-friendly across time zones." },
             ].map((item, i) => (
               <motion.div key={item.q} className="p-6"
                 style={{ border: "1px solid rgba(201,169,110,0.1)", background: "rgba(9,45,34,0.2)" }}
@@ -212,7 +212,7 @@ export default function PricingContent() {
               Not sure which <span className="gold-text italic">tier fits?</span>
             </h2>
             <p className="text-sm leading-relaxed mb-8" style={{ color: "rgba(250,247,242,0.5)" }}>
-              Book a free strategy call. We&apos;ll recommend the right scope for your business and budget — no pressure.
+              Book a free strategy call. We&apos;ll recommend the right scope for your business and budget, no pressure.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" className="btn-gold px-10 py-4 text-xs tracking-[0.2em] uppercase">

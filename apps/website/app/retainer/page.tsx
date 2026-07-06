@@ -24,7 +24,7 @@ export default function RetainerPage() {
             <span className="gold-text italic">Retainer Plan.</span>
           </h1>
           <p className="max-w-xl text-base leading-relaxed" style={{ color: "rgba(250,247,242,0.5)" }}>
-            Choose a base package and add the services your business needs. Your total updates in real time — no hidden fees, no surprises.
+            Choose a base package and add the services your business needs. Your total updates in real time. No hidden fees, no surprises.
           </p>
         </div>
       </section>

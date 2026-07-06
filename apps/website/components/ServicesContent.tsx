@@ -7,7 +7,7 @@ const services = [
   {
     id: "visibility", number: "01", title: "Visibility Systems",
     tagline: "Be found before your competitors.",
-    description: "Most businesses are invisible online — even great ones. We engineer multi-channel visibility systems that put your brand at the top of Google, on local maps, and in front of buyers actively searching for what you offer.",
+    description: "Most businesses are invisible online, even great ones. We engineer multi-channel visibility systems that put your brand at the top of Google, on local maps, and in front of buyers actively searching for what you offer.",
     items: [
       { name: "Google Business Setup", desc: "Full profile optimisation, category mapping, and photo strategy to dominate local search." },
       { name: "Google Maps Ranking", desc: "Citation building, review generation, and proximity signals to rank higher on Google Maps." },
@@ -19,7 +19,7 @@ const services = [
   {
     id: "websites", number: "02", title: "Revenue Websites",
     tagline: "Built to convert, not just look good.",
-    description: "A beautiful website that doesn't convert is an expensive decoration. Every site we build has a clear conversion architecture — moving visitors through a deliberate journey that ends with them taking action.",
+    description: "A beautiful website that doesn't convert is an expensive decoration. Every site we build has a clear conversion architecture: moving visitors through a deliberate journey that ends with them taking action.",
     items: [
       { name: "Luxury Website Design", desc: "Premium design that commands respect and positions your brand at the top of your market." },
       { name: "Conversion Funnels", desc: "Multi-step sequences designed to capture, qualify, and convert leads automatically." },
@@ -31,7 +31,7 @@ const services = [
   {
     id: "ai", number: "03", title: "AI Applications",
     tagline: "Custom software that thinks.",
-    description: "We build AI-powered tools your business actually uses — not demos. From customer portals to internal dashboards, every application is engineered around your exact workflow and team.",
+    description: "We build AI-powered tools your business actually uses, not demos. From customer portals to internal dashboards, every application is engineered around your exact workflow and team.",
     items: [
       { name: "Customer Portals", desc: "Branded portals where clients can manage their account, orders, and communication." },
       { name: "Internal Tools", desc: "Custom dashboards and admin systems that replace manual spreadsheet-based work." },

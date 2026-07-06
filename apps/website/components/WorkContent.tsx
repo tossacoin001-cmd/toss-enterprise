@@ -35,7 +35,7 @@ const projects: Project[] = [
     headline: "Luxury Spa Platform Built to Convert & Automate",
     tagline: "Where luxury meets conversion.",
     description:
-      "Julie's spa had the talent, the reputation, and the clientele — but the website was leaving money on the table every single day. We rebuilt the entire digital experience: a premium booking platform that feels as luxurious as walking through their doors, automated WhatsApp follow-ups that respond to every lead within minutes, and a conversion funnel engineered around one outcome — booked appointments.",
+      "Julie's spa had the talent, the reputation, and the clientele, but the website was leaving money on the table every single day. We rebuilt the entire digital experience: a premium booking platform that feels as luxurious as walking through their doors, automated WhatsApp follow-ups that respond to every lead within minutes, and a conversion funnel engineered around one outcome: booked appointments.",
     deliverables: [
       "Premium luxury website design",
       "Real-time booking & scheduling",
@@ -62,7 +62,7 @@ const projects: Project[] = [
     headline: "Heritage Fashion E-Commerce for the Modern Nigerian Man",
     tagline: "Heritage, tailored for the digital age.",
     description:
-      "OJ Clothings carries one of Lagos's most refined collections of native wear — agbada, jalabia, kaftans, and bespoke suits. The brand needed a digital presence that matched the premium of the product. We built a luxury e-commerce experience with occasion-based shopping, a made-to-measure booking system, and a WhatsApp chatbot concierge that handles enquiries around the clock.",
+      "OJ Clothings carries one of Lagos's most refined collections of native wear: agbada, jalabia, kaftans, and bespoke suits. The brand needed a digital presence that matched the premium of the product. We built a luxury e-commerce experience with occasion-based shopping, a made-to-measure booking system, and a WhatsApp chatbot concierge that handles enquiries around the clock.",
     deliverables: [
       "Luxury fashion e-commerce platform",
       "Collections: agbada, jalabia, kaftans, suits",
@@ -86,10 +86,10 @@ const projects: Project[] = [
     location: "Lagos & New York",
     category: "Revenue Website",
     status: "live",
-    headline: "Global Luxury Womenswear Platform — Lagos to New York",
+    headline: "Global Luxury Womenswear Platform: Lagos to New York",
     tagline: "Dress like you own the room.",
     description:
-      "Founded in New York in 2015 and now anchored in Lekki, Shopkyluxury is one of West Africa's most distinctive luxury womenswear brands. We built a platform that matches the editorial confidence of the brand — curated collections, a private styling consultation system via WhatsApp, an Inner Circle membership for VIP access, and worldwide shipping infrastructure that serves a global clientele.",
+      "Founded in New York in 2015 and now anchored in Lekki, Shopkyluxury is one of West Africa's most distinctive luxury womenswear brands. We built a platform that matches the editorial confidence of the brand: curated collections, a private styling consultation system via WhatsApp, an Inner Circle membership for VIP access, and worldwide shipping infrastructure that serves a global clientele.",
     deliverables: [
       "Luxury womenswear e-commerce platform",
       "Editorial-grade design & photography layout",
@@ -116,7 +116,7 @@ const projects: Project[] = [
     headline: "Authentic Nigerian Restaurant Platform with WhatsApp Ordering",
     tagline: "Rooted in tradition, growing in flavour.",
     description:
-      "DyneInRoots serves some of Lagos's most authentic Nigerian cuisine — jollof rice, traditional soups, and premium proteins cooked fresh in small batches daily. They needed a digital home that matched the warmth and depth of the food. We built a clean, appetising platform with a full digital menu, WhatsApp ordering integration, and a dine-in, pickup, and delivery flow that works across Glovo.",
+      "DyneInRoots serves some of Lagos's most authentic Nigerian cuisine: jollof rice, traditional soups, and premium proteins cooked fresh in small batches daily. They needed a digital home that matched the warmth and depth of the food. We built a clean, appetising platform with a full digital menu, WhatsApp ordering integration, and a dine-in, pickup, and delivery flow that works across Glovo.",
     deliverables: [
       "Restaurant website with full digital menu",
       "WhatsApp ordering system integration",
@@ -143,7 +143,7 @@ const projects: Project[] = [
     headline: "Youth Soccer Academy Platform with Enrollment & Programs",
     tagline: "Building the next generation, one season at a time.",
     description:
-      "ROOKAS is a youth soccer academy in Richmond, Texas — four age-tiered programs for children from 2 to 10 years old, built around skills, community, and confidence. We built a warm, family-focused platform that makes enrollment effortless for parents: age-group program showcases, gear package details, coach profiles, and a clear CTA that converts visits into sign-ups for their founding season.",
+      "ROOKAS is a youth soccer academy in Richmond, Texas: four age-tiered programs for children from 2 to 10 years old, built around skills, community, and confidence. We built a warm, family-focused platform that makes enrollment effortless for parents: age-group program showcases, gear package details, coach profiles, and a clear CTA that converts visits into sign-ups for their founding season.",
     deliverables: [
       "Academy website with program showcases",
       "Age-tiered program pages (Tiny Tots → Academy)",
@@ -170,7 +170,7 @@ const projects: Project[] = [
     headline: "The Definitive Luxury Asset Discovery Platform",
     tagline: "Every luxury asset. One destination.",
     description:
-      "Lux Catalog is being built as the single destination for discovering and acquiring the world's finest assets — prime real estate, supercars, superyachts, bespoke interior decor, commercial properties, and everything that defines the luxury lifestyle. An AI-powered recommendation engine matches buyers to their perfect assets before they even know they want them.",
+      "Lux Catalog is being built as the single destination for discovering and acquiring the world's finest assets: prime real estate, supercars, superyachts, bespoke interior decor, commercial properties, and everything that defines the luxury lifestyle. An AI-powered recommendation engine matches buyers to their perfect assets before they even know they want them.",
     deliverables: [
       "AI-powered luxury asset matching engine",
       "Prime real estate & commercial RE catalogue",
@@ -197,7 +197,7 @@ const projects: Project[] = [
     headline: "The Operating System for Business Visibility",
     tagline: "Own your presence. Everywhere.",
     description:
-      "Toss Visibility OS is our flagship SaaS product — a multi-tenant platform that gives local businesses full command of their online presence from one dashboard. Google Business management, AI-generated review responses, competitor tracking, local SEO monitoring, and a social content engine — all automated, all working while you sleep.",
+      "Toss Visibility OS is our flagship SaaS product: a multi-tenant platform that gives local businesses full command of their online presence from one dashboard. Google Business management, AI-generated review responses, competitor tracking, local SEO monitoring, and a social content engine, all automated, all working while you sleep.",
     deliverables: [
       "Multi-tenant SaaS architecture",
       "Google Business management suite",
@@ -285,7 +285,7 @@ export default function WorkContent() {
             style={{ color: "rgba(250,247,242,0.5)" }}
             {...fadeUp(2)}
           >
-            {liveCount} live systems across fashion, food, luxury, sports, and beyond —
+            {liveCount} live systems across fashion, food, luxury, sports, and beyond,
             engineered to perform from day one. Plus two more in the build.
           </motion.p>
 
@@ -395,7 +395,7 @@ export default function WorkContent() {
               <span className="gold-text italic">next?</span>
             </h2>
             <p className="text-sm leading-relaxed mb-10" style={{ color: "rgba(250,247,242,0.5)" }}>
-              Let&apos;s build a system that belongs in this portfolio. Free strategy call — no pitch deck, just a real conversation about your growth.
+              Let&apos;s build a system that belongs in this portfolio. Free strategy call: no pitch deck, just a real conversation about your growth.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a

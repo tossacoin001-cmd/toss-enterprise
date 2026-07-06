@@ -191,7 +191,7 @@ export default function Pricing() {
         >
           <p className="text-sm" style={{ color: "rgba(250,247,242,0.5)" }}>
             Every build is eligible for our{" "}
-            <span style={{ color: "#C9A96E" }}>Monthly Growth Retainer</span> — hosting, SEO, visibility management, and optimization from{" "}
+            <span style={{ color: "#C9A96E" }}>Monthly Growth Retainer</span>: hosting, SEO, visibility management, and optimization from{" "}
             <span style={{ color: "#FAF7F2" }}>$300/mo</span>.
           </p>
         </div>

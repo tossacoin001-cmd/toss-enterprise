@@ -3,7 +3,7 @@ import Link from "next/link";
 import NotifyForm from "@/components/NotifyForm";
 
 export const metadata: Metadata = {
-  title: "Digital Products — Toss Enterprise",
+  title: "Digital Products | Toss Enterprise",
   description: "Curated digital products, templates, and resources for ambitious brands. Launching soon from Toss Enterprise.",
 };
 
@@ -30,7 +30,7 @@ export default function ProductsPage() {
         Digital Products<br /><span className="gold-text italic">Dropping Soon.</span>
       </h1>
       <p className="text-base leading-relaxed max-w-md mb-10" style={{ color: "rgba(250,247,242,0.5)" }}>
-        Curated digital products, templates, and resources — everything ambitious brands need to grow faster. Be the first to know when we launch.
+        Curated digital products, templates, and resources: everything ambitious brands need to grow faster. Be the first to know when we launch.
       </p>
 
       <NotifyForm />

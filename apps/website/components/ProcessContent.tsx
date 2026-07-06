@@ -5,8 +5,8 @@ import { BOOKING_URL } from "@/lib/config";
 const steps = [
   {
     number: "01", title: "Strategy Call", duration: "30 minutes",
-    description: "We start with a free 30-minute call where we listen — not pitch. We want to understand your business model, your customers, your current bottlenecks, and where you want to be in 12 months.",
-    outcomes: ["Clear diagnosis of your biggest growth gap","Recommended system to build first","Honest scope and investment estimate","No obligation — you own everything discussed"],
+    description: "We start with a free 30-minute call where we listen, not pitch. We want to understand your business model, your customers, your current bottlenecks, and where you want to be in 12 months.",
+    outcomes: ["Clear diagnosis of your biggest growth gap","Recommended system to build first","Honest scope and investment estimate","No obligation, you own everything discussed"],
   },
   {
     number: "02", title: "System Design", duration: "3–5 days",
@@ -15,12 +15,12 @@ const steps = [
   },
   {
     number: "03", title: "Build & Iterate", duration: "7–30 days",
-    description: "We build fast and in the open. You get weekly progress updates, live previews, and the ability to review and give feedback at every stage — no surprises at the end.",
+    description: "We build fast and in the open. You get weekly progress updates, live previews, and the ability to review and give feedback at every stage, no surprises at the end.",
     outcomes: ["Weekly progress check-ins","Live preview links throughout the build","Your feedback shapes every iteration","30-day post-launch performance guarantee"],
   },
   {
     number: "04", title: "Launch & Grow", duration: "Ongoing",
-    description: "Launch day is not the finish line. After deployment, we offer ongoing visibility management, SEO, analytics, and optimization retainers — so your system keeps compounding in value.",
+    description: "Launch day is not the finish line. After deployment, we offer ongoing visibility management, SEO, analytics, and optimization retainers, so your system keeps compounding in value.",
     outcomes: ["Full handover with documentation","Optional monthly growth retainer","SEO and visibility management","Analytics and performance reporting"],
   },
 ];
@@ -29,7 +29,7 @@ const faqs = [
   { q: "How long does a build typically take?", a: "Landing pages and simple sites: 3–7 days. Business websites: 1–2 weeks. Custom applications and platforms: 3–6 weeks. We'll give you a precise timeline during the strategy call." },
   { q: "Do I need to provide content?", a: "We prefer to work with your existing content and brand assets where possible. We can also provide copywriting and content strategy as an add-on if needed." },
   { q: "What happens after launch?", a: "Every client gets a 30-day support window post-launch. After that, we offer monthly retainers covering hosting, SEO, visibility management, and ongoing optimization." },
-  { q: "Can you work with our existing website?", a: "Yes — we can rebuild, redesign, or extend an existing site. We'll assess your current setup during the strategy call and recommend the most efficient path forward." },
+  { q: "Can you work with our existing website?", a: "Yes. We can rebuild, redesign, or extend an existing site. We'll assess your current setup during the strategy call and recommend the most efficient path forward." },
   { q: "Do you work with international clients?", a: "Absolutely. We work with clients globally from Nigeria. All communication, deliverables, and support are handled remotely across time zones." },
 ];
 

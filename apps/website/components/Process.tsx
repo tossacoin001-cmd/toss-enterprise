@@ -5,7 +5,7 @@ const steps = [
     number: "01",
     title: "Strategy Call",
     description:
-      "We start by understanding your business, your goals, and the gaps between where you are and where you want to be. No pitching — just diagnosis.",
+      "We start by understanding your business, your goals, and the gaps between where you are and where you want to be. No pitching, just diagnosis.",
   },
   {
     number: "02",
@@ -23,7 +23,7 @@ const steps = [
     number: "04",
     title: "Growth & Retain",
     description:
-      "Post-launch, we offer ongoing visibility management, SEO, maintenance, and optimization retainers — so your systems keep compounding in value.",
+      "Post-launch, we offer ongoing visibility management, SEO, maintenance, and optimization retainers, so your systems keep compounding in value.",
   },
 ];
 

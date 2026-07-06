@@ -29,7 +29,7 @@ const projects = [
     category: "Revenue Website",
     headline: "Multi-Location Restaurant Platform with Reservations",
     description:
-      "Online reservation system, ordering integration, and a loyalty program backend — all tied into one dashboard the owner manages alone.",
+      "Online reservation system, ordering integration, and a loyalty program backend, all tied into one dashboard the owner manages alone.",
     tags: ["Next.js", "Stripe", "Loyalty System", "Admin Dashboard"],
     stat: { value: "40%", label: "Online Revenue Up" },
     color: "#3a2a10",
@@ -51,7 +51,7 @@ const projects = [
     category: "SaaS Platform",
     headline: "Business Visibility Management Dashboard",
     description:
-      "A SaaS platform where businesses track Google visibility, manage reviews, monitor competitors, and generate content — all in one place.",
+      "A SaaS platform where businesses track Google visibility, manage reviews, monitor competitors, and generate content, all in one place.",
     tags: ["Next.js", "PostgreSQL", "AI", "Subscriptions"],
     stat: { value: "MRR", label: "Recurring Revenue" },
     color: "#2a1a4a",

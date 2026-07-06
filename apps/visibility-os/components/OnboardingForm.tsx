@@ -237,7 +237,7 @@ export default function OnboardingForm() {
                 Online presence
               </h2>
               <p className="text-sm mb-8" style={{ color: "rgba(250,247,242,0.5)" }}>
-                Optional — add what you have. We&apos;ll audit these for you.
+                Optional: add what you have. We&apos;ll audit these for you.
               </p>
               <div className="space-y-3">
                 <div className="relative">

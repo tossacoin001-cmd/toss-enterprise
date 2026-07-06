@@ -80,7 +80,7 @@ export default function NotifyForm() {
           </div>
           <p className="text-sm font-medium mb-1" style={{ color: "#FAF7F2" }}>You&apos;re on the list.</p>
           <p className="text-xs" style={{ color: "rgba(250,247,242,0.4)" }}>
-            Check your WhatsApp — we&apos;ll confirm your spot.
+            Check your WhatsApp. We&apos;ll confirm your spot.
           </p>
         </motion.div>
       )}
