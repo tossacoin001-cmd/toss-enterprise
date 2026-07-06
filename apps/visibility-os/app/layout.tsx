@@ -23,5 +23,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     return content;
   }
 
-  return <ClerkProvider>{content}</ClerkProvider>;
+  return (
+    <ClerkProvider signInUrl="/sign-in" signUpUrl="/sign-up">
+      {content}
+    </ClerkProvider>
+  );
 }
