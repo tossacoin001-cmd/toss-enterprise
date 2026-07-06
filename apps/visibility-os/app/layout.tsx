@@ -3,8 +3,9 @@ import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Visibility OS",
-  description: "Enterprise Visibility Operating System",
+  title: "Visibility OS by Toss Enterprise",
+  description:
+    "See exactly how visible your business is online, and exactly what to fix. Visibility OS scores your Google presence, website, and social profiles, then gives you a ranked action plan.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -13,9 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const content = (
     <html lang="en">
       <body>
-        <main className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
-          {children}
-        </main>
+        <main className="min-h-screen">{children}</main>
       </body>
     </html>
   );

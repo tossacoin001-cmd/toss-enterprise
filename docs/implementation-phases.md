@@ -34,6 +34,7 @@ The monorepo currently lies about itself. Fix the lies before building on them. 
 - [x] Add Zod to visibility-os and validate `/api/businesses` input with it; GET no longer swallows DB errors. (2026-07-06)
 - [ ] CI hardening: `pnpm audit` (or equivalent) step, enable GitHub secret push protection, consider Renovate/Dependabot for dependency updates.
 - [ ] Create `packages/config` (shared tsconfig/eslint) and move apps onto it; create `packages/core` only when the first shared runtime code appears.
+- [ ] Extract `packages/ui` brand tokens: the second-occurrence rule triggered on 2026-07-06 when the brand CSS was ported from the website into visibility-os for the landing/dashboard restyle (both `globals.css` files now duplicate the token block).
 
 **Exit criteria:** CI blocks on tests; a webhook regression cannot ship silently; the operator gets alerted if production goes down.
 
