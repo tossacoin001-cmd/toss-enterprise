@@ -20,6 +20,10 @@ Toss Enterprise is an AI-native digital company with three engines:
 
 The strategy: services fund the products, products generate the data and case studies, agents compress the cost of both.
 
+## Business Operating System
+
+The company runs on six engines (declared 2026-07-06): **Brand**, **Growth**, **Delivery**, **Operations**, **AI Core**, and the **Knowledge Brain**. The three revenue engines above map into them: services are Delivery, Visibility OS drives Growth, agents are the AI Core, and the Knowledge Brain is `docs/` itself. Brand and Operations engine charters are Planned; each engine gets a definition in this document as it is stood up.
+
 ## Who it serves
 
 - Primary: small and medium local businesses in Nigeria (default market, prices and payment rails reflect this).
