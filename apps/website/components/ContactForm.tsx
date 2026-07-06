@@ -59,7 +59,7 @@ export default function ContactForm() {
         </div>
         <h3 className="font-display text-3xl gold-text">Message Received</h3>
         <p className="text-sm leading-relaxed max-w-xs" style={{ color: "rgba(250,247,242,0.55)" }}>
-          We'll review your enquiry and reach out within 24 hours to schedule your strategy call.
+          We&apos;ll review your enquiry and reach out within 24 hours to schedule your strategy call.
         </p>
       </div>
     );

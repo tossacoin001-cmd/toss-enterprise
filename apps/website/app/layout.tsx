@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 
 export const metadata: Metadata = {
-  title: "Toss Enterprise — Premium Growth Infrastructure",
+  title: "Toss Enterprise | Premium Growth Infrastructure",
   description:
     "We build digital infrastructure that drives visibility, leads & revenue. Premium websites, AI applications, and business automation systems for ambitious brands worldwide.",
   keywords: "web design Nigeria, digital agency Lagos, AI applications, business automation, revenue websites, SEO Nigeria",
@@ -14,13 +14,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    title: "Toss Enterprise — Premium Growth Infrastructure",
+    title: "Toss Enterprise | Premium Growth Infrastructure",
     description: "Premium websites, AI-powered applications, and business growth systems engineered for ambitious brands.",
     siteName: "Toss Enterprise",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Toss Enterprise — Premium Growth Infrastructure",
+    title: "Toss Enterprise | Premium Growth Infrastructure",
     description: "Premium websites, AI-powered applications, and business growth systems engineered for ambitious brands.",
   },
 };

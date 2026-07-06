@@ -2,29 +2,25 @@
   "name": "toss-enterprise",
   "version": "0.0.0",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "agents/*"
-  ],
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "dev": "npm run dev --workspace=apps/website",
-    "build": "npm run build --workspace=apps/website",
-    "lint": "npm run lint --workspace=apps/website",
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "type-check": "turbo type-check",
+    "clean": "turbo clean",
     "format": "prettier --write \"**/*.{ts,tsx,json,css,md}\"",
-    "type-check": "npm run type-check --workspace=apps/website",
-    "website": "npm run dev --workspace=apps/website",
-    "visibility-os": "npm run dev --workspace=apps/visibility-os",
-    "build:website": "npm run build --workspace=apps/website",
-    "build:visibility-os": "npm run build --workspace=apps/visibility-os"
+    "website": "pnpm --filter @toss/website dev",
+    "visibility-os": "pnpm --filter @toss/visibility-os dev"
   },
   "devDependencies": {
-    "turbo": "^2.5.0",
     "prettier": "^3.5.0",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "rimraf": "^6.0.0",
+    "turbo": "^2.5.0",
     "typescript": "^5.8.0"
-  },
-  "engines": {
-    "node": ">=20"
   }
 }

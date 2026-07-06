@@ -1,54 +1,15 @@
-# Visibility OS
+# @toss/visibility-os
 
-Enterprise Operating System for Complete Infrastructure Visibility
+Visibility OS: a SaaS that scores a local business's online visibility (Google Business Profile, social presence, website) and turns the gaps into an action plan. **In development; Phase 1 (auth, onboarding, dashboard shell, data model) is deployed. Scoring is not implemented yet.**
 
-## Getting Started
-
-### Development
-
-```bash
-npm run dev
-# or
-npm run visibility-os
-```
-
-Open [http://localhost:3001](http://localhost:3001) with your browser to see the result.
-
-### Build
+- Product doc (owns the loop, current state, pending decisions): [docs/04-product/visibility-os.md](../../docs/04-product/visibility-os.md)
+- Data model: [prisma/schema.prisma](prisma/schema.prisma), registry in [docs/01-architecture/data-architecture.md](../../docs/01-architecture/data-architecture.md)
+- Scoring will be computed by [@toss/visibility-agent](../../agents/visibility-agent/) (spec-first, not implemented)
+- Env vars: see [.env.example](.env.example); note the webhook secret is `CLERK_WEBHOOK_SECRET`
 
 ```bash
-npm run build:visibility-os
+pnpm --filter @toss/visibility-os dev     # http://localhost:3001
+pnpm --filter @toss/visibility-os build   # runs prisma generate first
 ```
 
-### Environment Setup
-
-Copy `.env.example` to `.env.local` and fill in your values:
-
-```bash
-cp .env.example .env.local
-```
-
-## Features
-
-- Real-time Infrastructure Monitoring
-- Advanced Analytics Dashboard
-- Security & Compliance Tracking
-- Enterprise Authentication (Clerk)
-- Database Integration (Prisma)
-- Real-time Notifications (Svix)
-
-## Tech Stack
-
-- **Framework**: Next.js 16
-- **UI**: React 19, Tailwind CSS 4
-- **Animations**: Framer Motion
-- **Auth**: Clerk
-- **Database**: Prisma
-- **Webhooks**: Svix
-- **Icons**: Lucide React
-
-## Learn More
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Clerk Documentation](https://clerk.com/docs)
-- [Prisma Documentation](https://www.prisma.io/docs/)
+Next.js 16 App Router, React 19, Tailwind CSS 4, Clerk (auth), Prisma + Postgres, deployed on Vercel. Before contributing, read [AGENTS.md](../../AGENTS.md).

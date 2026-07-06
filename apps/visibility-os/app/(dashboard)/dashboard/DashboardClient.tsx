@@ -2,7 +2,6 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import VisibilityScoreCard from "@/components/VisibilityScoreCard";
-import { scoreColor } from "@/lib/utils";
 
 type Business = {
   id: string;
@@ -152,7 +151,7 @@ export default function DashboardClient({
             style={{ background: "rgba(9,45,34,0.2)", border: "1px solid rgba(201,169,110,0.07)" }}
           >
             <p className="text-xs" style={{ color: "rgba(250,247,242,0.3)" }}>
-              No action items yet — your AI audit will generate a priority list here.
+              No action items yet. Your AI audit will generate a priority list here.
             </p>
           </div>
         ) : (
@@ -188,7 +187,7 @@ export default function DashboardClient({
         )}
       </motion.div>
 
-      {/* Score is zero — prompt */}
+      {/* Score is zero: prompt */}
       {currentScore === 0 && (
         <motion.div
           className="p-5 flex items-center gap-5"

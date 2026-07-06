@@ -84,7 +84,7 @@ export default async function DashboardPage() {
             className="text-sm leading-relaxed max-w-sm mx-auto mb-8"
             style={{ color: "rgba(250,247,242,0.5)" }}
           >
-            Add your business details and we'll start building your visibility profile — Google, social, website, and more.
+            Add your business details and we&apos;ll start building your visibility profile: Google, social, website, and more.
           </p>
           <Link
             href="/onboarding"

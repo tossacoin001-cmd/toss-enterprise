@@ -33,7 +33,7 @@ const featuredWork = [
   {
     client: "Shopkyluxury",
     category: "Revenue Website",
-    headline: "Global Luxury Womenswear Platform — Lagos to New York",
+    headline: "Global Luxury Womenswear Platform: Lagos to New York",
     stat: "Global",
     statLabel: "Worldwide Shipping",
     badge: "Live",
@@ -44,7 +44,7 @@ const whyUs = [
   {
     icon: "⚡",
     title: "Fast by Design",
-    desc: "Most agencies take 3 months. We launch in weeks — without cutting corners.",
+    desc: "Most agencies take 3 months. We launch in weeks, without cutting corners.",
   },
   {
     icon: "🎯",
@@ -87,7 +87,7 @@ export default function HomeSections() {
               </h2>
             </div>
             <p className="max-w-sm text-sm leading-relaxed" style={{ color: "rgba(250,247,242,0.5)" }}>
-              We're builders, not order-takers. You get a team obsessed with your results.
+              We&apos;re builders, not order-takers. You get a team obsessed with your results.
             </p>
           </motion.div>
 
@@ -209,16 +209,16 @@ export default function HomeSections() {
           style={{ width: "max-content" }}
         >
           {[
-            '"Best investment I made for my spa." — Julie M.',
-            '"Leads tripled in 60 days." — Prestige Properties',
-            '"Finally a team that delivers." — Spa Owner, Dubai',
-            '"The AI assistant saved us hours daily." — Tech Startup',
-            '"Professional, fast, and results-driven." — Real Estate Client',
-            '"Best investment I made for my spa." — Julie M.',
-            '"Leads tripled in 60 days." — Prestige Properties',
-            '"Finally a team that delivers." — Spa Owner, Dubai',
-            '"The AI assistant saved us hours daily." — Tech Startup',
-            '"Professional, fast, and results-driven." — Real Estate Client',
+            '"Best investment I made for my spa." - Julie M.',
+            '"Leads tripled in 60 days." - Prestige Properties',
+            '"Finally a team that delivers." - Spa Owner, Dubai',
+            '"The AI assistant saved us hours daily." - Tech Startup',
+            '"Professional, fast, and results-driven." - Real Estate Client',
+            '"Best investment I made for my spa." - Julie M.',
+            '"Leads tripled in 60 days." - Prestige Properties',
+            '"Finally a team that delivers." - Spa Owner, Dubai',
+            '"The AI assistant saved us hours daily." - Tech Startup',
+            '"Professional, fast, and results-driven." - Real Estate Client',
           ].map((quote, i) => (
             <span
               key={i}
@@ -256,7 +256,7 @@ export default function HomeSections() {
           >
             {[
               { step: "01", title: "Free Strategy Call", desc: "30 min. We listen, you talk. We map out exactly what your business needs." },
-              { step: "02", title: "Custom Proposal", desc: "You get a clear plan — scope, timeline, investment. No surprises." },
+              { step: "02", title: "Custom Proposal", desc: "You get a clear plan: scope, timeline, investment. No surprises." },
               { step: "03", title: "We Build & Launch", desc: "Fast execution. You review, we refine. Live in weeks, not months." },
               { step: "04", title: "Grow Together", desc: "We track results, optimize, and scale what's working." },
             ].map((s, i) => (

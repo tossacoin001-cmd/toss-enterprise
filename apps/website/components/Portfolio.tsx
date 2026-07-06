@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 
 const projects = [
   {
@@ -30,7 +29,7 @@ const projects = [
     category: "Revenue Website",
     headline: "Multi-Location Restaurant Platform with Reservations",
     description:
-      "Online reservation system, ordering integration, and a loyalty program backend — all tied into one dashboard the owner manages alone.",
+      "Online reservation system, ordering integration, and a loyalty program backend, all tied into one dashboard the owner manages alone.",
     tags: ["Next.js", "Stripe", "Loyalty System", "Admin Dashboard"],
     stat: { value: "40%", label: "Online Revenue Up" },
     color: "#3a2a10",
@@ -52,7 +51,7 @@ const projects = [
     category: "SaaS Platform",
     headline: "Business Visibility Management Dashboard",
     description:
-      "A SaaS platform where businesses track Google visibility, manage reviews, monitor competitors, and generate content — all in one place.",
+      "A SaaS platform where businesses track Google visibility, manage reviews, monitor competitors, and generate content, all in one place.",
     tags: ["Next.js", "PostgreSQL", "AI", "Subscriptions"],
     stat: { value: "MRR", label: "Recurring Revenue" },
     color: "#2a1a4a",
@@ -79,13 +78,13 @@ export default function Portfolio() {
             </h2>
           </div>
           <p className="max-w-sm text-sm leading-relaxed" style={{ color: "rgba(250,247,242,0.5)" }}>
-            We don't dilute quality across 50 projects. We engineer a small number of exceptional systems that set the standard for each industry.
+            We don&apos;t dilute quality across 50 projects. We engineer a small number of exceptional systems that set the standard for each industry.
           </p>
         </div>
 
         {/* Projects */}
         <div className="space-y-4">
-          {projects.map((p, i) => (
+          {projects.map((p) => (
             <div
               key={p.number}
               className="group relative overflow-hidden transition-all duration-500 cursor-pointer"

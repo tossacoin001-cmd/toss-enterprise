@@ -9,7 +9,7 @@ const services = [
     title: "Visibility Systems",
     tagline: "Be found everywhere that matters.",
     description:
-      "Most businesses are invisible online — even great ones. We change that. Google Maps, local SEO, and Snapchat placement that puts you exactly where your customers are already looking.",
+      "Most businesses are invisible online, even great ones. We change that. Google Maps, local SEO, and Snapchat placement that puts you exactly where your customers are already looking.",
     items: ["Google Business Setup", "Google Maps Ranking", "Local SEO", "Snapchat Visibility"],
     result: "Average client sees 3× more calls within 90 days.",
     color: "rgba(20,82,64,0.4)",
@@ -25,7 +25,7 @@ const services = [
     title: "Revenue Websites",
     tagline: "A site that sells while you sleep.",
     description:
-      "Your website should be your best salesperson — working 24/7, never calling in sick. We build high-converting sites engineered around one thing: turning visitors into buyers.",
+      "Your website should be your best salesperson: working 24/7, never calling in sick. We build high-converting sites engineered around one thing: turning visitors into buyers.",
     items: ["Luxury Website Design", "Conversion Funnels", "Landing Pages", "Booking Systems"],
     result: "Clients average 40% more leads in the first month.",
     color: "rgba(9,45,34,0.6)",
@@ -40,7 +40,7 @@ const services = [
     title: "AI Applications",
     tagline: "Custom tools that give you an unfair edge.",
     description:
-      "AI isn't just for big corporations anymore. We build custom portals, dashboards, and smart tools tailored to your exact workflow — so you move faster than every competitor in your space.",
+      "AI isn't just for big corporations anymore. We build custom portals, dashboards, and smart tools tailored to your exact workflow, so you move faster than every competitor in your space.",
     items: ["Internal Tools", "Customer Portals", "Lead Management", "AI Assistants"],
     result: "Save 10+ hours per week with automated workflows.",
     color: "rgba(201,169,110,0.08)",
@@ -91,14 +91,14 @@ export default function Services() {
             <span className="gold-text italic">One Mission.</span>
           </h2>
           <p className="mt-6 text-base leading-relaxed" style={{ color: "rgba(250,247,242,0.5)" }}>
-            Every system we build has one job: grow your business. Click each one to see exactly what's inside.
+            Every system we build has one job: grow your business. Click each one to see exactly what&apos;s inside.
           </p>
         </motion.div>
 
         {/* Interactive layout */}
         <div className="grid lg:grid-cols-[1fr_1.4fr] gap-6 lg:gap-12">
 
-          {/* Left — Tab list */}
+          {/* Left: Tab list */}
           <div className="flex flex-col gap-3">
             {services.map((s, i) => (
               <motion.button
@@ -159,7 +159,7 @@ export default function Services() {
             ))}
           </div>
 
-          {/* Right — Detail panel */}
+          {/* Right: Detail panel */}
           <div className="relative min-h-[420px]">
             <AnimatePresence mode="wait">
               <motion.div

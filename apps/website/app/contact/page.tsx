@@ -3,8 +3,8 @@ import ContactForm from "@/components/ContactForm";
 import { WHATSAPP_URL, EMAIL, ADDRESS, BOOKING_URL } from "@/lib/config";
 
 export const metadata: Metadata = {
-  title: "Book a Strategy Call — Toss Enterprise",
-  description: "Book a free 30-minute strategy call with Toss Enterprise. We'll map out exactly what your business needs to grow — before you invest a cent.",
+  title: "Book a Strategy Call | Toss Enterprise",
+  description: "Book a free 30-minute strategy call with Toss Enterprise. We'll map out exactly what your business needs to grow, before you invest a cent.",
 };
 
 export default function ContactPage() {
@@ -23,7 +23,7 @@ export default function ContactPage() {
             Let&apos;s Build<br /><span className="gold-text italic">Your System.</span>
           </h1>
           <p className="max-w-xl text-base leading-relaxed" style={{ color: "rgba(250,247,242,0.5)" }}>
-            Free 30-minute strategy call. We'll map out exactly what your business needs and what it will produce — before you invest a cent.
+            Free 30-minute strategy call. We&apos;ll map out exactly what your business needs and what it will produce, before you invest a cent.
           </p>
         </div>
       </section>
@@ -38,7 +38,7 @@ export default function ContactPage() {
                 { step: "01", title: "You send your details", desc: "Fill in the form. The more context you give, the more useful the call." },
                 { step: "02", title: "We review and reach out", desc: "We'll respond within 24 hours to schedule a time that works for you." },
                 { step: "03", title: "30-minute strategy call", desc: "We diagnose your growth gap, recommend a system, and give you an honest scope." },
-                { step: "04", title: "You decide — no pressure", desc: "Everything discussed is yours. No obligation to continue." },
+                { step: "04", title: "You decide, no pressure", desc: "Everything discussed is yours. No obligation to continue." },
               ].map((item) => (
                 <div key={item.step} className="flex gap-5">
                   <div className="w-10 h-10 flex items-center justify-center shrink-0 font-display text-sm"
@@ -128,7 +128,7 @@ export default function ContactPage() {
             </div>
           </div>
 
-          {/* Right — Form */}
+          {/* Right: Form */}
           <ContactForm />
         </div>
       </section>

@@ -106,7 +106,7 @@ const addons = [
     id: "email-marketing",
     name: "Email Marketing",
     price: 350,
-    desc: "4 branded email campaigns per month — designed, written, and sent.",
+    desc: "4 branded email campaigns per month: designed, written, and sent.",
   },
   {
     id: "ai-chatbot",
@@ -143,7 +143,7 @@ export default function RetainerBuilder() {
     <section className="px-6 pb-20" style={{ background: "#050E09" }}>
       <div className="max-w-7xl mx-auto">
 
-        {/* Step 1 — Choose Package */}
+        {/* Step 1: Choose Package */}
         <div className="mb-16">
           <div className="flex items-center gap-4 mb-8">
             <div
@@ -251,7 +251,7 @@ export default function RetainerBuilder() {
           </div>
         </div>
 
-        {/* Step 2 — Add-ons */}
+        {/* Step 2: Add-ons */}
         <div className="mb-16">
           <div className="flex items-center gap-4 mb-8">
             <div
@@ -263,7 +263,7 @@ export default function RetainerBuilder() {
             <h2 className="font-display text-2xl font-medium" style={{ color: "#FAF7F2" }}>
               Add Extra Services{" "}
               <span className="font-light text-lg" style={{ color: "rgba(250,247,242,0.35)" }}>
-                — optional
+                (optional)
               </span>
             </h2>
           </div>
@@ -319,7 +319,7 @@ export default function RetainerBuilder() {
           </div>
         </div>
 
-        {/* Step 3 — Summary */}
+        {/* Step 3: Summary */}
         <div
           className="p-8 md:p-10"
           style={{ border: "1px solid rgba(201,169,110,0.25)", background: "linear-gradient(135deg, #0D4535, #092D22)" }}
@@ -415,7 +415,7 @@ export default function RetainerBuilder() {
                 Send as Enquiry Instead
               </Link>
               <p className="text-xs text-center" style={{ color: "rgba(250,247,242,0.3)" }}>
-                No payment now. We'll confirm scope on the call.
+                No payment now. We&apos;ll confirm scope on the call.
               </p>
             </div>
           </div>

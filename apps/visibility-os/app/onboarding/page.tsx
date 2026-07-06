@@ -12,7 +12,7 @@ export default async function OnboardingPage() {
     const count = await db.business.count({ where: { userId } });
     if (count >= 3) redirect("/businesses");
   } catch {
-    // DB not configured — allow through
+    // DB not configured: allow through
   }
 
   return (
@@ -30,7 +30,7 @@ export default async function OnboardingPage() {
             </span>
           </div>
           <p className="text-xs mb-1" style={{ color: "rgba(250,247,242,0.4)" }}>
-            Step 1 of 1 — Connect Your Business
+            Step 1 of 1: Connect Your Business
           </p>
         </div>
 
