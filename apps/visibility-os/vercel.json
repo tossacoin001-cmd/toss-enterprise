@@ -1,6 +1,6 @@
 {
   "framework": "nextjs",
   "installCommand": "pnpm install",
-  "buildCommand": "cd ../../ && pnpm --filter @toss/visibility-os exec prisma migrate deploy && pnpm --filter @toss/visibility-os build",
+  "buildCommand": "cd ../../ && (pnpm --filter @toss/visibility-os exec prisma migrate resolve --applied 20260706000000_init || true) && pnpm --filter @toss/visibility-os exec prisma migrate deploy && pnpm --filter @toss/visibility-os build",
   "outputDirectory": ".next"
 }
