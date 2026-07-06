@@ -1,9 +1,6 @@
 {
   "framework": "nextjs",
-  "buildCommand": "cd ../../ && npm run build:visibility-os",
-  "outputDirectory": ".next",
-  "installCommand": "npm install --legacy-peer-deps --prefer-offline --no-audit",
-  "env": {
-    "npm_config_legacy_peer_deps": "true"
-  }
+  "installCommand": "pnpm install",
+  "buildCommand": "cd ../../ && pnpm --filter @toss/visibility-os build",
+  "outputDirectory": ".next"
 }
