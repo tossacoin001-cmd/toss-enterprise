@@ -212,7 +212,7 @@ export default function PricingContent() {
               Not sure which <span className="gold-text italic">tier fits?</span>
             </h2>
             <p className="text-sm leading-relaxed mb-8" style={{ color: "rgba(250,247,242,0.5)" }}>
-              Book a free strategy call. We'll recommend the right scope for your business and budget — no pressure.
+              Book a free strategy call. We&apos;ll recommend the right scope for your business and budget — no pressure.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" className="btn-gold px-10 py-4 text-xs tracking-[0.2em] uppercase">

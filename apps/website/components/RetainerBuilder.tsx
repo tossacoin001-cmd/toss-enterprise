@@ -415,7 +415,7 @@ export default function RetainerBuilder() {
                 Send as Enquiry Instead
               </Link>
               <p className="text-xs text-center" style={{ color: "rgba(250,247,242,0.3)" }}>
-                No payment now. We'll confirm scope on the call.
+                No payment now. We&apos;ll confirm scope on the call.
               </p>
             </div>
           </div>

@@ -23,7 +23,7 @@ export default function ContactPage() {
             Let&apos;s Build<br /><span className="gold-text italic">Your System.</span>
           </h1>
           <p className="max-w-xl text-base leading-relaxed" style={{ color: "rgba(250,247,242,0.5)" }}>
-            Free 30-minute strategy call. We'll map out exactly what your business needs and what it will produce — before you invest a cent.
+            Free 30-minute strategy call. We&apos;ll map out exactly what your business needs and what it will produce — before you invest a cent.
           </p>
         </div>
       </section>

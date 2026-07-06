@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 
 const projects = [
   {
@@ -79,13 +78,13 @@ export default function Portfolio() {
             </h2>
           </div>
           <p className="max-w-sm text-sm leading-relaxed" style={{ color: "rgba(250,247,242,0.5)" }}>
-            We don't dilute quality across 50 projects. We engineer a small number of exceptional systems that set the standard for each industry.
+            We don&apos;t dilute quality across 50 projects. We engineer a small number of exceptional systems that set the standard for each industry.
           </p>
         </div>
 
         {/* Projects */}
         <div className="space-y-4">
-          {projects.map((p, i) => (
+          {projects.map((p) => (
             <div
               key={p.number}
               className="group relative overflow-hidden transition-all duration-500 cursor-pointer"

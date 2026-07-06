@@ -92,7 +92,7 @@ export default function Pricing() {
             <span className="gold-text italic">Pricing.</span>
           </h2>
           <p className="text-sm leading-relaxed" style={{ color: "rgba(250,247,242,0.5)" }}>
-            No hourly billing. No surprise invoices. Fixed-scope packages so you know exactly what you're getting and what it costs.
+            No hourly billing. No surprise invoices. Fixed-scope packages so you know exactly what you&apos;re getting and what it costs.
           </p>
         </div>
 

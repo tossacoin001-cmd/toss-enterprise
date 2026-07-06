@@ -39,7 +39,7 @@ export default function Contact() {
             <span className="gold-text italic">Your System?</span>
           </h2>
           <p className="text-base leading-relaxed mb-12" style={{ color: "rgba(250,247,242,0.5)" }}>
-            Book a free 30-minute strategy call. We'll diagnose exactly what your business needs and show you what the system will produce — before you invest a cent.
+            Book a free 30-minute strategy call. We&apos;ll diagnose exactly what your business needs and show you what the system will produce — before you invest a cent.
           </p>
 
           {/* Contact details */}
@@ -102,7 +102,7 @@ export default function Contact() {
               </div>
               <h3 className="font-display text-3xl gold-text">Message Received</h3>
               <p className="text-sm leading-relaxed max-w-xs" style={{ color: "rgba(250,247,242,0.55)" }}>
-                We'll review your enquiry and reach out within 24 hours to schedule your strategy call.
+                We&apos;ll review your enquiry and reach out within 24 hours to schedule your strategy call.
               </p>
             </div>
           ) : (

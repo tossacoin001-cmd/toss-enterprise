@@ -87,7 +87,7 @@ export default function HomeSections() {
               </h2>
             </div>
             <p className="max-w-sm text-sm leading-relaxed" style={{ color: "rgba(250,247,242,0.5)" }}>
-              We're builders, not order-takers. You get a team obsessed with your results.
+              We&apos;re builders, not order-takers. You get a team obsessed with your results.
             </p>
           </motion.div>
 

@@ -91,7 +91,7 @@ export default function Services() {
             <span className="gold-text italic">One Mission.</span>
           </h2>
           <p className="mt-6 text-base leading-relaxed" style={{ color: "rgba(250,247,242,0.5)" }}>
-            Every system we build has one job: grow your business. Click each one to see exactly what's inside.
+            Every system we build has one job: grow your business. Click each one to see exactly what&apos;s inside.
           </p>
         </motion.div>
 

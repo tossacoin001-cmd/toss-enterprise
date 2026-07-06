@@ -2,7 +2,6 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import VisibilityScoreCard from "@/components/VisibilityScoreCard";
-import { scoreColor } from "@/lib/utils";
 
 type Business = {
   id: string;

@@ -36,7 +36,7 @@ export default function Home() {
             <span className="gold-text italic">Growth System.</span>
           </h2>
           <p className="text-sm leading-relaxed mb-10" style={{ color: "rgba(250,247,242,0.5)" }}>
-            Free 30-minute strategy call. No fluff — we'll map out exactly what your business needs
+            Free 30-minute strategy call. No fluff — we&apos;ll map out exactly what your business needs
             and what results it will produce.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

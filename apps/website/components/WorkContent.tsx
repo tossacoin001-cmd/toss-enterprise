@@ -395,7 +395,7 @@ export default function WorkContent() {
               <span className="gold-text italic">next?</span>
             </h2>
             <p className="text-sm leading-relaxed mb-10" style={{ color: "rgba(250,247,242,0.5)" }}>
-              Let's build a system that belongs in this portfolio. Free strategy call — no pitch deck, just a real conversation about your growth.
+              Let&apos;s build a system that belongs in this portfolio. Free strategy call — no pitch deck, just a real conversation about your growth.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
