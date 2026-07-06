@@ -6,6 +6,10 @@ This document owns what Toss Enterprise is, who it serves, and how it wins.
 
 Give growing businesses in Nigeria and West Africa the online visibility, automation, and AI leverage that big companies take for granted, at a price a small business can pay.
 
+## Vision
+
+Build Africa's leading AI Growth Operating System. The long-term arc (declared 2026-07-06): transform Toss Enterprise from a service agency into a scalable AI platform company. Nigeria and West Africa remain the beachhead market; the platform ambition is the destination, not the current state.
+
 ## What the company is
 
 Toss Enterprise is an AI-native digital company with three engines:
