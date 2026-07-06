@@ -17,7 +17,8 @@ The monorepo currently lies about itself. Fix the lies before building on them. 
 - [x] Delete dead public assets in `apps/website/public/` (zero-byte logo.png, logo.svg, five create-next-app SVGs). (2026-07-05)
 - [x] Replace boilerplate app READMEs with thin pointers to the docs; add per-folder READMEs across the repo. (2026-07-05)
 - [x] CI: `develop` trigger and `deploy-website` job removed; quality gate runs turbo type-check/lint/build across all packages. (2026-07-05)
-- [ ] Verify both Vercel projects deploy from the `chore/phase-0-foundation` preview branch before merging to main. **This is the only gate left before merge.**
+- [ ] Verify Vercel preview deploys are green on PR #1 before merging to main. **This is the merge gate.** (First attempt: visibility-os passed; the three root-rooted projects failed on pnpm framework detection, fixed via the root `next` dependency workaround recorded in infrastructure.md.)
+- [ ] Owner dashboard actions (not doable from the repo): resolve the GitHub Actions billing lock so CI can run; set the `toss-enterprise` project's Root Directory to `apps/website` (then remove the root `next` dep and root `vercel.json`); delete the duplicate `website` and `toss-enterprise-gnw8` Vercel projects.
 - [x] Add `LICENSE` (proprietary, all rights reserved) and root `.editorconfig`. (2026-07-05)
 
 **Exit criteria:** fresh clone + `pnpm install` + `pnpm build` + `pnpm type-check` + `pnpm lint` all succeed locally and in CI across every workspace package; production deploys verified unaffected.

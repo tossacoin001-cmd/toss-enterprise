@@ -6,8 +6,10 @@ This document owns hosting, deployment topology, and runtime configuration. Oper
 
 | Workload | Runs on | Config | Notes |
 |---|---|---|---|
-| `apps/website` | Vercel project (production) | root `vercel.json` routes the GitHub integration to `apps/website` | Live |
-| `apps/visibility-os` | Vercel project (separate) | `apps/visibility-os/vercel.json` | Deploy config has a history of breakage; change with care |
+| `apps/website` | Vercel project `toss-enterprise` (production, toss-enterprise.vercel.app) | root `vercel.json` + root `next` dependency (see workaround below) | Live |
+| `apps/visibility-os` | Vercel project `visibility-os` | `apps/visibility-os/vercel.json`, Root Directory set to the app | Correct per-app pattern; use this as the template |
+
+**Known workaround (2026-07-05):** the `toss-enterprise` Vercel project builds from the repo root, so Vercel's Next.js detection needs `next` in the root `package.json` (npm used to hoist it; pnpm does not). The root `next` dependency exists only for this. The clean fix, pending an owner dashboard action: set the project's Root Directory to `apps/website`, then delete the root `vercel.json` and the root `next` dependency. Two duplicate Vercel projects (`website`, `toss-enterprise-gnw8`) are also attached to this repo and should be deleted in the dashboard; they serve no traffic.
 | `agents/*` | Not deployed yet | n/a | Target: scheduled Node processes (Railway, Fly.io, or GitHub Actions cron). ADR required at build time |
 | Databases | Supabase (website), Postgres via `DATABASE_URL` (visibility-os) | env vars | See [data-architecture.md](data-architecture.md) |
 
