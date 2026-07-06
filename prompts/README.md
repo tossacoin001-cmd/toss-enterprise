@@ -1,5 +1,5 @@
 # Prompts
 
-This folder owns the shared, versioned prompt library used by agents and tools. Status: Planned.
+This folder owns the prompt registry and any prompt that does not live inside a package: workflow prompts, chat assistant configuration, reusable non-code prompt text. Status: Planned.
 
-Prompt standards and evaluation policy live in [docs/03-ai/](../docs/03-ai/). A prompt embedded in a single agent stays with that agent; it moves here the moment a second consumer needs it.
+Prompt policy is owned by [docs/03-ai/prompt-library.md](../docs/03-ai/prompt-library.md): agent prompts are code and live in the agent's package under `src/prompts/`; shared fragments graduate to `packages/core` on second occurrence. [registry.md](registry.md) indexes every prompt wherever it lives.
