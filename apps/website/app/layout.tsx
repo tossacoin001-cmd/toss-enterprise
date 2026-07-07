@@ -7,21 +7,21 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 export const metadata: Metadata = {
   title: "Toss Enterprise | Premium Growth Infrastructure",
   description:
-    "We build digital infrastructure that drives visibility, leads & revenue. Premium websites, AI applications, and business automation systems for ambitious brands worldwide.",
-  keywords: "web design Nigeria, digital agency Lagos, AI applications, business automation, revenue websites, SEO Nigeria",
+    "Our mission is to help African businesses scale with AI, automation, and modern digital infrastructure. Premium websites, AI applications, and business automation systems for ambitious brands worldwide.",
+  keywords: "web design Nigeria, digital agency Lagos, AI applications, business automation, growth systems, African business scale",
   authors: [{ name: "Toss Enterprise" }],
   creator: "Toss Enterprise",
   openGraph: {
     type: "website",
     locale: "en_US",
     title: "Toss Enterprise | Premium Growth Infrastructure",
-    description: "Premium websites, AI-powered applications, and business growth systems engineered for ambitious brands.",
+    description: "Our mission is to help African businesses scale with AI, automation, and modern digital infrastructure.",
     siteName: "Toss Enterprise",
   },
   twitter: {
     card: "summary_large_image",
     title: "Toss Enterprise | Premium Growth Infrastructure",
-    description: "Premium websites, AI-powered applications, and business growth systems engineered for ambitious brands.",
+    description: "Our mission is to help African businesses scale with AI, automation, and modern digital infrastructure.",
   },
 };
 

@@ -122,8 +122,8 @@ export default function Hero() {
           style={{ color: "rgba(250,247,242,0.6)" }}
           {...fadeUp(4)}
         >
-          Premium websites, AI-powered applications, and business growth systems
-          engineered for ambitious brands ready to dominate their market.
+          Our mission is to help African businesses scale with AI, automation,
+          and modern digital infrastructure.
         </motion.p>
 
         {/* CTAs */}
@@ -160,12 +160,12 @@ export default function Hero() {
         >
           {[
             { value: "50+", label: "Systems Built" },
-            { value: "$2M+", label: "Revenue Generated" },
+            { value: "Mission", label: "Help African businesses scale with AI, automation, and modern digital infrastructure" },
             { value: "100%", label: "Client Satisfaction" },
           ].map((s) => (
-            <div key={s.label} className="text-center">
+            <div key={s.label} className="text-center max-w-xs">
               <div className="font-display text-3xl md:text-4xl font-semibold gold-text">{s.value}</div>
-              <div className="text-xs tracking-[0.25em] uppercase mt-1" style={{ color: "rgba(250,247,242,0.45)" }}>
+              <div className="text-[11px] tracking-[0.25em] uppercase mt-1 leading-snug" style={{ color: "rgba(250,247,242,0.45)" }}>
                 {s.label}
               </div>
             </div>

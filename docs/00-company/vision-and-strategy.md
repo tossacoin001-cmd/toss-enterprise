@@ -6,6 +6,10 @@ This document owns what Toss Enterprise is, who it serves, and how it wins.
 
 Give growing businesses in Nigeria and West Africa the online visibility, automation, and AI leverage that big companies take for granted, at a price a small business can pay.
 
+## Vision
+
+Build Africa's leading AI Growth Operating System. The long-term arc (declared 2026-07-06): transform Toss Enterprise from a service agency into a scalable AI platform company. Nigeria and West Africa remain the beachhead market; the platform ambition is the destination, not the current state.
+
 ## What the company is
 
 Toss Enterprise is an AI-native digital company with three engines:
@@ -15,6 +19,10 @@ Toss Enterprise is an AI-native digital company with three engines:
 3. **AI engine** (leverage): internal agents in [agents/](../../agents) that do the repetitive work of engines 1 and 2 (audits, outreach, reporting), so one operator can run like a team. See [../03-ai/ai-operating-system.md](../03-ai/ai-operating-system.md).
 
 The strategy: services fund the products, products generate the data and case studies, agents compress the cost of both.
+
+## Business Operating System
+
+The company runs on six engines (declared 2026-07-06): **Brand**, **Growth**, **Delivery**, **Operations**, **AI Core**, and the **Knowledge Brain**. The three revenue engines above map into them: services are Delivery, Visibility OS drives Growth, agents are the AI Core, and the Knowledge Brain is `docs/` itself. Brand and Operations engine charters are Planned; each engine gets a definition in this document as it is stood up.
 
 ## Who it serves
 

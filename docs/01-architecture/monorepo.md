@@ -4,30 +4,55 @@ This document owns the approved repository structure and the rules for changing 
 
 ## Approved structure
 
+The full Enterprise OS layout, adopted in [ADR-0008](decisions/0008-enterprise-os-top-level-layout.md). Every folder exists with a README that states its scope; that README is the folder's minimum content.
+
 ```
 toss-enterprise/
 ├── AGENTS.md              # canonical AI and contributor contract
 ├── CLAUDE.md              # Claude Code addendum, points to AGENTS.md
 ├── README.md              # human entry point
-├── apps/                  # deployable user-facing applications
-│   ├── website/           # @toss/website      (live)
-│   └── visibility-os/     # @toss/visibility-os (in development)
-├── agents/                # headless AI workers, one package each
-│   ├── visibility-agent/  # @toss/visibility-agent (planned)
-│   ├── sales-agent/       # @toss/sales-agent      (planned)
-│   └── audit-agent/       # @toss/audit-agent      (planned)
-├── packages/              # shared code, created on first real need
-│   # planned: ui/ (shared components), config/ (tsconfig, eslint), core/ (types, utils)
+├── PROJECT.md             # at-a-glance current state
+├── CHANGELOG.md           # notable changes, newest first
+├── AI_CONTEXT.md          # quick orientation card for AI tools, subordinate to AGENTS.md
+├── ENGINEERING.md         # entry point routing to docs/02-engineering/
+├── STACK.md               # the stack at a glance, one row per ADR
+├── ROADMAP.md             # entry point routing to the planning docs
+├── .github/               # CI/CD workflows and repo meta
+├── .claude/               # Claude Code project configuration
+├── .ai/                   # per-tool AI assistant configuration (non-Claude tools)
+├── apps/                  # deployable user-facing applications (workspace)
+│   ├── website/           # @toss/website       (live)
+│   └── visibility-os/     # @toss/visibility-os (live, scoring MVP)
+├── packages/              # shared importable code (workspace)
+├── services/              # backend services and workers (workspace once first service lands)
+├── agents/                # headless AI workers, one package each (workspace)
+│   ├── visibility-agent/  # @toss/visibility-agent (scaffold)
+│   ├── sales-agent/       # @toss/sales-agent      (scaffold)
+│   └── audit-agent/       # @toss/audit-agent      (scaffold)
+├── knowledge/             # machine-usable knowledge for agents
+├── architecture/          # diagram and schema artifact sources
+├── blueprints/            # reusable solution blueprints
 ├── docs/                  # the Knowledge Brain (see docs/README.md)
+├── database/              # cross-app data operations
+├── workflows/             # business automation exports (n8n and similar)
+├── mcp/                   # MCP servers and configuration
+├── prompts/               # shared prompt library
+├── tools/                 # internal CLIs you run
+├── scripts/               # maintenance and one-off scripts
+├── configs/               # shared non-package configuration
+├── monitoring/            # dashboards as code, alert rules
+├── analytics/             # tracking plans, event schemas
+├── security/              # policy as code, scanning, threat models
+├── testing/               # cross-app test infrastructure
+├── deployment/            # release and environment artifacts
+├── infrastructure/        # infrastructure as code
+├── research/              # spikes and research notes
 ├── assets/                # branding and portfolio files
-│   └── branding/
-├── automation/            # planned: n8n and other workflow exports
-├── clients/               # planned: non-code client records
-├── templates/             # planned: reusable starter templates
-└── .github/workflows/     # CI/CD
+├── templates/             # reusable starter templates
+└── roadmap/               # forward planning artifacts
 ```
 
-`automation/`, `clients/`, and `templates/` are approved but intentionally not created until they have content. Empty folders are noise.
+`automation/` was superseded by `workflows/` and `clients/` was dropped from the approved list (records will live under `knowledge/` when they exist); both per ADR-0008. `docs/` remains the only home for decisions, standards, and narrative knowledge; the artifact folders link into it, never restate it.
 
 ## Naming rules
 
