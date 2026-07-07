@@ -9,6 +9,7 @@ This blueprint owns the design of the AI organization: which AI workers exist, w
 | `agents/visibility-agent` | Runs visibility audits and scoring enrichment | Scaffold, spec in [docs/03-ai/agents/](../docs/03-ai/agents/) |
 | `agents/sales-agent` | Outreach and follow-up drafting | Scaffold |
 | `agents/audit-agent` | Website and repo audits | Scaffold |
+| Role agents (ceo, coo, cfo, cto, marketing, research, seo, support, automation) | Executive and functional support, one charter each in [agents/](../agents/README.md) | Charters only |
 | Toss AI chat assistant | Customer-facing assistant (Initial MVP) | Planned |
 | Coding assistants (Claude Code and others) | Build and maintain the repo under [AGENTS.md](../AGENTS.md) | Live |
 
