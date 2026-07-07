@@ -14,7 +14,7 @@ export default function Home() {
       <section className="py-24 px-6" style={{ background: "#092D22" }}>
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-10">
           <AnimatedCounter value="50+" label="Systems Built" delay={0} />
-          <AnimatedCounter value="$2M+" label="Revenue Generated" delay={150} />
+          <AnimatedCounter value="Mission" label="Help African businesses scale with AI, automation, and modern digital infrastructure" delay={150} />
           <AnimatedCounter value="30+" label="Happy Clients" delay={300} />
           <AnimatedCounter value="100%" label="Satisfaction" delay={450} />
         </div>
