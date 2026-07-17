@@ -235,7 +235,16 @@ export default function Home() {
           >
             Toss Enterprise
           </a>
-          . Questions? WhatsApp +234 808 791 9951
+          . Questions?{" "}
+          <a
+            href="https://wa.me/2348087919951"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-4"
+            style={{ color: "#C9A96E" }}
+          >
+            WhatsApp +234 808 791 9951
+          </a>
         </p>
       </footer>
     </div>

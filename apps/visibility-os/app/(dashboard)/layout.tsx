@@ -1,10 +1,21 @@
 "use client";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Closes the mobile drawer on route change (e.g. browser back/forward),
+  // as a backstop to the onClose passed into each nav link. Adjusting state
+  // during render, not an effect, avoids an extra post-commit render pass.
+  const [lastPathname, setLastPathname] = useState(pathname);
+  if (pathname !== lastPathname) {
+    setLastPathname(pathname);
+    setSidebarOpen(false);
+  }
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "#07160E" }}>
@@ -26,7 +37,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <Sidebar />
+        <Sidebar onClose={() => setSidebarOpen(false)} />
       </div>
 
       {/* Main content */}

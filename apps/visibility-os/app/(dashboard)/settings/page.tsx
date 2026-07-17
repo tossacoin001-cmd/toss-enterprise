@@ -1,7 +1,6 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import Link from "next/link";
 
 const PLAN_DETAILS = {
   FREE: {
@@ -127,17 +126,12 @@ export default async function SettingsPage() {
               className="p-4 min-w-[180px]"
               style={{ background: "rgba(201,169,110,0.05)", border: "1px solid rgba(201,169,110,0.15)" }}
             >
-              <div className="text-xs mb-2" style={{ color: "rgba(250,247,242,0.5)" }}>
-                Upgrade to {planDetails.nextPlan}
+              <div className="text-xs mb-1" style={{ color: "rgba(250,247,242,0.5)" }}>
+                Early access
               </div>
-              <Link
-                href="https://toss-enterprise.com/pricing"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-gold block text-center py-2 text-[10px] tracking-[0.15em] uppercase"
-              >
-                Upgrade →
-              </Link>
+              <p className="text-[11px] leading-relaxed" style={{ color: "rgba(250,247,242,0.4)" }}>
+                Everything is free while we build. Paid plans are coming soon.
+              </p>
             </div>
           )}
         </div>

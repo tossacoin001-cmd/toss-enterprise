@@ -9,6 +9,7 @@ import {
   Settings,
   LogOut,
   Zap,
+  X,
 } from "lucide-react";
 
 const navItems = [
@@ -19,7 +20,11 @@ const navItems = [
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  onClose?: () => void;
+}
+
+export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -46,7 +51,7 @@ export default function Sidebar() {
             />
           </svg>
         </div>
-        <div>
+        <div className="flex-1 min-w-0">
           <div
             className="font-display text-base font-light leading-none"
             style={{ color: "#FAF7F2" }}
@@ -57,6 +62,16 @@ export default function Sidebar() {
             Toss Enterprise
           </div>
         </div>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="lg:hidden p-1.5 shrink-0"
+            style={{ color: "rgba(250,247,242,0.5)" }}
+            aria-label="Close menu"
+          >
+            <X size={18} />
+          </button>
+        )}
       </div>
 
       {/* Nav */}
@@ -80,7 +95,7 @@ export default function Sidebar() {
                   </span>
                 </div>
               ) : (
-                <Link href={href} className={`sidebar-item ${isActive ? "active" : ""}`}>
+                <Link href={href} className={`sidebar-item ${isActive ? "active" : ""}`} onClick={onClose}>
                   <Icon size={15} strokeWidth={1.5} />
                   <span>{label}</span>
                 </Link>
@@ -114,7 +129,7 @@ export default function Sidebar() {
 
       {/* Sign out */}
       <div style={{ borderTop: "1px solid rgba(201,169,110,0.08)" }}>
-        <Link href="/" className="sidebar-item w-full">
+        <Link href="/" className="sidebar-item w-full" onClick={onClose}>
           <LogOut size={15} strokeWidth={1.5} />
           <span>Sign Out</span>
         </Link>
