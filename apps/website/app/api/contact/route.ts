@@ -17,6 +17,18 @@ function isValidPayload(json: unknown): json is ContactPayload {
   return typeof name === "string" && name.trim().length > 0 && typeof email === "string" && email.includes("@");
 }
 
+/** Escapes text dropped into the notification email's HTML body, so a
+ * submitted name or message can't inject markup (e.g. links, images,
+ * spoofed content) into what staff read as a plain lead notification. */
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export async function POST(req: Request) {
   let json: unknown;
   try {
@@ -59,12 +71,12 @@ export async function POST(req: Request) {
     replyTo: submission.email,
     subject: `New strategy call request: ${submission.name}${submission.business ? ` (${submission.business})` : ""}`,
     html: `
-      <p><strong>Name:</strong> ${submission.name}</p>
-      <p><strong>Business:</strong> ${submission.business ?? "—"}</p>
-      <p><strong>Email:</strong> ${submission.email}</p>
-      <p><strong>Service:</strong> ${submission.service ?? "—"}</p>
-      <p><strong>Budget:</strong> ${submission.budget ?? "—"}</p>
-      <p><strong>Message:</strong><br/>${(submission.message ?? "—").replace(/\n/g, "<br/>")}</p>
+      <p><strong>Name:</strong> ${escapeHtml(submission.name)}</p>
+      <p><strong>Business:</strong> ${submission.business ? escapeHtml(submission.business) : "—"}</p>
+      <p><strong>Email:</strong> ${escapeHtml(submission.email)}</p>
+      <p><strong>Service:</strong> ${submission.service ? escapeHtml(submission.service) : "—"}</p>
+      <p><strong>Budget:</strong> ${submission.budget ? escapeHtml(submission.budget) : "—"}</p>
+      <p><strong>Message:</strong><br/>${submission.message ? escapeHtml(submission.message).replace(/\n/g, "<br/>") : "—"}</p>
     `,
   });
 

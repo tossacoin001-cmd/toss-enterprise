@@ -21,6 +21,7 @@ This document owns the security baseline for all Toss Enterprise systems. Incide
 - No raw SQL (standing rule from AGENTS.md); Prisma and Supabase clients only.
 - API routes return generic error messages; details go to server logs only.
 - Payment amounts and links are never constructed from client input; Flutterwave links are fixed, server-known values.
+- Server-side fetches of a user-supplied URL (Visibility OS's website audit, `apps/visibility-os/lib/scoring.ts`) must stay guarded against SSRF on every hop, not just the initial URL: `isSafeExternalUrl` rejects private/loopback hostnames by string, `resolvesToPublicAddress` DNS-resolves the hostname and rejects it if any resolved address is private (closes the DNS-rebinding gap a string check alone leaves open), and redirects are followed manually (`safeFetch`, not `fetch`'s `redirect: "follow"`) so a public URL can't 302 straight to an internal address. Any new outbound fetch of user input needs the same treatment.
 
 ## Dependency and supply chain
 

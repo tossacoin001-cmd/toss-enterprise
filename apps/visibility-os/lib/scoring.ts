@@ -1,4 +1,6 @@
 import "server-only";
+import { lookup } from "node:dns/promises";
+import net from "node:net";
 
 /**
  * Visibility scoring v1: deterministic checks that need no external API keys.
@@ -59,10 +61,66 @@ export function isSafeExternalUrl(raw: string): URL | null {
   return url;
 }
 
+function isPrivateIp(ip: string): boolean {
+  const type = net.isIP(ip);
+  if (type === 4) {
+    const [a, b] = ip.split(".").map(Number);
+    return a === 10 || a === 127 || a === 0 || (a === 169 && b === 254) ||
+      (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168);
+  }
+  if (type === 6) {
+    const lower = ip.toLowerCase();
+    if (lower === "::1") return true;
+    if (lower.startsWith("fe80:")) return true;
+    if (/^f[cd][0-9a-f]{2}:/.test(lower)) return true;
+    const mapped = lower.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
+    return mapped ? isPrivateIp(mapped[1]) : false;
+  }
+  return true;
+}
+
+/** DNS-resolves a hostname and confirms every address is public, closing the
+ * rebinding gap a hostname-string check alone leaves open (a public-looking
+ * name that resolves to an internal IP). */
+async function resolvesToPublicAddress(hostname: string): Promise<boolean> {
+  try {
+    const records = await lookup(hostname, { all: true, verbatim: true });
+    return records.length > 0 && records.every((r) => !isPrivateIp(r.address));
+  } catch {
+    return false;
+  }
+}
+
 type WebsiteCheck = {
   score: number;
   actionItems: ActionItemDraft[];
 };
+
+/** Fetches with redirects followed manually so each hop is re-validated
+ * against the same SSRF guard as the original URL; `redirect: "follow"`
+ * would otherwise let a public URL redirect straight to an internal one. */
+async function safeFetch(initialUrl: URL, maxRedirects = 5): Promise<Response> {
+  let current = initialUrl;
+  for (let i = 0; i <= maxRedirects; i++) {
+    if (!(await resolvesToPublicAddress(current.hostname))) {
+      throw new Error("unsafe destination");
+    }
+    const res = await fetch(current.toString(), {
+      redirect: "manual",
+      signal: AbortSignal.timeout(8000),
+      headers: { "user-agent": "TossVisibilityBot/1.0 (+https://toss-enterprise.vercel.app)" },
+    });
+    const location = res.headers.get("location");
+    if (res.status >= 300 && res.status < 400 && location) {
+      const next = isSafeExternalUrl(new URL(location, current).toString());
+      if (!next) throw new Error("unsafe destination");
+      current = next;
+      continue;
+    }
+    return res;
+  }
+  throw new Error("too many redirects");
+}
 
 async function checkWebsite(rawUrl: string | null): Promise<WebsiteCheck> {
   const actionItems: ActionItemDraft[] = [];
@@ -103,11 +161,7 @@ async function checkWebsite(rawUrl: string | null): Promise<WebsiteCheck> {
   let finalUrl = url;
 
   try {
-    const res = await fetch(url.toString(), {
-      redirect: "follow",
-      signal: AbortSignal.timeout(8000),
-      headers: { "user-agent": "TossVisibilityBot/1.0 (+https://toss-enterprise.vercel.app)" },
-    });
+    const res = await safeFetch(url);
     const elapsedMs = Date.now() - startedAt;
     finalUrl = new URL(res.url || url.toString());
 

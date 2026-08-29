@@ -4,7 +4,7 @@
 
 ## Repo in one paragraph
 
-pnpm + Turborepo monorepo for Toss Enterprise. `apps/website` is the live marketing site (Next.js 16, Tailwind 4, Supabase, Flutterwave payments). `apps/visibility-os` is the Visibility OS SaaS (Next.js 16, Clerk auth, Prisma on Postgres). `agents/` holds standalone AI agent packages (Anthropic SDK + Vercel AI SDK), currently manifests only. `docs/` is the Knowledge Brain and single source of truth.
+pnpm + Turborepo monorepo for Toss Enterprise. `apps/website` is the live marketing site (Next.js 16, Tailwind 4, MongoDB, Resend, Flutterwave payments). `apps/visibility-os` is the Visibility OS SaaS (Next.js 16, Clerk auth, Prisma on Postgres). `agents/` holds standalone AI agent packages (Anthropic SDK + Vercel AI SDK), currently manifests only. `docs/` is the Knowledge Brain and single source of truth.
 
 ## Commands
 
@@ -23,7 +23,7 @@ The quality gate (type-check, lint, build across all packages) must stay green; 
 
 - Next.js 16 (App Router) + React 19 + TypeScript 5.8 + Tailwind CSS 4
 - Auth: Clerk (visibility-os). Payments: Flutterwave payment links (website)
-- Data: Supabase (website), Prisma + Postgres (visibility-os)
+- Data: MongoDB via the driver (website contact submissions), Prisma + Postgres (visibility-os)
 - AI: Anthropic Claude via `@anthropic-ai/sdk` and Vercel AI SDK (agents)
 - Build: Turborepo. Deploy: Vercel, one project per app. Node >= 20
 
