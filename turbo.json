@@ -5,7 +5,8 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "env": ["RESEND_API_KEY", "CONTACT_NOTIFY_EMAIL", "CONTACT_FROM_EMAIL", "MONGODB_URI", "MONGODB_DB"]
     },
     "dev": {
       "cache": false,
