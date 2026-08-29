@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useClerk } from "@clerk/nextjs";
 import {
   LayoutDashboard,
   Building2,
@@ -26,6 +27,13 @@ interface SidebarProps {
 
 export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { signOut } = useClerk();
+
+  function handleSignOut() {
+    onClose?.();
+    signOut(() => router.push("/"));
+  }
 
   return (
     <aside
@@ -129,10 +137,10 @@ export default function Sidebar({ onClose }: SidebarProps) {
 
       {/* Sign out */}
       <div style={{ borderTop: "1px solid rgba(201,169,110,0.08)" }}>
-        <Link href="/" className="sidebar-item w-full" onClick={onClose}>
+        <button onClick={handleSignOut} className="sidebar-item w-full">
           <LogOut size={15} strokeWidth={1.5} />
           <span>Sign Out</span>
-        </Link>
+        </button>
       </div>
     </aside>
   );
