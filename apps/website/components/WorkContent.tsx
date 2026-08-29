@@ -214,6 +214,33 @@ const projects: Project[] = [
     accentColor: "rgba(20,82,64,0.18)",
     url: "https://visibility-os-jade.vercel.app/",
   },
+  {
+    id: "ultiu",
+    number: "08",
+    client: "ULTIU",
+    location: "Direct-to-Consumer · Global",
+    category: "Revenue Website",
+    status: "live",
+    headline: "Custom Sport-Gear Commerce Platform with a Live Paddle Designer",
+    tagline: "Unlock the U within.",
+    description:
+      "ULTIU sells pickleball gear built around one signature feature: a real-time paddle customizer where players choose face, edge, and grip colors, add a graphic from the library or upload their own, and place a name on the face, watching the exact paddle they'll receive update live as they design it. We built the full commerce platform behind that: catalog, cart, Stripe checkout, customer accounts, wishlists, and order tracking, with tiered Base, Custom, and Premium pricing that adjusts automatically to what a shopper designs.",
+    deliverables: [
+      "Real-time visual paddle customizer (color, graphic & text)",
+      "Drag, zoom & rotate placement with live design proof capture",
+      "Tiered Base / Custom / Premium pricing engine",
+      "Full commerce stack: catalog, cart & Stripe checkout",
+      "Customer accounts, wishlist & order tracking",
+    ],
+    results: [
+      { value: "Live", label: "Visual Customizer" },
+      { value: "3", label: "Pricing Tiers" },
+      { value: "Full", label: "Commerce Platform" },
+    ],
+    tags: ["Revenue Website", "Custom E-Commerce", "Product Customizer", "Stripe", "Next.js"],
+    accentColor: "rgba(20,83,45,0.18)",
+    url: "https://ultiusport.com",
+  },
 ];
 
 function fadeUp(i = 0) {
@@ -233,6 +260,7 @@ export default function WorkContent() {
       : projects.filter((p) => p.category === activeCategory);
 
   const liveCount = projects.filter((p) => p.status === "live").length;
+  const comingSoonCount = projects.filter((p) => p.status === "coming-soon").length;
 
   return (
     <>
@@ -286,7 +314,8 @@ export default function WorkContent() {
             {...fadeUp(2)}
           >
             {liveCount} live systems across fashion, food, luxury, sports, and beyond,
-            engineered to perform from day one. Plus two more in the build.
+            engineered to perform from day one.
+            {comingSoonCount > 0 && ` Plus ${comingSoonCount} more in the build.`}
           </motion.p>
 
           {/* Stats strip */}
@@ -297,7 +326,7 @@ export default function WorkContent() {
           >
             {[
               { value: `${liveCount}`, label: "Live Builds" },
-              { value: "2", label: "In Development" },
+              ...(comingSoonCount > 0 ? [{ value: `${comingSoonCount}`, label: "In Development" }] : []),
               { value: "4", label: "Countries Served" },
               { value: "100%", label: "Client Retention" },
             ].map((s) => (

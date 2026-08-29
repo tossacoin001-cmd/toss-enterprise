@@ -38,6 +38,14 @@ const featuredWork = [
     statLabel: "Worldwide Shipping",
     badge: "Live",
   },
+  {
+    client: "ULTIU",
+    category: "Revenue Website",
+    headline: "Custom Sport-Gear Platform with a Real-Time Paddle Designer",
+    stat: "Live",
+    statLabel: "Visual Customizer",
+    badge: "Live",
+  },
 ];
 
 const whyUs = [

@@ -56,6 +56,17 @@ const projects = [
     stat: { value: "MRR", label: "Recurring Revenue" },
     color: "#2a1a4a",
   },
+  {
+    number: "06",
+    client: "ULTIU",
+    category: "Revenue Website",
+    headline: "Custom Sport-Gear Platform with a Real-Time Paddle Designer",
+    description:
+      "A direct-to-consumer pickleball gear brand built around a live visual customizer: shoppers design their exact paddle in colors, graphics, and text, and watch the literal product they'll receive update in real time.",
+    tags: ["Next.js", "Medusa.js", "Stripe", "Product Customizer"],
+    stat: { value: "Live", label: "Visual Customizer" },
+    color: "#14532d",
+  },
 ];
 
 export default function Portfolio() {
@@ -72,7 +83,7 @@ export default function Portfolio() {
               </span>
             </div>
             <h2 className="font-display text-5xl md:text-6xl font-light leading-[1.1]" style={{ color: "#FAF7F2" }}>
-              Five Elite
+              Six Elite
               <br />
               <span className="gold-text italic">Systems.</span>
             </h2>
