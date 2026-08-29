@@ -20,13 +20,26 @@ export default function ContactForm() {
   });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    setLoading(false);
-    setSubmitted(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error("request failed");
+      setSubmitted(true);
+    } catch {
+      setError("Something went wrong sending your message. Please reach out via WhatsApp or email instead.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputStyle = {
@@ -189,6 +202,12 @@ export default function ContactForm() {
             onBlur={blurStyle}
           />
         </div>
+
+        {error && (
+          <p className="text-xs" style={{ color: "#E27D60" }}>
+            {error}
+          </p>
+        )}
 
         <button
           type="submit"

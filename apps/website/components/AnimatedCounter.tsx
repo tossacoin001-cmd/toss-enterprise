@@ -26,11 +26,7 @@ export default function AnimatedCounter({ value, label, delay = 0 }: Props) {
   const isDecimal = hasNumber && value.includes(".");
 
   useEffect(() => {
-    if (!inView) return;
-    if (!hasNumber) {
-      setDisplay(valueOnly);
-      return;
-    }
+    if (!inView || !hasNumber) return;
 
     const timer = setTimeout(() => {
       const duration = 1800;
@@ -57,12 +53,14 @@ export default function AnimatedCounter({ value, label, delay = 0 }: Props) {
     }, delay);
 
     return () => clearTimeout(timer);
-  }, [inView, numeric, delay, isDecimal, hasNumber, valueOnly]);
+  }, [inView, numeric, delay, isDecimal, hasNumber]);
+
+  const shown = hasNumber ? display : valueOnly;
 
   return (
     <div ref={ref} className="text-center">
       <div className="font-display text-4xl md:text-5xl lg:text-6xl font-semibold gold-text tabular-nums">
-        {prefix}{display}{suffix}
+        {prefix}{shown}{suffix}
       </div>
       <div className="text-xs tracking-[0.25em] uppercase mt-2" style={{ color: "rgba(250,247,242,0.45)" }}>
         {label}

@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://toss-enterprise.vercel.app"),
   title: "Toss Enterprise | Premium Growth Infrastructure",
   description:
     "Our mission is to help African businesses scale with AI, automation, and modern digital infrastructure. Premium websites, AI applications, and business automation systems for ambitious brands worldwide.",
@@ -17,11 +18,13 @@ export const metadata: Metadata = {
     title: "Toss Enterprise | Premium Growth Infrastructure",
     description: "Our mission is to help African businesses scale with AI, automation, and modern digital infrastructure.",
     siteName: "Toss Enterprise",
+    images: [{ url: "/logo-full.png", width: 1254, height: 1254, alt: "Toss Enterprise" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Toss Enterprise | Premium Growth Infrastructure",
     description: "Our mission is to help African businesses scale with AI, automation, and modern digital infrastructure.",
+    images: ["/logo-full.png"],
   },
 };
 
