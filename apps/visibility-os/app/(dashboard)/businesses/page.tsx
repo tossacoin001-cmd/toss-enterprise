@@ -146,12 +146,13 @@ export default async function BusinessesPage() {
                   <span className="text-[10px]" style={{ color: "rgba(250,247,242,0.35)" }}>
                     {openItems} open task{openItems !== 1 ? "s" : ""}
                   </span>
-                  <button
+                  <Link
+                    href={`/businesses/${biz.id}`}
                     className="text-[10px] tracking-wide uppercase"
                     style={{ color: "#C9A96E" }}
                   >
                     View Details →
-                  </button>
+                  </Link>
                 </div>
               </div>
             );
