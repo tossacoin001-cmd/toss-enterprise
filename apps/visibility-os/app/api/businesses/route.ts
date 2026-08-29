@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
@@ -45,12 +45,24 @@ export async function POST(req: Request) {
   }
 
   try {
-    // Ensure the user record exists (normally mirrored by the Clerk webhook).
-    await db.user.upsert({
-      where: { id: userId },
-      update: {},
-      create: { id: userId, email: "" },
-    });
+    // Ensure the user record exists (normally mirrored by the Clerk webhook,
+    // but that delivery can lag behind this request). email is @unique, so a
+    // shared placeholder like "" collides across users the moment a second
+    // person hits this fallback before their webhook lands; fetch the real
+    // address (or fall back to a per-user placeholder) instead.
+    const existingUser = await db.user.findUnique({ where: { id: userId }, select: { id: true } });
+    if (!existingUser) {
+      const clerkUser = await currentUser();
+      const email = clerkUser?.emailAddresses[0]?.emailAddress ?? `${userId}@pending.toss-enterprise.local`;
+      const name = [clerkUser?.firstName, clerkUser?.lastName].filter(Boolean).join(" ") || null;
+      // upsert, not create: a concurrent double-submit from this same
+      // first-time user would otherwise race two creates against the same id.
+      await db.user.upsert({
+        where: { id: userId },
+        update: {},
+        create: { id: userId, email, name },
+      });
+    }
 
     const count = await db.business.count({ where: { userId } });
     if (count >= 3) {
