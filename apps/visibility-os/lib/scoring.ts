@@ -1,19 +1,21 @@
 import "server-only";
+import { getPlaceDetails } from "./google-places";
 
 /**
- * Visibility scoring v1: deterministic checks that need no external API keys.
- * Weights: Google presence 40%, website 40%, social 20%.
- * The visibility-agent (docs/03-ai/agents/visibility-agent.md) will extend
- * this with live Google and social data on a schedule; the same subscore
- * fields are reused, so the dashboard needs no changes when it does.
- * Decision record: docs/01-architecture/decisions/0007.
+ * Visibility scoring v1: deterministic checks, now backed by a real Google
+ * Places lookup for the Google subscore. Weights: Google presence 40%,
+ * website 40%, social 20%. The visibility-agent
+ * (docs/03-ai/agents/visibility-agent.md) will extend this with a scheduled
+ * cadence and social data later; the same subscore fields are reused, so the
+ * dashboard needs no changes when it does.
+ * Decision records: docs/01-architecture/decisions/0007, 0009.
  */
 
 export type BusinessInput = {
   name: string;
   category: string | null;
   city: string | null;
-  googleBizUrl: string | null;
+  googlePlaceId: string | null;
   phoneNumber: string | null;
   website: string | null;
   instagramHandle: string | null;
@@ -31,6 +33,8 @@ export type ScoreResult = {
   googleScore: number;
   socialScore: number;
   websiteScore: number;
+  reviewCount: number;
+  avgRating: number;
   actionItems: ActionItemDraft[];
 };
 
@@ -203,17 +207,33 @@ async function checkWebsite(rawUrl: string | null): Promise<WebsiteCheck> {
   return { score, actionItems };
 }
 
-function checkGooglePresence(b: BusinessInput): WebsiteCheck {
+type GoogleCheck = WebsiteCheck & { reviewCount: number; avgRating: number };
+
+async function checkGooglePresence(
+  b: BusinessInput,
+  sessionToken: string | undefined,
+  previous: { reviewCount: number; avgRating: number } | undefined
+): Promise<GoogleCheck> {
   const actionItems: ActionItemDraft[] = [];
   let score = 0;
+  let reviewCount = previous?.reviewCount ?? 0;
+  let avgRating = previous?.avgRating ?? 0;
 
-  if (b.googleBizUrl && b.googleBizUrl.trim() !== "") {
+  if (b.googlePlaceId) {
+    // Presence is scored on a verified selection, not on whether this live
+    // fetch succeeds: a transient Google outage must never tank a score.
     score += 60;
+
+    const details = await getPlaceDetails(b.googlePlaceId, sessionToken);
+    if (details) {
+      reviewCount = details.userRatingCount ?? reviewCount;
+      avgRating = details.rating ?? avgRating;
+    }
   } else {
     actionItems.push({
       title: "Claim your Google Business Profile",
       description:
-        "You have no Google Business Profile on file. It is free, and it is how customers nearby find you on Google Maps and Search. This is the single highest-impact fix on this list.",
+        "You have no Google Business Profile connected. Search for your business above and select it from Google. This is the single highest-impact fix on this list.",
       priority: "HIGH",
       category: "Google",
     });
@@ -234,7 +254,7 @@ function checkGooglePresence(b: BusinessInput): WebsiteCheck {
   if (b.category && b.category.trim() !== "") score += 10;
   if (b.city && b.city.trim() !== "") score += 10;
 
-  return { score, actionItems };
+  return { score, actionItems, reviewCount, avgRating };
 }
 
 function checkSocialPresence(b: BusinessInput): WebsiteCheck {
@@ -267,10 +287,14 @@ function checkSocialPresence(b: BusinessInput): WebsiteCheck {
   return { score, actionItems };
 }
 
-export async function scoreBusiness(b: BusinessInput): Promise<ScoreResult> {
+export async function scoreBusiness(
+  b: BusinessInput,
+  placeSessionToken?: string,
+  previousGoogleData?: { reviewCount: number; avgRating: number }
+): Promise<ScoreResult> {
   const [website, google, social] = await Promise.all([
     checkWebsite(b.website),
-    Promise.resolve(checkGooglePresence(b)),
+    checkGooglePresence(b, placeSessionToken, previousGoogleData),
     Promise.resolve(checkSocialPresence(b)),
   ]);
 
@@ -286,6 +310,8 @@ export async function scoreBusiness(b: BusinessInput): Promise<ScoreResult> {
     googleScore: google.score,
     socialScore: social.score,
     websiteScore: website.score,
+    reviewCount: google.reviewCount,
+    avgRating: google.avgRating,
     actionItems,
   };
 }

@@ -21,7 +21,7 @@ const createBusinessSchema = z.object({
     .regex(/^[A-Za-z]{2,3}$/, "Country must be a 2-3 letter code")
     .transform((v) => v.toUpperCase())
     .default("NG"),
-  googleBizUrl: optionalTrimmed(300),
+  googlePlaceId: optionalTrimmed(120),
   phoneNumber: optionalTrimmed(30),
   website: optionalTrimmed(300),
   instagramHandle: optionalTrimmed(60).transform((v) => (v ? v.replace(/^@/, "") : v)),

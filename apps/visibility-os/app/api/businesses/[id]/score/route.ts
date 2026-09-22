@@ -6,7 +6,7 @@ import { scoreBusiness } from "@/lib/scoring";
 export const maxDuration = 30;
 
 export async function POST(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { userId } = await auth();
@@ -14,13 +14,29 @@ export async function POST(
 
   const { id } = await params;
 
+  let placeSessionToken: string | undefined;
   try {
-    const business = await db.business.findFirst({ where: { id, userId } });
+    const body = await req.json();
+    if (typeof body?.placeSessionToken === "string") placeSessionToken = body.placeSessionToken;
+  } catch {
+    // No body (e.g. the dashboard's plain "Re-run Audit" call) - fine, no session to bundle.
+  }
+
+  try {
+    const business = await db.business.findFirst({
+      where: { id, userId },
+      include: { visibilityScores: { orderBy: { recordedAt: "desc" }, take: 1 } },
+    });
     if (!business) {
       return NextResponse.json({ error: "Business not found" }, { status: 404 });
     }
 
-    const result = await scoreBusiness(business);
+    const previous = business.visibilityScores[0];
+    const result = await scoreBusiness(
+      business,
+      placeSessionToken,
+      previous ? { reviewCount: previous.reviewCount, avgRating: previous.avgRating } : undefined
+    );
 
     const [score] = await db.$transaction([
       db.visibilityScore.create({
@@ -30,6 +46,8 @@ export async function POST(
           googleScore: result.googleScore,
           socialScore: result.socialScore,
           websiteScore: result.websiteScore,
+          reviewCount: result.reviewCount,
+          avgRating: result.avgRating,
         },
       }),
       // Regenerate open recommendations; in-progress and done items are kept.

@@ -35,6 +35,7 @@ There is no staging environment; Vercel previews serve that role.
 | `POSTGRES_PRISMA_URL` | **Yes** | Pooled Postgres URL (queries), set by the Vercel + Supabase integration |
 | `POSTGRES_URL_NON_POOLING` | **Yes** | Non-pooling Postgres URL (migrations), set by the integration; migrations hang on the transaction pooler |
 | `CLERK_WEBHOOK_SECRET` | **Yes** | Clerk webhook signature verification. **Not yet set in production**; add it when the webhook endpoint is created in the Clerk dashboard |
+| `GOOGLE_PLACES_API_KEY` | **Yes** | Places API (New): onboarding business search and live review/rating data. See [ADR-0009](../01-architecture/decisions/0009-google-places-api-for-live-google-data.md) |
 
 The Supabase integration also injects other `POSTGRES_*`/`SUPABASE_*` variables the app does not read. Clerk sign-in/up URL config vars exist in production. `ANTHROPIC_API_KEY` is present in production for future agent use; nothing reads it yet.
 

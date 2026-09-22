@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, ChevronRight, Building2, MapPin, Link, AtSign } from "lucide-react";
+import GooglePlaceSearch, { type SelectedPlace } from "./GooglePlaceSearch";
 
 const CATEGORIES = [
   "Restaurant / Food & Beverage",
@@ -38,11 +39,11 @@ export default function OnboardingForm() {
     category: "",
     city: "",
     country: "NG",
-    googleBizUrl: "",
     phoneNumber: "",
     website: "",
     instagramHandle: "",
   });
+  const [place, setPlace] = useState<SelectedPlace | null>(null);
 
   function update(key: string, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -72,7 +73,7 @@ export default function OnboardingForm() {
       const res = await fetch("/api/businesses", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, googlePlaceId: place?.placeId ?? null }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -81,11 +82,17 @@ export default function OnboardingForm() {
       setDone(true);
       // Run the first audit before landing on the dashboard, so the user
       // arrives to a real score instead of an empty shell. Capped so a slow
-      // website check can never trap them on this screen.
+      // website check can never trap them on this screen. The place search's
+      // session token rides along so this Details call closes out (and bills
+      // as) the same session as the autocomplete keystrokes above.
       const { business } = await res.json().catch(() => ({ business: null }));
       if (business?.id) {
         await Promise.race([
-          fetch(`/api/businesses/${business.id}/score`, { method: "POST" }).catch(() => null),
+          fetch(`/api/businesses/${business.id}/score`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ placeSessionToken: place?.sessionToken }),
+          }).catch(() => null),
           new Promise((resolve) => setTimeout(resolve, 15000)),
         ]);
       }
@@ -250,21 +257,7 @@ export default function OnboardingForm() {
                 Optional: add what you have. We&apos;ll audit these for you.
               </p>
               <div className="space-y-3">
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(201,169,110,0.4)" strokeWidth="1.5">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                      <circle cx="12" cy="10" r="3" />
-                    </svg>
-                  </div>
-                  <input
-                    className="input-field pl-8"
-                    placeholder="Google Business URL (optional)"
-                    value={form.googleBizUrl}
-                    onChange={(e) => update("googleBizUrl", e.target.value)}
-                    autoFocus
-                  />
-                </div>
+                <GooglePlaceSearch selected={place} onSelect={setPlace} />
                 <div className="relative">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                     <AtSign size={14} style={{ color: "rgba(201,169,110,0.4)" }} />

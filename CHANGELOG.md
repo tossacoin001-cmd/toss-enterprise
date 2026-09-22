@@ -2,6 +2,10 @@
 
 Notable changes to the Toss Enterprise OS, newest first. The detailed record is the Conventional Commit history; this file only keeps the milestones.
 
+## 2026-09-22
+
+- Visibility OS: real Google data at onboarding. The free-text Google URL field is replaced with a Places API (New) search; the Google subscore now requires a verified `googlePlaceId`, and `reviewCount`/`avgRating` are populated from live Google data instead of always reading 0 ([ADR-0009](docs/01-architecture/decisions/0009-google-places-api-for-live-google-data.md)).
+
 ## 2026-07-06
 
 - Architecture pack created in `architecture/`: ten numbered blueprints mapping the current system to the target AI Growth OS (sprint goal 1).
