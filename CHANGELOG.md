@@ -2,6 +2,10 @@
 
 Notable changes to the Toss Enterprise OS, newest first. The detailed record is the Conventional Commit history; this file only keeps the milestones.
 
+## 2026-09-23
+
+- Visibility OS: weekly re-score cron and digest email. Every business is re-scored weekly via a Vercel Cron job, and every owner gets an email every week regardless of whether anything changed: delta-led when something moved, top-open-action-item-led when it didn't ([ADR-0010](docs/01-architecture/decisions/0010-weekly-rescore-cron-and-digest.md)). New shared `@toss/email` package (Resend), extracted from the website's contact-form notifier at its second occurrence.
+
 ## 2026-09-22
 
 - Visibility OS: real Google data at onboarding. The free-text Google URL field is replaced with a Places API (New) search; the Google subscore now requires a verified `googlePlaceId`, and `reviewCount`/`avgRating` are populated from live Google data instead of always reading 0 ([ADR-0009](docs/01-architecture/decisions/0009-google-places-api-for-live-google-data.md)).

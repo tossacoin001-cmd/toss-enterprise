@@ -27,10 +27,10 @@ The monorepo currently lies about itself. Fix the lies before building on them. 
 ## Phase 1: Foundations for product work
 
 - [x] Prisma baseline migration committed for visibility-os; `prisma migrate deploy` runs in its Vercel build command. Datasource reads the Supabase integration envs directly (ADR-0007). (2026-07-06)
-- [x] Pulled forward from Phase 2, per founder direction to make the product real: deterministic scoring v1 in-app (website/Google-presence/social checks, action item generation, onboarding auto-audit, dashboard audit buttons). Live Google data and scheduled re-scoring remain Phase 2 agent work. (2026-07-06)
+- [x] Pulled forward from Phase 2, per founder direction to make the product real: deterministic scoring v1 in-app (website/Google-presence/social checks, action item generation, onboarding auto-audit, dashboard audit buttons). (2026-07-06). Live Google data (ADR-0009) and scheduled re-scoring (ADR-0010) also shipped in-app rather than waiting on the agent package, 2026-09-22/23.
 - [ ] Test rig: Vitest wired at the workspace level, first tests per the priority list in [02-engineering/testing-strategy.md](02-engineering/testing-strategy.md) (webhook verification first).
 - [ ] Minimum monitoring per [05-operations/monitoring.md](05-operations/monitoring.md): uptime checks on both production URLs, deploy notifications on.
-- [ ] Verify and record: RLS status on website Supabase tables, `CLERK_WEBHOOK_SECRET` present in production env, which domains attach to which Vercel projects (open questions in security.md and infrastructure.md).
+- [ ] Verify and record: RLS status on website Supabase tables, `CLERK_WEBHOOK_SECRET` present in production env, which domains attach to which Vercel projects (open questions in security.md and infrastructure.md). **No longer just hygiene**: ADR-0010's weekly digest email reads `User.email` from the database and has no one to send to until this is configured; a one-time backfill script (`apps/visibility-os/scripts/backfill-user-emails.ts`) fixes users who signed up before it was.
 - [x] Add Zod to visibility-os and validate `/api/businesses` input with it; GET no longer swallows DB errors. (2026-07-06)
 - [ ] CI hardening: `pnpm audit` (or equivalent) step, enable GitHub secret push protection, consider Renovate/Dependabot for dependency updates.
 - [ ] Create `packages/config` (shared tsconfig/eslint) and move apps onto it; create `packages/core` only when the first shared runtime code appears.
@@ -40,13 +40,14 @@ The monorepo currently lies about itself. Fix the lies before building on them. 
 
 ## Phase 2: Visibility OS scoring MVP (first real product milestone)
 
-- [ ] Decide the scoring formula and weights; record it in [04-product/visibility-os.md](04-product/visibility-os.md) (it currently blocks everything downstream).
-- [ ] ADR for the Google data source (cost per business is the deciding factor).
-- [ ] Implement `@toss/visibility-agent` to its spec ([03-ai/agents/visibility-agent.md](03-ai/agents/visibility-agent.md)): deterministic scoring, model-written action items, attributable runs, budget caps.
-- [ ] Dashboard renders real scores and action items; onboarding triggers the first score.
-- [ ] Agent hosting ADR (cron on which platform) and deployment.
+- [x] Decide the scoring formula and weights; record it in [04-product/visibility-os.md](04-product/visibility-os.md). (2026-07-06, ADR-0007; Google subscore moved from profile-completeness to a verified Places lookup 2026-09-22, ADR-0009)
+- [x] ADR for the Google data source (cost per business is the deciding factor). (2026-09-22, ADR-0009)
+- [x] Dashboard renders real scores and action items; onboarding triggers the first score. (2026-07-06)
+- [x] Weekly re-score cron and digest email, in-app rather than waiting on the agent package below. (2026-09-23, ADR-0010)
+- [ ] Implement `@toss/visibility-agent` to its spec ([03-ai/agents/visibility-agent.md](03-ai/agents/visibility-agent.md)): deterministic scoring, model-written action items, attributable runs, budget caps. Scoring itself now lives in-app (ADR-0007, ADR-0010); this remains for the model-written-copy and attributable-runs parts of the spec.
+- [ ] Agent hosting ADR (cron on which platform) and deployment. Not needed for the weekly re-score, which runs as an in-app Vercel Cron (ADR-0010); still open if/when the agent package above is built.
 
-**Exit criteria:** a real business onboards and sees a real score with useful action items within minutes, unattended.
+**Exit criteria:** a real business onboards and sees a real score with useful action items within minutes, unattended. **Met**, 2026-09-23.
 
 ## Phase 3: Funnel and measurement
 

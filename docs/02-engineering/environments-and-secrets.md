@@ -25,6 +25,7 @@ There is no staging environment; Vercel previews serve that role.
 | `NEXT_PUBLIC_FLUTTERWAVE_URL` | No | Payment page override (has code default) |
 | `NEXT_PUBLIC_WHATSAPP` | No | WhatsApp number override (has code default) |
 | `NEXT_PUBLIC_EMAIL` | No | Contact email override (has code default) |
+| `RESEND_API_KEY` | **Yes** | Via [`@toss/email`](../../packages/email/README.md); contact-form notification emails |
 
 ### apps/visibility-os (`@toss/visibility-os`)
 
@@ -36,6 +37,8 @@ There is no staging environment; Vercel previews serve that role.
 | `POSTGRES_URL_NON_POOLING` | **Yes** | Non-pooling Postgres URL (migrations), set by the integration; migrations hang on the transaction pooler |
 | `CLERK_WEBHOOK_SECRET` | **Yes** | Clerk webhook signature verification. **Not yet set in production**; add it when the webhook endpoint is created in the Clerk dashboard |
 | `GOOGLE_PLACES_API_KEY` | **Yes** | Places API (New): onboarding business search and live review/rating data. See [ADR-0009](../01-architecture/decisions/0009-google-places-api-for-live-google-data.md) |
+| `CRON_SECRET` | **Yes** | Authorizes Vercel's call to `/api/cron/weekly-score`; the route 401s without it. See [ADR-0010](../01-architecture/decisions/0010-weekly-rescore-cron-and-digest.md) |
+| `RESEND_API_KEY` | **Yes** | Via [`@toss/email`](../../packages/email/README.md); weekly digest email. Same account as `apps/website`'s key |
 
 The Supabase integration also injects other `POSTGRES_*`/`SUPABASE_*` variables the app does not read. Clerk sign-in/up URL config vars exist in production. `ANTHROPIC_API_KEY` is present in production for future agent use; nothing reads it yet.
 

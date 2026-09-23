@@ -107,6 +107,9 @@ importers:
       '@prisma/client':
         specifier: ^6.0.0
         version: 6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
+      '@toss/email':
+        specifier: workspace:*
+        version: link:../../packages/email
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -165,12 +168,18 @@ importers:
       tailwindcss:
         specifier: ^4
         version: 4.3.2
+      tsx:
+        specifier: ^4.19.0
+        version: 4.23.0
       typescript:
         specifier: ^5
         version: 5.9.3
 
   apps/website:
     dependencies:
+      '@toss/email':
+        specifier: workspace:*
+        version: link:../../packages/email
       framer-motion:
         specifier: ^12.40.0
         version: 12.42.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -189,9 +198,6 @@ importers:
       react-dom:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
-      resend:
-        specifier: ^6.25.0
-        version: 6.25.0
     devDependencies:
       '@tailwindcss/postcss':
         specifier: ^4
@@ -219,6 +225,19 @@ importers:
         version: 4.3.2
       typescript:
         specifier: ^5
+        version: 5.9.3
+
+  packages/email:
+    dependencies:
+      resend:
+        specifier: ^6.25.0
+        version: 6.25.0
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.20.0
+      typescript:
+        specifier: ^5.8.0
         version: 5.9.3
 
 packages:
