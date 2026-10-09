@@ -151,12 +151,13 @@ export default async function SettingsPage() {
         <p className="text-xs mb-4" style={{ color: "rgba(250,247,242,0.4)" }}>
           Your data is stored securely and never sold to third parties.
         </p>
-        <button
+        <a
+          href={`mailto:tossacoin001@gmail.com?subject=${encodeURIComponent("Data deletion request")}&body=${encodeURIComponent(`Please delete my Visibility OS account and data.\n\nAccount ID: ${userId}`)}`}
           className="text-xs"
           style={{ color: "rgba(239,68,68,0.6)" }}
         >
           Request data deletion →
-        </button>
+        </a>
       </div>
     </div>
   );

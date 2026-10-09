@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { sendEmail } from "@toss/email";
 import { db } from "@/lib/db";
 import { runAndPersistScore } from "@/lib/run-weekly-score";
+import { isDeliverableEmail } from "@/lib/utils";
 import { computeDelta, buildDigestEmail, type DigestEntry } from "@/lib/weekly-digest";
 
 // GET routes can otherwise be statically optimized by Next.js; this must
@@ -83,7 +84,7 @@ export async function GET(req: Request) {
   let emailsSent = 0;
   let skippedNoEmail = 0;
   for (const { email, entries } of byUser.values()) {
-    if (!email) {
+    if (!isDeliverableEmail(email)) {
       skippedNoEmail += 1;
       continue;
     }

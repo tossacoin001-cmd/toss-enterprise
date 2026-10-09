@@ -1,4 +1,6 @@
 import "server-only";
+import { lookup } from "node:dns/promises";
+import net from "node:net";
 import { getPlaceDetails } from "./google-places";
 
 /**
@@ -63,10 +65,85 @@ export function isSafeExternalUrl(raw: string): URL | null {
   return url;
 }
 
+function isPrivateIp(ip: string): boolean {
+  const type = net.isIP(ip);
+  if (type === 4) {
+    const [a, b] = ip.split(".").map(Number);
+    return a === 10 || a === 127 || a === 0 || (a === 169 && b === 254) ||
+      (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168);
+  }
+  if (type === 6) {
+    const lower = ip.toLowerCase();
+    if (lower === "::1") return true;
+    if (lower.startsWith("fe80:")) return true;
+    if (/^f[cd][0-9a-f]{2}:/.test(lower)) return true;
+    const mapped = lower.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
+    return mapped ? isPrivateIp(mapped[1]) : false;
+  }
+  return true;
+}
+
+/** DNS-resolves a hostname and confirms every address is public, closing the
+ * rebinding gap a hostname-string check alone leaves open (a public-looking
+ * name that resolves to an internal IP). */
+async function resolvesToPublicAddress(hostname: string): Promise<boolean> {
+  try {
+    const records = await lookup(hostname, { all: true, verbatim: true });
+    return records.length > 0 && records.every((r) => !isPrivateIp(r.address));
+  } catch {
+    return false;
+  }
+}
+
 type WebsiteCheck = {
   score: number;
   actionItems: ActionItemDraft[];
 };
+
+/** Fetches with redirects followed manually so each hop is re-validated
+ * against the same SSRF guard as the original URL; `redirect: "follow"`
+ * would otherwise let a public URL redirect straight to an internal one.
+ * One 8s budget covers every hop and the body read, so a redirect chain
+ * cannot multiply the timeout and starve the weekly cron's 60s limit. */
+async function safeFetch(initialUrl: URL, maxRedirects = 5): Promise<Response> {
+  const signal = AbortSignal.timeout(8000);
+  let current = initialUrl;
+  for (let i = 0; i <= maxRedirects; i++) {
+    if (!(await resolvesToPublicAddress(current.hostname))) {
+      throw new Error("unsafe destination");
+    }
+    const res = await fetch(current.toString(), {
+      redirect: "manual",
+      signal,
+      headers: { "user-agent": "TossVisibilityBot/1.0 (+https://toss-enterprise.vercel.app)" },
+    });
+    const location = res.headers.get("location");
+    if (res.status >= 300 && res.status < 400 && location) {
+      const next = isSafeExternalUrl(new URL(location, current).toString());
+      if (!next) throw new Error("unsafe destination");
+      current = next;
+      continue;
+    }
+    return res;
+  }
+  throw new Error("too many redirects");
+}
+
+/** Content of the first `<meta name="...">` tag with this name, or null if
+ * absent. Parses attributes instead of pattern-matching the tag, so unquoted
+ * values (`name=viewport`, common in minified HTML) and content-before-name
+ * ordering are recognised; a regex miss here becomes a false HIGH-priority
+ * action item for the owner. */
+function metaContent(html: string, name: string): string | null {
+  for (const [tag] of html.matchAll(/<meta\b[^>]*>/gi)) {
+    const attrs = new Map<string, string>();
+    for (const m of tag.matchAll(/([^\s"'<>\/=]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/g)) {
+      attrs.set(m[1].toLowerCase(), m[2] ?? m[3] ?? m[4] ?? "");
+    }
+    if (attrs.get("name")?.toLowerCase() === name) return attrs.get("content") ?? "";
+  }
+  return null;
+}
 
 async function checkWebsite(rawUrl: string | null): Promise<WebsiteCheck> {
   const actionItems: ActionItemDraft[] = [];
@@ -107,11 +184,7 @@ async function checkWebsite(rawUrl: string | null): Promise<WebsiteCheck> {
   let finalUrl = url;
 
   try {
-    const res = await fetch(url.toString(), {
-      redirect: "follow",
-      signal: AbortSignal.timeout(8000),
-      headers: { "user-agent": "TossVisibilityBot/1.0 (+https://toss-enterprise.vercel.app)" },
-    });
+    const res = await safeFetch(url);
     const elapsedMs = Date.now() - startedAt;
     finalUrl = new URL(res.url || url.toString());
 
@@ -156,7 +229,7 @@ async function checkWebsite(rawUrl: string | null): Promise<WebsiteCheck> {
       });
     }
 
-    if (/<meta[^>]+name=["']description["'][^>]+content=["'][^"']{20,}/i.test(html)) {
+    if ((metaContent(html, "description")?.trim().length ?? 0) >= 20) {
       score += 15;
     } else {
       actionItems.push({
@@ -168,7 +241,7 @@ async function checkWebsite(rawUrl: string | null): Promise<WebsiteCheck> {
       });
     }
 
-    if (/<meta[^>]+name=["']viewport["']/i.test(html)) {
+    if (metaContent(html, "viewport") !== null) {
       score += 10;
     } else {
       actionItems.push({

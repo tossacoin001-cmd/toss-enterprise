@@ -1,16 +1,20 @@
 /**
  * One-time fix for users who signed up before CLERK_WEBHOOK_SECRET was
  * configured in production: the lazy user-upsert in
- * app/api/businesses/route.ts left their `email` column blank. Run once,
+ * app/api/businesses/route.ts left their `email` column blank (or, after
+ * the 2026-10-08 fix, set to a per-user placeholder when Clerk had none). Run once,
  * after the webhook is wired up, via `pnpm backfill-emails` (loads
  * .env.local via Node's --env-file flag, see package.json). Not part of
  * any ongoing code path.
  */
 import { clerkClient } from "@clerk/nextjs/server";
 import { db } from "../lib/db";
+import { PENDING_EMAIL_DOMAIN } from "../lib/utils";
 
 async function main() {
-  const blankUsers = await db.user.findMany({ where: { email: "" } });
+  const blankUsers = await db.user.findMany({
+    where: { OR: [{ email: "" }, { email: { endsWith: `@${PENDING_EMAIL_DOMAIN}` } }] },
+  });
   if (blankUsers.length === 0) {
     console.log("No users with a blank email. Nothing to backfill.");
     return;

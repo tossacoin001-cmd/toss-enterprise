@@ -2,6 +2,10 @@
 
 Notable changes to the Toss Enterprise OS, newest first. The detailed record is the Conventional Commit history; this file only keeps the milestones.
 
+## 2026-10-08
+
+- Visibility OS launch readiness: merged the 2026-08-29 audit fixes (no onboarding crash from a shared blank email, SSRF-safe redirect handling in the website audit, Sign Out ends the Clerk session, `middleware.ts` renamed to `proxy.ts`, business detail page). Website audit no longer gives false "not mobile-friendly" or "no search description" results on minified HTML, and a redirect chain can no longer exceed the audit's 8s budget.
+
 ## 2026-09-23
 
 - Visibility OS: weekly re-score cron and digest email. Every business is re-scored weekly via a Vercel Cron job, and every owner gets an email every week regardless of whether anything changed: delta-led when something moved, top-open-action-item-led when it didn't ([ADR-0010](docs/01-architecture/decisions/0010-weekly-rescore-cron-and-digest.md)). New shared `@toss/email` package (Resend), extracted from the website's contact-form notifier at its second occurrence.

@@ -1,10 +1,10 @@
 # @toss/visibility-os
 
-Visibility OS: a SaaS that scores a local business's online visibility (Google Business Profile, social presence, website) and turns the gaps into an action plan. **In development; Phase 1 (auth, onboarding, dashboard shell, data model) is deployed. Scoring is not implemented yet.**
+Visibility OS: a SaaS that scores a local business's online visibility (Google Business Profile, social presence, website) and turns the gaps into an action plan. **In development.** Auth, onboarding, dashboard, scoring v1 with live Google data, and the weekly re-score and digest exist; billing does not. Current state is owned by the product doc below.
 
 - Product doc (owns the loop, current state, pending decisions): [docs/04-product/visibility-os.md](../../docs/04-product/visibility-os.md)
 - Data model: [prisma/schema.prisma](prisma/schema.prisma), registry in [docs/01-architecture/data-architecture.md](../../docs/01-architecture/data-architecture.md)
-- Scoring will be computed by [@toss/visibility-agent](../../agents/visibility-agent/) (spec-first, not implemented)
+- Scoring runs in-app in [lib/scoring.ts](lib/scoring.ts) (ADR-0007, ADR-0009); [@toss/visibility-agent](../../agents/visibility-agent/) is future work
 - Env vars: see [.env.example](.env.example); note the webhook secret is `CLERK_WEBHOOK_SECRET`
 
 ```bash
