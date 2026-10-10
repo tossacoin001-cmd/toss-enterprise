@@ -20,7 +20,7 @@ describe("NW: Visitors with no website yet (the gap we fill)", () => {
   it.todo("NW-01 [P0] [S3] A visitor with no website can start from name, city and category, plus optional social handles and WhatsApp number, with no sign-up");
   it.todo("NW-02 [P0] [S1] The no-website result leads with Start here: ordered plain-language steps, free steps first, each with effort and time");
   it.todo("NW-03 [P0] [S1] Only verifiable items are scored; anything not checkable yet (Google listing before the key exists) shows as connect later, never as a failure");
-  it.todo("NW-04 [P1] [S1] An Instagram handle is verified (exists, followers, posts) when reachable; otherwise it says could not check");
+  it.todo("NW-04 [P1] [S1] Instagram, Facebook and TikTok handles are accepted as self-reported and shown as link only (cannot be verified from Vercel); X, YouTube and LinkedIn handles are verified when the platform answers 200 vs 404");
   it.todo("NW-05 [P1] [S1] WhatsApp numbers validate for +234, 0803, 0701 style, with spaces and dashes, and international numbers; a wa.me link is built");
   it.todo("NW-06 [P1] [S3] Individuals and personal brands are supported, with wording that fits (no customers walk in)");
   it.todo("NW-07 [P1] [S4] The result offers the agency's entry website offer as one option, as a WhatsApp link prefilled with the scan summary, never the only option");
@@ -39,7 +39,7 @@ describe("EN: Scan engine checks", () => {
   it.todo("EN-09 [P1] [S1] Nigerian phone formats in text (+234 803, 0803, 0701, spaced, dashed, in brackets) are found and not confused with years or prices");
   it.todo("EN-10 [P1] [S1] WhatsApp links recognised: wa.me, api.whatsapp.com, whatsapp://, with text parameters");
   it.todo("EN-11 [P1] [S1] Social link extraction ignores share buttons and tracking parameters and picks the owner's profile, not a post");
-  it.todo("EN-12 [P0] [S0 / S1] Social verification: Instagram exists (profile data), X and YouTube 404, Facebook, TikTok and LinkedIn link-only; any block is could not check; never says an Instagram account does not exist");
+  it.todo("EN-12 [P0] [S1] Social verification from Vercel (S0 result): YouTube, X and LinkedIn answer 404 for a missing account and 200 for a real one; Instagram, Facebook and TikTok serve a login page to servers, so they are link only; any block is could not check; never says an Instagram, Facebook or TikTok account does not exist");
   it.todo("EN-13 [P1] [S1] robots.txt and sitemap.xml detection ignores HTML pages served with status 200 (soft 404)");
   it.todo("EN-14 [P1] [S1] Certificate days left read; under 30 days and expired are flagged; nothing read on plain http");
   it.todo("EN-16 [P0] [S1] Pages built with JavaScript (almost no HTML text, many scripts) get a may-be-built-with-JavaScript note and softened absence findings");
@@ -51,6 +51,7 @@ describe("EN: Scan engine checks", () => {
   it.todo("EN-22 [P1] [S4] The same site produces non-contradicting facts in the scan and in the TE-OS Audit agent");
   it.todo("EN-23 [P0] [S2] A total budget of 30s: partial results are returned with the unfinished checks marked could not check");
   it.todo("EN-24 [P1] [S2] Parallel checks stay within function memory and concurrency limits");
+  it.todo("EN-25 [P0] [S1] Head tags are found even when the head is huge: read until the end of the head section (up to 2 MB), then up to 500 KB of body. A 1.2 MB page with its title after 500 KB must not be reported as having no title (S0 finding on richmonddentalng.com)");
 });
 
 describe("SC: Scoring", () => {
@@ -149,7 +150,7 @@ describe("EC: Ecosystem: Visibility OS, agency website, TE-OS and services", () 
 });
 
 describe("RL: Reliability and performance", () => {
-  it.todo("RL-01 [P0] [S0 / S3] End-to-end scan p90 of 20s or less from Vercel for the 30-site sample");
+  it.todo("RL-01 [P0] [S3] End-to-end scan p90 of 20s or less from Vercel (S0 measured page responses p50 0.3s, p90 1.3s, max 4.9s)");
   it.todo("RL-02 [P1] [S5] 50 simultaneous scans: no errors and memory stays within limits");
   it.todo("RL-03 [P0] [S2] Function timeout mid-scan: the row is marked incomplete, the page shows partial results, no stuck spinner");
   it.todo("RL-04 [P1] [S3] Polling stops on completion and backs off; no request storms");

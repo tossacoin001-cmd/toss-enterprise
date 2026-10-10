@@ -17,3 +17,5 @@ node --test limiter.test.mjs # abuse-limit decision rules
 ```
 
 Results depend on the network you run them from. These were run from Lagos on a slow, flaky connection; a Vercel datacenter will differ, which is why the plan starts with a spike on a Vercel preview.
+
+`s0-vercel-results.txt` holds the raw rows from the slice S0 probe, which ran during a Vercel build (the script was a throwaway on a branch that has been deleted) and was read back through Vercel's build-log API. One JSON object per line: `SPIKE_META`, `SPIKE_SITE`, `SPIKE_SOCIAL`.

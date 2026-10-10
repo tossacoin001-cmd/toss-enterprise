@@ -1,9 +1,9 @@
 # Visibility OS: full test specification
 
-- **Status:** Written 2026-10-10, before any instant-scan code. 150 tests specified; 11 already run for real; 4 verified once by hand; 135 waiting for their build slice.
+- **Status:** Written 2026-10-10, before any instant-scan code. 151 tests specified; 11 already run for real; 4 verified once by hand; 136 waiting for their build slice.
 - **Plan this tests:** [visibility-os-instant-scan-plan.md](visibility-os-instant-scan-plan.md). Test rules: [testing-strategy.md](../02-engineering/testing-strategy.md).
-- **Where the tests live:** the 11 running tests are in `apps/visibility-os/tests/` (`scoring.test.ts`, `scoring-properties.test.ts`, `ssrf.test.ts`, and others). The other 139 are written as `it.todo` in [instant-scan.todo.test.ts](../../apps/visibility-os/tests/instant-scan.todo.test.ts): they show up as "todo" on every run and become real tests in their slice. Both this page and that file are generated from one list so they cannot disagree.
-- **Rule:** a slice is not done until its rows are real, passing tests. 77 of the 150 are P0 (must pass before launch).
+- **Where the tests live:** the 11 running tests are in `apps/visibility-os/tests/` (`scoring.test.ts`, `scoring-properties.test.ts`, `ssrf.test.ts`, and others). The other 140 are written as `it.todo` in [instant-scan.todo.test.ts](../../apps/visibility-os/tests/instant-scan.todo.test.ts): they show up as "todo" on every run and become real tests in their slice. Both this page and that file are generated from one list so they cannot disagree.
+- **Rule:** a slice is not done until its rows are real, passing tests. 78 of the 151 are P0 (must pass before launch).
 
 ## How to read the tables
 
@@ -27,7 +27,7 @@
 | Score | 1,024 input combinations; 500 before/after pairs; repeat runs | Always 0 to 100, never drops after a fix, deterministic |
 | Security | 33 dangerous addresses against the real code | 23 blocked; **10 requested**: odd ports (6379, 22, 25, 8443), credentials in URLs, reserved ranges (100.64/10, 198.18/15, 192.0.0.0/24, multicast, broadcast). Encoded as SE-02 to SE-04 |
 | Whole journey | Sign-up, onboarding, audit, dashboard, re-run, sign-out, weekly job, unsubscribe, health | Passed against a real local database (2026-10-09) |
-| Still to run | Vercel-network probe (slice S0) | Preview built; waiting for the founder to open two links |
+| Vercel network (S0) | 18 sites and 12 social probes run during a Vercel build, read back through the API | 13 of 15 real sites loaded (the other two: a genuine 500 and a bot block); page responses p50 0.3s, p90 1.3s, max 4.9s; dead domain and expired certificate classified correctly; YouTube, X and LinkedIn real vs missing distinguishable; **Instagram, Facebook, TikTok are not** (login page for servers); one clinic page needs its head read past 500 KB (EN-25). **S0 result: GO** |
 
 ## People and devices to test
 
@@ -61,15 +61,19 @@
 | Payments | Paystack test mode | Step 3 |
 | Devices | Real phones | The founder's phone plus two borrowed |
 
-## Slice S0 go or no-go (the Vercel-network probe)
+## Slice S0: result (2026-10-10): GO, with three changes
 
-The probe is a throwaway route on branch `spike/instant-scan-s0`. Go if **all** are true; otherwise change the plan before building:
+The probe ran inside a Vercel build (same cloud and region family as the functions), read back through the build log. Raw rows: [research/instant-scan-experiments/s0-vercel-results.txt](../../research/instant-scan-experiments/s0-vercel-results.txt).
 
-1. At least 80% of the 14 sample sites return a page from Vercel within 15s (today from Lagos: about 70% at 20s).
-2. The dead domain returns a domain-missing error and the expired-certificate site returns a certificate error (classification works from Vercel).
-3. Instagram real and made-up accounts differ in the page data, **or** we drop Instagram verification and keep link-only.
-4. X and YouTube still return 200 vs 404.
-5. No platform answers with a block page for the 12 social probes (a block simply downgrades that platform to link-only).
+| Go criterion | Result |
+|---|---|
+| At least 80% of real sites load from Vercel | **Pass**: 13 of 15 (87%). The two misses are a genuine HTTP 500 and a bot block (403) |
+| Dead domain and expired certificate classified | **Pass**: domain missing and certificate expired both identified |
+| Instagram real vs made-up account distinguishable | **Fail**: identical login page. Instagram becomes link only |
+| X and YouTube 200 vs 404 | **Pass** (and LinkedIn also: 200 vs 404, to be confirmed with more handles in S1) |
+| No block pages that break the plan | **Mixed**: Instagram, Facebook and TikTok serve a login page to servers, so they are link only; nothing else blocked |
+
+Changes the plan makes because of S0: (1) Instagram, Facebook and TikTok are self-reported and link only, which changes the no-website path (NW-04); (2) tighter timing is realistic (pages answered in 0.3s at the median) but the 15s ceiling stays for slow Nigerian hosts; (3) read until the end of the head section, not a fixed byte count (EN-25).
 
 ## Exit criteria per slice
 
@@ -104,7 +108,7 @@ The probe is a throwaway route on branch `spike/instant-scan-s0`. Go if **all** 
 | NW-01 | P0 | S3 | e2e | Specified | A visitor with no website can start from name, city and category, plus optional social handles and WhatsApp number, with no sign-up |
 | NW-02 | P0 | S1 | unit + review | Specified | The no-website result leads with Start here: ordered plain-language steps, free steps first, each with effort and time |
 | NW-03 | P0 | S1 | unit | Specified | Only verifiable items are scored; anything not checkable yet (Google listing before the key exists) shows as connect later, never as a failure |
-| NW-04 | P1 | S1 | integration | Specified | An Instagram handle is verified (exists, followers, posts) when reachable; otherwise it says could not check |
+| NW-04 | P1 | S1 | integration | Specified | Instagram, Facebook and TikTok handles are accepted as self-reported and shown as link only (cannot be verified from Vercel); X, YouTube and LinkedIn handles are verified when the platform answers 200 vs 404 |
 | NW-05 | P1 | S1 | unit | Specified | WhatsApp numbers validate for +234, 0803, 0701 style, with spaces and dashes, and international numbers; a wa.me link is built |
 | NW-06 | P1 | S3 | review | Specified | Individuals and personal brands are supported, with wording that fits (no customers walk in) |
 | NW-07 | P1 | S4 | e2e | Specified | The result offers the agency's entry website offer as one option, as a WhatsApp link prefilled with the scan summary, never the only option |
@@ -126,7 +130,7 @@ The probe is a throwaway route on branch `spike/instant-scan-s0`. Go if **all** 
 | EN-09 | P1 | S1 | unit | Specified | Nigerian phone formats in text (+234 803, 0803, 0701, spaced, dashed, in brackets) are found and not confused with years or prices |
 | EN-10 | P1 | S1 | unit | Specified | WhatsApp links recognised: wa.me, api.whatsapp.com, whatsapp://, with text parameters |
 | EN-11 | P1 | S1 | unit | Specified | Social link extraction ignores share buttons and tracking parameters and picks the owner's profile, not a post |
-| EN-12 | P0 | S0 / S1 | integration | Specified | Social verification: Instagram exists (profile data), X and YouTube 404, Facebook, TikTok and LinkedIn link-only; any block is could not check; never says an Instagram account does not exist |
+| EN-12 | P0 | S1 | integration | Specified | Social verification from Vercel (S0 result): YouTube, X and LinkedIn answer 404 for a missing account and 200 for a real one; Instagram, Facebook and TikTok serve a login page to servers, so they are link only; any block is could not check; never says an Instagram, Facebook or TikTok account does not exist |
 | EN-13 | P1 | S1 | unit | Specified | robots.txt and sitemap.xml detection ignores HTML pages served with status 200 (soft 404) |
 | EN-14 | P1 | S1 | integration | Specified | Certificate days left read; under 30 days and expired are flagged; nothing read on plain http |
 | EN-15 | P1 | Now | unit | Running | Speed tiers (4s full, 8s half), labelled as measured from our server and never a headline finding (tests exist) |
@@ -139,6 +143,7 @@ The probe is a throwaway route on branch `spike/instant-scan-s0`. Go if **all** 
 | EN-22 | P1 | S4 | integration | Specified | The same site produces non-contradicting facts in the scan and in the TE-OS Audit agent |
 | EN-23 | P0 | S2 | integration | Specified | A total budget of 30s: partial results are returned with the unfinished checks marked could not check |
 | EN-24 | P1 | S2 | load | Specified | Parallel checks stay within function memory and concurrency limits |
+| EN-25 | P0 | S1 | unit + integration | Specified | Head tags are found even when the head is huge: read until the end of the head section (up to 2 MB), then up to 500 KB of body. A 1.2 MB page with its title after 500 KB must not be reported as having no title (S0 finding on richmonddentalng.com) |
 
 ### SC: Scoring
 
@@ -262,7 +267,7 @@ The probe is a throwaway route on branch `spike/instant-scan-s0`. Go if **all** 
 
 | ID | Pri | When | Method | Status | What must be true |
 |---|---|---|---|---|---|
-| RL-01 | P0 | S0 / S3 | load | Specified | End-to-end scan p90 of 20s or less from Vercel for the 30-site sample |
+| RL-01 | P0 | S3 | load | Specified | End-to-end scan p90 of 20s or less from Vercel (S0 measured page responses p50 0.3s, p90 1.3s, max 4.9s) |
 | RL-02 | P1 | S5 | load | Specified | 50 simultaneous scans: no errors and memory stays within limits |
 | RL-03 | P0 | S2 | integration | Specified | Function timeout mid-scan: the row is marked incomplete, the page shows partial results, no stuck spinner |
 | RL-04 | P1 | S3 | e2e | Specified | Polling stops on completion and backs off; no request storms |
