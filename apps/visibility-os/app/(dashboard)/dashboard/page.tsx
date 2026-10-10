@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/db";
+import { isPlacesConfigured } from "@/lib/google-places";
 import DashboardClient from "./DashboardClient";
 
 async function getUserData(userId: string) {
@@ -126,6 +127,7 @@ export default async function DashboardPage() {
       score={latestScore}
       actionItems={actionItems}
       allBusinesses={user.businesses}
+      googleEnabled={isPlacesConfigured()}
     />
   );
 }

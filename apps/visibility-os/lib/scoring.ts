@@ -100,6 +100,18 @@ type WebsiteCheck = {
   actionItems: ActionItemDraft[];
 };
 
+export const SPEED_FULL_POINTS = 10;
+
+/** Tiered, not a cliff: the check runs from a US server, so a site that is
+ * fast for Nigerian visitors can still take 3 to 4s here. A hard 3s cutoff
+ * flipped the score by 10 points between identical runs and made the weekly
+ * email report drops that were network noise. */
+export function speedPoints(elapsedMs: number): number {
+  if (elapsedMs <= 4000) return SPEED_FULL_POINTS;
+  if (elapsedMs <= 8000) return SPEED_FULL_POINTS / 2;
+  return 0;
+}
+
 /** Fetches with redirects followed manually so each hop is re-validated
  * against the same SSRF guard as the original URL; `redirect: "follow"`
  * would otherwise let a public URL redirect straight to an internal one.
@@ -134,7 +146,7 @@ async function safeFetch(initialUrl: URL, maxRedirects = 5): Promise<Response> {
  * values (`name=viewport`, common in minified HTML) and content-before-name
  * ordering are recognised; a regex miss here becomes a false HIGH-priority
  * action item for the owner. */
-function metaContent(html: string, name: string): string | null {
+export function metaContent(html: string, name: string): string | null {
   for (const [tag] of html.matchAll(/<meta\b[^>]*>/gi)) {
     const attrs = new Map<string, string>();
     for (const m of tag.matchAll(/([^\s"'<>\/=]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/g)) {
@@ -253,12 +265,12 @@ async function checkWebsite(rawUrl: string | null): Promise<WebsiteCheck> {
       });
     }
 
-    if (elapsedMs <= 3000) {
-      score += 10;
-    } else {
+    const speed = speedPoints(elapsedMs);
+    score += speed;
+    if (speed < SPEED_FULL_POINTS) {
       actionItems.push({
         title: "Speed up your website",
-        description: `Your homepage took ${(elapsedMs / 1000).toFixed(1)}s to respond. Slow sites lose visitors before they see anything; aim for under 3 seconds.`,
+        description: `Your homepage took about ${(elapsedMs / 1000).toFixed(0)}s to respond when we checked from our servers. Slow sites lose visitors before they see anything; aim for under 4 seconds.`,
         priority: "LOW",
         category: "Website",
       });
@@ -306,7 +318,7 @@ async function checkGooglePresence(
     actionItems.push({
       title: "Claim your Google Business Profile",
       description:
-        "You have no Google Business Profile connected. Search for your business above and select it from Google. This is the single highest-impact fix on this list.",
+        "You have no Google Business Profile connected. Use \"Connect your Google Business Profile\" on this page to find and link your listing. This is the single highest-impact fix on this list.",
       priority: "HIGH",
       category: "Google",
     });

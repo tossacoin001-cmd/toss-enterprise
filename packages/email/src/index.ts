@@ -15,6 +15,8 @@ export type SendEmailInput = {
   html?: string;
   from?: string;
   replyTo?: string;
+  /** Extra headers, e.g. List-Unsubscribe for bulk mail. */
+  headers?: Record<string, string>;
 };
 
 export type SendEmailResult = { ok: true } | { ok: false; error: string };
@@ -29,6 +31,7 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailResult>
     text: input.text,
     html: input.html,
     replyTo: input.replyTo,
+    headers: input.headers,
   });
 
   if (error) return { ok: false, error: error.message };

@@ -1,6 +1,6 @@
 # ADR-0010: Weekly re-score cron and always-send digest email
 
-- **Status:** Accepted
+- **Status:** Accepted. The Monday schedule and single-pass batching in decision 1 are superseded by [ADR-0011](0011-daily-time-boxed-weekly-run-and-connect-listing.md); everything else stands.
 - **Date:** 2026-09-23
 - **Deciders:** Founder (session following the 2026-09-20 planning session), implemented by AI per that direction
 

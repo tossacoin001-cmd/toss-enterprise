@@ -27,7 +27,7 @@ const steps = [
   { id: 4, label: "Online Presence", icon: Link },
 ];
 
-export default function OnboardingForm() {
+export default function OnboardingForm({ googleEnabled = true }: { googleEnabled?: boolean }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
@@ -242,7 +242,7 @@ export default function OnboardingForm() {
                   <option value="ZA">South Africa</option>
                   <option value="GB">United Kingdom</option>
                   <option value="US">United States</option>
-                  <option value="OTHER">Other</option>
+                  <option value="ZZ">Other</option>
                 </select>
               </div>
             </div>
@@ -257,7 +257,7 @@ export default function OnboardingForm() {
                 Optional: add what you have. We&apos;ll audit these for you.
               </p>
               <div className="space-y-3">
-                <GooglePlaceSearch selected={place} onSelect={setPlace} />
+                <GooglePlaceSearch selected={place} onSelect={setPlace} enabled={googleEnabled} />
                 <div className="relative">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                     <AtSign size={14} style={{ color: "rgba(201,169,110,0.4)" }} />

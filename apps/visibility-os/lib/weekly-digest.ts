@@ -53,7 +53,16 @@ function describeBusiness(entry: DigestEntry): string {
   return `${name}: holding steady at ${total}/100. Nothing left on your action list, nice work.`;
 }
 
-export function buildDigestEmail(entries: DigestEntry[]): { subject: string; text: string } {
+export type DigestLinks = {
+  dashboardUrl: string;
+  /** null when no signing secret is configured; the footer line is then omitted. */
+  unsubscribeUrl: string | null;
+};
+
+export function buildDigestEmail(
+  entries: DigestEntry[],
+  links?: DigestLinks
+): { subject: string; text: string } {
   const subject =
     entries.length === 1
       ? `Your weekly Visibility OS check-in: ${entries[0].name}`
@@ -66,7 +75,12 @@ export function buildDigestEmail(entries: DigestEntry[]): { subject: string; tex
     "",
     ...entries.map(describeBusiness),
     "",
-    "See the full breakdown and your action list in your dashboard.",
+    links
+      ? `See the full breakdown and your action list: ${links.dashboardUrl}`
+      : "See the full breakdown and your action list in your dashboard.",
+    ...(links?.unsubscribeUrl
+      ? ["", "---", `Do not want this weekly email? Unsubscribe: ${links.unsubscribeUrl}`]
+      : []),
   ].join("\n");
 
   return { subject, text };

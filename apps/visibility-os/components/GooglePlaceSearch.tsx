@@ -13,9 +13,11 @@ export type SelectedPlace = {
 interface GooglePlaceSearchProps {
   selected: SelectedPlace | null;
   onSelect: (place: SelectedPlace | null) => void;
+  /** False when the server has no Places key: show a calm "opens soon" state. */
+  enabled?: boolean;
 }
 
-export default function GooglePlaceSearch({ selected, onSelect }: GooglePlaceSearchProps) {
+export default function GooglePlaceSearch({ selected, onSelect, enabled = true }: GooglePlaceSearchProps) {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [open, setOpen] = useState(false);
@@ -57,6 +59,22 @@ export default function GooglePlaceSearch({ selected, onSelect }: GooglePlaceSea
     sessionToken.current = crypto.randomUUID();
     setQuery("");
     onSelect(null);
+  }
+
+  if (!enabled) {
+    return (
+      <div>
+        <input
+          className="input-field opacity-50 cursor-not-allowed"
+          placeholder="Google Business search opens soon"
+          disabled
+          aria-label="Google Business search opens soon"
+        />
+        <p className="text-[11px] mt-1.5" style={{ color: "rgba(250,247,242,0.4)" }}>
+          You can connect your Google listing from your dashboard as soon as it opens.
+        </p>
+      </div>
+    );
   }
 
   if (selected) {

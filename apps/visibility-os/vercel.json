@@ -3,5 +3,5 @@
   "installCommand": "pnpm install",
   "buildCommand": "cd ../../ && pnpm --filter @toss/visibility-os exec prisma migrate deploy && pnpm --filter @toss/visibility-os build",
   "outputDirectory": ".next",
-  "crons": [{ "path": "/api/cron/weekly-score", "schedule": "0 7 * * 1" }]
+  "crons": [{ "path": "/api/cron/weekly-score", "schedule": "0 7 * * *" }]
 }

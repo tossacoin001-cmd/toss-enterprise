@@ -29,6 +29,12 @@ function apiKey(): string | null {
   return key && key.trim() !== "" ? key : null;
 }
 
+/** False until GOOGLE_PLACES_API_KEY is set; the UI then says "opens soon"
+ * instead of offering a search that can never return anything. */
+export function isPlacesConfigured(): boolean {
+  return apiKey() !== null;
+}
+
 export async function autocompletePlaces(
   input: string,
   sessionToken: string

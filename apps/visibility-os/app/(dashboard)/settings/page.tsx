@@ -33,7 +33,8 @@ export default async function SettingsPage() {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  const clerkUser = await currentUser();
+  // Display-only details: a Clerk network blip must not take the page down.
+  const clerkUser = await currentUser().catch(() => null);
 
   type PlanKey = keyof typeof PLAN_DETAILS;
   let dbUser: { plan: PlanKey } | null = null;

@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { notFound, redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import DashboardClient from "@/app/(dashboard)/dashboard/DashboardClient";
+import { isPlacesConfigured } from "@/lib/google-places";
 
 async function getBusiness(userId: string, businessId: string) {
   return db.business.findFirst({
@@ -50,6 +51,7 @@ export default async function BusinessDetailPage({
       score={business.visibilityScores[0] ?? null}
       actionItems={business.actionItems}
       allBusinesses={allBusinesses}
+      googleEnabled={isPlacesConfigured()}
     />
   );
 }

@@ -1,32 +1,8 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { db } from "@/lib/db";
+import { createBusinessSchema } from "@/lib/schemas";
 import { pendingEmail } from "@/lib/utils";
-
-const optionalTrimmed = (max: number) =>
-  z
-    .string()
-    .trim()
-    .max(max)
-    .optional()
-    .transform((v) => (v && v.length > 0 ? v : null));
-
-const createBusinessSchema = z.object({
-  name: z.string().trim().min(2, "Business name is required").max(120),
-  category: optionalTrimmed(80),
-  city: optionalTrimmed(80),
-  country: z
-    .string()
-    .trim()
-    .regex(/^[A-Za-z]{2,3}$/, "Country must be a 2-3 letter code")
-    .transform((v) => v.toUpperCase())
-    .default("NG"),
-  googlePlaceId: optionalTrimmed(120),
-  phoneNumber: optionalTrimmed(30),
-  website: optionalTrimmed(300),
-  instagramHandle: optionalTrimmed(60).transform((v) => (v ? v.replace(/^@/, "") : v)),
-});
 
 export async function POST(req: Request) {
   const { userId } = await auth();

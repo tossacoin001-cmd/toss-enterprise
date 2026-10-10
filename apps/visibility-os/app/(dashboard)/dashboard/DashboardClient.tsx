@@ -4,12 +4,14 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import VisibilityScoreCard from "@/components/VisibilityScoreCard";
+import ConnectGoogleCard from "@/components/ConnectGoogleCard";
 
 type Business = {
   id: string;
   name: string;
   category: string | null;
   city: string | null;
+  googlePlaceId?: string | null;
 };
 
 type Score = {
@@ -34,6 +36,8 @@ interface DashboardClientProps {
   score: Score | null;
   actionItems: ActionItem[];
   allBusinesses: Business[];
+  /** Whether the server has a Google Places key (see isPlacesConfigured). */
+  googleEnabled?: boolean;
 }
 
 function priorityColor(p: string) {
@@ -53,6 +57,7 @@ export default function DashboardClient({
   score,
   actionItems,
   allBusinesses,
+  googleEnabled = false,
 }: DashboardClientProps) {
   const router = useRouter();
   const [auditing, setAuditing] = useState(false);
@@ -161,6 +166,12 @@ export default function DashboardClient({
           ))}
         </motion.div>
       </div>
+
+      {!business.googlePlaceId && (
+        <motion.div {...fadeUp(3)}>
+          <ConnectGoogleCard businessId={business.id} enabled={googleEnabled} />
+        </motion.div>
+      )}
 
       {/* Action items */}
       <motion.div {...fadeUp(3)}>

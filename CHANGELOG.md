@@ -2,6 +2,10 @@
 
 Notable changes to the Toss Enterprise OS, newest first. The detailed record is the Conventional Commit history; this file only keeps the milestones.
 
+## 2026-10-10
+
+- Visibility OS launch readiness, phase A ([ADR-0011](docs/01-architecture/decisions/0011-daily-time-boxed-weekly-run-and-connect-listing.md)). Onboarding no longer fails when no Google listing is picked (or "Other" country); the weekly run is daily and time-boxed so it cannot time out as users grow; the digest links to the dashboard and has a one-click unsubscribe; a Google listing can be connected after onboarding; friendly error pages; speed check is tiered. First test suite in the repo (Vitest, `apps/visibility-os`), with a regression test per bug.
+
 ## 2026-10-08
 
 - Visibility OS launch readiness: merged the 2026-08-29 audit fixes (no onboarding crash from a shared blank email, SSRF-safe redirect handling in the website audit, Sign Out ends the Clerk session, `middleware.ts` renamed to `proxy.ts`, business detail page). Website audit no longer gives false "not mobile-friendly" or "no search description" results on minified HTML, and a redirect chain can no longer exceed the audit's 8s budget.
