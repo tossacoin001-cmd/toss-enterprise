@@ -1,6 +1,6 @@
 # Runbook: database and deploy failures (Visibility OS)
 
-Read this when the Visibility OS site errors, a deploy goes red, or an uptime alert fires. It exists because production deploys failed silently from 2026-08-29 to 2026-10-10: the free Supabase database had paused, the Vercel build runs `prisma migrate deploy` first, so every build failed, and nobody was told.
+Read this when the Visibility OS site errors, a deploy goes red, or an uptime alert fires. It exists because production deploys failed silently from 2026-08-29 to 2026-10-10: the free Supabase database had paused, the Vercel build runs `prisma migrate deploy` first, so every build failed, and nobody was told. Once the database was restored a second, separate failure appeared (the build command did not build `@toss/email`; see the deploy playbook).
 
 ## How the pieces fit
 
@@ -31,8 +31,9 @@ If any of these is not turned on, turn it on before launch. The failure above wa
 
 1. Open the failed deployment from the email or from Vercel, and read the **last 30 lines** of the build log.
 2. `Can't reach database server` or a bare schema-engine error: the database is paused. Follow the playbook above, then **Redeploy**.
-3. A migration error: the migration is the problem, not the database. Do not edit an applied migration; add a new one.
-4. A type or build error: reproduce locally with `pnpm type-check`, `pnpm lint`, `pnpm --filter @toss/visibility-os test`, `pnpm build`.
+3. `Can't resolve '@toss/<package>'` (for example `@toss/email`): the build command is not building the app's workspace packages. Their `dist` folders are gitignored, so they must be built in the same command. `apps/visibility-os/vercel.json` uses `pnpm --filter "@toss/visibility-os..." build` for this, and `tests/vercel-config.test.ts` guards it. Local builds can pass anyway because an old `dist` folder exists, so reproduce with `rm -rf packages/<package>/dist` first.
+4. A migration error: the migration is the problem, not the database. Do not edit an applied migration; add a new one.
+5. A type or build error: reproduce locally with `pnpm type-check`, `pnpm lint`, `pnpm --filter @toss/visibility-os test`, `pnpm build`.
 
 ## Before the first paying customer
 
