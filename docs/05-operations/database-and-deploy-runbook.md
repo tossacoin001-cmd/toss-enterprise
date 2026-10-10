@@ -20,6 +20,10 @@ Read this when the Visibility OS site errors, a deploy goes red, or an uptime al
 
 If any of these is not turned on, turn it on before launch. The failure above was silent because none of them existed.
 
+## Known risk: previews share the production database
+
+The `POSTGRES_*` variables in Vercel apply to Production, Preview and Development alike, and the build runs `prisma migrate deploy`. So **building any branch preview applies its migrations to the production database.** This is harmless while every migration is additive and backward compatible (the 2026-10-09 one was applied to production this way by the preview build), but a destructive migration on any branch would hit production before it is merged. Until previews get their own database: write only additive migrations (add, never drop or rename in the same release), and review the migration folder before pushing a branch. Discovered 2026-10-10.
+
 ## Playbook: site shows errors or /api/health is 503
 
 1. Open the Supabase dashboard for `supabase-champagne-nest`. Status paused: press **Restore** (documented window is 90 days; one Supabase page says one year, so check the dashboard). Status active: go to step 3.

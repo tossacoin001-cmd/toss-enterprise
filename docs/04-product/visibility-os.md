@@ -35,7 +35,7 @@ The product is the loop, not the dashboard. The dashboard only renders the loop'
 
 ## What does not exist yet
 
-- **Free instant scan with no sign-up** (the front door): planned and its assumptions tested, see [visibility-os-instant-scan-plan.md](visibility-os-instant-scan-plan.md). Not built.
+- **Free instant scan with no sign-up** (the front door): planned and its assumptions tested, see [visibility-os-instant-scan-plan.md](visibility-os-instant-scan-plan.md), with a [150-test specification](visibility-os-test-plan.md) written first. Includes a path for businesses with no website yet. Not built.
 - Full review content and drafted/posted replies: Places API Details only returns a review count and rating, not the review list or a reply channel. Needs Google's Business Profile API, which needs manual Google approval, a verified profile active 60+ days, and owner OAuth — an owner-driven external process. Next slice once that access exists.
 - Competitor movement tracking — needs its own data model and UI; a future slice.
 - Paid plans: the `Plan` enum has FREE; paid tiers, limits, and Flutterwave billing are undecided.
