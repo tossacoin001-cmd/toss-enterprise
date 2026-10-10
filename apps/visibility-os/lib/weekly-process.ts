@@ -3,6 +3,7 @@ import type { Prisma } from "@prisma/client";
 import { sendEmail } from "@toss/email";
 import { db } from "./db";
 import { appUrl } from "./app-url";
+import { emailSettings } from "./email-config";
 import { isDeliverableEmail } from "./utils";
 import { unsubscribeUrl } from "./unsubscribe";
 import { runAndPersistScore } from "./run-weekly-score";
@@ -83,7 +84,7 @@ export function dbRunDeps(): RunDeps<DueUser> {
         to: user.email,
         subject,
         text,
-        from: process.env.EMAIL_FROM?.trim() || undefined,
+        ...emailSettings(),
         headers: unsub
           ? { "List-Unsubscribe": `<${unsub}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" }
           : undefined,
