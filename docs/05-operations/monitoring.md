@@ -1,17 +1,17 @@
 # Monitoring and Observability
 
-This document owns how we know the systems are healthy. Honest current state: **nothing is monitored.** If the website goes down, the first alert is a customer on WhatsApp. This doc defines the minimum bar and the target.
+This document owns how we know the systems are healthy. Honest current state: **Visibility OS has an uptime monitor on its database-backed health endpoint (since 2026-10-10); the website and the alert channels below are still to be confirmed.** Until all rows below are on, a failure can reach a customer first. This doc defines the minimum bar and the target.
 
 ## Minimum bar (Phase 1, cheap and sufficient)
 
 | Signal | Tool | Alert |
 |---|---|---|
 | Website up | External uptime check (UptimeRobot free tier or similar) on the production URL | Email + push to operator |
-| Visibility OS up | Same, on the production URL | Same |
+| Visibility OS up | UptimeRobot on `https://tossvisibilityos.com/api/health`, every 5 min. The endpoint reads the database, so a paused or unreachable database alerts too ([runbook](database-and-deploy-runbook.md)) | Same |
 | Deploy failed | Vercel's built-in deploy notifications | Email |
 | CI red on main | GitHub Actions default notifications | Email |
 
-Record the chosen uptime tool and the monitored URLs here when configured.
+Configured: UptimeRobot (free) for Visibility OS, 2026-10-10. Still to confirm and record here: the exact monitored URL, that Vercel's Deployment Failed email is on for the visibility-os project, and a monitor for the website. The 2026-08-29 to 2026-10-10 silent deploy failure happened because none of these existed.
 
 ## Target (as products get real users)
 

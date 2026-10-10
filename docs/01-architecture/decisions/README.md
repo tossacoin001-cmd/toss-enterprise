@@ -24,3 +24,4 @@ Every significant decision gets an ADR: technology choices, structural changes, 
 | [0009](0009-google-places-api-for-live-google-data.md) | Google Places API for live Google data | Accepted |
 | [0010](0010-weekly-rescore-cron-and-digest.md) | Weekly re-score cron and always-send digest | Accepted (schedule superseded by 0011) |
 | [0011](0011-daily-time-boxed-weekly-run-and-connect-listing.md) | Daily time-boxed weekly run, one-click unsubscribe, connect a Google listing later | Accepted |
+| [0012](0012-supabase-free-tier-until-first-paying-customer.md) | Free Supabase tier with monitoring until the first paying customer, then Pro | Accepted |
