@@ -10,7 +10,7 @@ import type { Evidence, FindingCause, Group, PlanStep, Priority } from "./types"
  * that may use certain-sounding words ("does not exist", "has expired").
  */
 
-export type Detail = "broken_link" | "none_found";
+export type Detail = "broken_link" | "none_found" | "not_given";
 
 type Variant = {
   state: Evidence;
@@ -156,6 +156,7 @@ const CATALOG: Record<string, Entry> = {
     variants: [
       found("You are active on social media", "Customers look at Instagram or Facebook to see if a business is real."),
       missing("We found no social media for your business", "Customers look at Instagram or Facebook to see if a business is real.", "Open an account on the platform your customers use, and link it from your website."),
+      { state: "could_not_check", detail: "not_given", certain: false, title: "Tell us your social account", why: "You have not given us a social handle, so we could not check it and it is not counted in your score.", fix: "Add your Instagram, X or LinkedIn handle and check again." },
       { state: "could_not_check", certain: false, title: "We could not confirm your social accounts", why: "We cannot confirm Instagram, Facebook or TikTok accounts, so this is not in your score.", fix: "Link your account from your website, so customers and our check can find it." },
     ],
   },
@@ -174,6 +175,7 @@ const CATALOG: Record<string, Entry> = {
       found("Your social links lead to live profiles", "Customers who tap your social links find real, active pages."),
       missing("We found no social profile to check", "Without a profile there is nothing for customers to follow.", "Open one account and link it from your website.", { detail: "none_found" }),
       missing("A social link on your website leads nowhere", "Visitors who tap it find an empty page, which makes the business look neglected.", "Open each social link on your site and correct the ones that do not work.", { detail: "broken_link" }),
+      { state: "could_not_check", detail: "not_given", certain: false, title: "Add a social handle for us to check", why: "You have not given us a social handle, so we could not check anything and it is not counted in your score.", fix: "Add your handle and check again, or open an account if you do not have one." },
       { state: "could_not_check", certain: false, title: "We could not confirm your social profiles", why: "We cannot confirm Instagram, Facebook or TikTok accounts, so this is not in your score.", fix: "Keep your links up to date, and check them yourself from time to time." },
     ],
   },
