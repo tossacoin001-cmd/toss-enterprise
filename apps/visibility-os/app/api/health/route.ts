@@ -13,10 +13,14 @@ async function handle() {
   const result = await checkHealth(() => db.user.findFirst({ select: { id: true } }), {
     onError: (error) => console.error("[health] database check failed", error),
   });
-  return NextResponse.json(result, {
-    status: result.status === "ok" ? 200 : 503,
-    headers: { "cache-control": "no-store" },
-  });
+  // The body stays minimal; the timing header shows how far the database is.
+  return NextResponse.json(
+    { status: result.status },
+    {
+      status: result.status === "ok" ? 200 : 503,
+      headers: { "cache-control": "no-store", "server-timing": `db;dur=${result.ms}` },
+    }
+  );
 }
 
 // Monitors differ on GET vs HEAD; both answer the same way.
