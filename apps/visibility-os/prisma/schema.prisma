@@ -93,3 +93,21 @@ enum ActionStatus {
   IN_PROGRESS
   DONE
 }
+
+// A free instant scan (no sign-up). Holds no network address: visitorHash uses a daily-changing salt.
+model Scan {
+  id              String   @id
+  siteKey         String?
+  url             String?
+  visitorHash     String
+  status          String   @default("running")
+  result          Json?
+  createdAt       DateTime @default(now())
+  expiresAt       DateTime
+  claimedByUserId String?
+
+  @@index([siteKey, createdAt])
+  @@index([visitorHash, createdAt])
+  @@index([createdAt])
+  @@index([expiresAt])
+}
