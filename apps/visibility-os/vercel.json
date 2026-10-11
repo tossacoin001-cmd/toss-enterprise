@@ -1,6 +1,7 @@
 {
   "framework": "nextjs",
   "installCommand": "pnpm install",
-  "buildCommand": "cd ../../ && pnpm --filter @toss/visibility-os exec prisma migrate deploy && pnpm --filter @toss/visibility-os build",
-  "outputDirectory": ".next"
+  "buildCommand": "cd ../../ && if [ \"$VERCEL_ENV\" = \"production\" ]; then pnpm --filter @toss/visibility-os exec prisma migrate deploy; fi && pnpm --filter \"@toss/visibility-os...\" build",
+  "outputDirectory": ".next",
+  "crons": [{ "path": "/api/cron/weekly-score", "schedule": "0 7 * * *" }]
 }

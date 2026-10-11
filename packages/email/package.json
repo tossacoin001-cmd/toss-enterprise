@@ -1,0 +1,20 @@
+{
+  "name": "@toss/email",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "echo \"lint: deferred until packages/config lands (Phase 1)\"",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "resend": "^6.25.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0",
+    "@types/node": "^22.0.0"
+  }
+}

@@ -33,6 +33,9 @@ jobs:
       - name: Lint (all packages)
         run: pnpm lint
 
+      - name: Test (visibility-os)
+        run: pnpm --filter @toss/visibility-os test
+
       - name: Build (all packages)
         run: pnpm build
         env:

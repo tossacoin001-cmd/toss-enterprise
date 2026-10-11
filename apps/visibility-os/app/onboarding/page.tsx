@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import OnboardingForm from "@/components/OnboardingForm";
+import { isPlacesConfigured } from "@/lib/google-places";
 
 export default async function OnboardingPage() {
   const { userId } = await auth();
@@ -30,11 +31,11 @@ export default async function OnboardingPage() {
             </span>
           </div>
           <p className="text-xs mb-1" style={{ color: "rgba(250,247,242,0.4)" }}>
-            Step 1 of 1: Connect Your Business
+            About two minutes, four short steps
           </p>
         </div>
 
-        <OnboardingForm />
+        <OnboardingForm googleEnabled={isPlacesConfigured()} />
       </div>
     </div>
   );

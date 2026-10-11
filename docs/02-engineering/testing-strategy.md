@@ -1,6 +1,6 @@
 # Testing Strategy
 
-This document owns how correctness is verified. Honest current state: **there are no tests in this repository today.** This doc defines the target and the order in which it gets built (scheduled in [../implementation-phases.md](../implementation-phases.md)).
+This document owns how correctness is verified. Honest current state: **`apps/visibility-os` has a Vitest suite (`pnpm --filter @toss/visibility-os test`) covering scoring, the weekly digest and runner, input schemas and unsubscribe tokens; every other package and `apps/website` have none yet.** This doc defines the target and the order in which it gets built (scheduled in [../implementation-phases.md](../implementation-phases.md)).
 
 ## Principles
 

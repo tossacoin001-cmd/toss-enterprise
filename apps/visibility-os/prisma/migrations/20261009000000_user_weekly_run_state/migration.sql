@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN "lastDigestAt" TIMESTAMP(3),
+ADD COLUMN "digestOptOut" BOOLEAN NOT NULL DEFAULT false;

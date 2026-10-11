@@ -25,6 +25,7 @@ There is no staging environment; Vercel previews serve that role.
 | `NEXT_PUBLIC_FLUTTERWAVE_URL` | No | Payment page override (has code default) |
 | `NEXT_PUBLIC_WHATSAPP` | No | WhatsApp number override (has code default) |
 | `NEXT_PUBLIC_EMAIL` | No | Contact email override (has code default) |
+| `RESEND_API_KEY` | **Yes** | Via [`@toss/email`](../../packages/email/README.md); contact-form notification emails |
 
 ### apps/visibility-os (`@toss/visibility-os`)
 
@@ -35,6 +36,12 @@ There is no staging environment; Vercel previews serve that role.
 | `POSTGRES_PRISMA_URL` | **Yes** | Pooled Postgres URL (queries), set by the Vercel + Supabase integration |
 | `POSTGRES_URL_NON_POOLING` | **Yes** | Non-pooling Postgres URL (migrations), set by the integration; migrations hang on the transaction pooler |
 | `CLERK_WEBHOOK_SECRET` | **Yes** | Clerk webhook signature verification. **Not yet set in production**; add it when the webhook endpoint is created in the Clerk dashboard |
+| `GOOGLE_PLACES_API_KEY` | **Yes** | Places API (New): onboarding business search and live review/rating data. See [ADR-0009](../01-architecture/decisions/0009-google-places-api-for-live-google-data.md) |
+| `CRON_SECRET` | **Yes** | Authorizes Vercel's daily call to `/api/cron/weekly-score` (the route 401s without it) and signs the email unsubscribe links. See [ADR-0010](../01-architecture/decisions/0010-weekly-rescore-cron-and-digest.md), [ADR-0011](../01-architecture/decisions/0011-daily-time-boxed-weekly-run-and-connect-listing.md) |
+| `EMAIL_FROM` | No | Sender for the weekly digest, e.g. `Visibility OS <hello@tossvisibilityos.com>`. Set only after the domain is verified in Resend; unset falls back to `onboarding@resend.dev`, which only delivers to the account owner |
+| `EMAIL_REPLY_TO` | No | Where replies to the weekly email go. Set to a mailbox that exists while the `EMAIL_FROM` address has none; unset sends replies to the From address |
+| `APP_URL` | No | Public origin used in email links; defaults to `https://tossvisibilityos.com` |
+| `RESEND_API_KEY` | **Yes** | Via [`@toss/email`](../../packages/email/README.md); weekly digest email. Same account as `apps/website`'s key |
 
 The Supabase integration also injects other `POSTGRES_*`/`SUPABASE_*` variables the app does not read. Clerk sign-in/up URL config vars exist in production. `ANTHROPIC_API_KEY` is present in production for future agent use; nothing reads it yet.
 

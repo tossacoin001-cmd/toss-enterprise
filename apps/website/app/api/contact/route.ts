@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import { sendEmail } from "@toss/email";
 import { getDb } from "@/lib/mongodb";
-import { resend, CONTACT_NOTIFY_EMAIL, CONTACT_FROM_EMAIL } from "@/lib/resend";
+import { CONTACT_NOTIFY_EMAIL, CONTACT_FROM_EMAIL } from "@/lib/resend";
 
 type ContactPayload = {
   name: string;
@@ -15,6 +16,18 @@ function isValidPayload(json: unknown): json is ContactPayload {
   if (typeof json !== "object" || json === null) return false;
   const { name, email } = json as Record<string, unknown>;
   return typeof name === "string" && name.trim().length > 0 && typeof email === "string" && email.includes("@");
+}
+
+/** Escapes text dropped into the notification email's HTML body, so a
+ * submitted name or message can't inject markup (e.g. links, images,
+ * spoofed content) into what staff read as a plain lead notification. */
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 export async function POST(req: Request) {
@@ -48,29 +61,33 @@ export async function POST(req: Request) {
     console.error("[POST /api/contact] mongodb insert failed", e);
   }
 
-  if (!resend) {
-    console.error("[POST /api/contact] RESEND_API_KEY not configured, lead was only logged to the database");
-    return NextResponse.json({ error: "Contact notifications are not configured" }, { status: 503 });
-  }
-
-  const { error } = await resend.emails.send({
+  const result = await sendEmail({
     from: CONTACT_FROM_EMAIL,
     to: CONTACT_NOTIFY_EMAIL,
     replyTo: submission.email,
     subject: `New strategy call request: ${submission.name}${submission.business ? ` (${submission.business})` : ""}`,
+    text: [
+      `Name: ${submission.name}`,
+      `Business: ${submission.business ?? "—"}`,
+      `Email: ${submission.email}`,
+      `Service: ${submission.service ?? "—"}`,
+      `Budget: ${submission.budget ?? "—"}`,
+      `Message:\n${submission.message ?? "—"}`,
+    ].join("\n"),
     html: `
-      <p><strong>Name:</strong> ${submission.name}</p>
-      <p><strong>Business:</strong> ${submission.business ?? "—"}</p>
-      <p><strong>Email:</strong> ${submission.email}</p>
-      <p><strong>Service:</strong> ${submission.service ?? "—"}</p>
-      <p><strong>Budget:</strong> ${submission.budget ?? "—"}</p>
-      <p><strong>Message:</strong><br/>${(submission.message ?? "—").replace(/\n/g, "<br/>")}</p>
+      <p><strong>Name:</strong> ${escapeHtml(submission.name)}</p>
+      <p><strong>Business:</strong> ${submission.business ? escapeHtml(submission.business) : "—"}</p>
+      <p><strong>Email:</strong> ${escapeHtml(submission.email)}</p>
+      <p><strong>Service:</strong> ${submission.service ? escapeHtml(submission.service) : "—"}</p>
+      <p><strong>Budget:</strong> ${submission.budget ? escapeHtml(submission.budget) : "—"}</p>
+      <p><strong>Message:</strong><br/>${submission.message ? escapeHtml(submission.message).replace(/\n/g, "<br/>") : "—"}</p>
     `,
   });
 
-  if (error) {
-    console.error("[POST /api/contact] resend send failed", error);
-    return NextResponse.json({ error: "Failed to send notification email" }, { status: 502 });
+  if (!result.ok) {
+    console.error("[POST /api/contact] email send failed", result.error);
+    const status = result.error === "RESEND_API_KEY not configured" ? 503 : 502;
+    return NextResponse.json({ error: "Failed to send notification email" }, { status });
   }
 
   return NextResponse.json({ ok: true }, { status: 201 });

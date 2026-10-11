@@ -1,19 +1,23 @@
 import "server-only";
+import { lookup } from "node:dns/promises";
+import { getPlaceDetails } from "./google-places";
+import { isBlockedIp, isSafeExternalUrl } from "./url-safety";
 
 /**
- * Visibility scoring v1: deterministic checks that need no external API keys.
- * Weights: Google presence 40%, website 40%, social 20%.
- * The visibility-agent (docs/03-ai/agents/visibility-agent.md) will extend
- * this with live Google and social data on a schedule; the same subscore
- * fields are reused, so the dashboard needs no changes when it does.
- * Decision record: docs/01-architecture/decisions/0007.
+ * Visibility scoring v1: deterministic checks, now backed by a real Google
+ * Places lookup for the Google subscore. Weights: Google presence 40%,
+ * website 40%, social 20%. The visibility-agent
+ * (docs/03-ai/agents/visibility-agent.md) will extend this with a scheduled
+ * cadence and social data later; the same subscore fields are reused, so the
+ * dashboard needs no changes when it does.
+ * Decision records: docs/01-architecture/decisions/0007, 0009.
  */
 
 export type BusinessInput = {
   name: string;
   category: string | null;
   city: string | null;
-  googleBizUrl: string | null;
+  googlePlaceId: string | null;
   phoneNumber: string | null;
   website: string | null;
   instagramHandle: string | null;
@@ -31,38 +35,86 @@ export type ScoreResult = {
   googleScore: number;
   socialScore: number;
   websiteScore: number;
+  reviewCount: number;
+  avgRating: number;
   actionItems: ActionItemDraft[];
 };
 
-/** Blocks non-http(s) URLs and private/loopback hosts before a server-side fetch. */
-export function isSafeExternalUrl(raw: string): URL | null {
-  let url: URL;
+export { isSafeExternalUrl };
+
+/** DNS-resolves a hostname and confirms every address is public, closing the
+ * rebinding gap a hostname-string check alone leaves open (a public-looking
+ * name that resolves to an internal IP). */
+async function resolvesToPublicAddress(hostname: string): Promise<boolean> {
   try {
-    url = new URL(raw.startsWith("http") ? raw : `https://${raw}`);
+    const records = await lookup(hostname, { all: true, verbatim: true });
+    return records.length > 0 && records.every((r) => !isBlockedIp(r.address));
   } catch {
-    return null;
+    return false;
   }
-  if (url.protocol !== "https:" && url.protocol !== "http:") return null;
-  const host = url.hostname.toLowerCase();
-  if (
-    host === "localhost" ||
-    host === "0.0.0.0" ||
-    host === "[::1]" ||
-    /^127\./.test(host) ||
-    /^10\./.test(host) ||
-    /^192\.168\./.test(host) ||
-    /^172\.(1[6-9]|2\d|3[01])\./.test(host) ||
-    !host.includes(".")
-  ) {
-    return null;
-  }
-  return url;
 }
 
 type WebsiteCheck = {
   score: number;
   actionItems: ActionItemDraft[];
 };
+
+export const SPEED_FULL_POINTS = 10;
+
+/** Tiered, not a cliff: the check runs from a US server, so a site that is
+ * fast for Nigerian visitors can still take 3 to 4s here. A hard 3s cutoff
+ * flipped the score by 10 points between identical runs and made the weekly
+ * email report drops that were network noise. */
+export function speedPoints(elapsedMs: number): number {
+  if (elapsedMs <= 4000) return SPEED_FULL_POINTS;
+  if (elapsedMs <= 8000) return SPEED_FULL_POINTS / 2;
+  return 0;
+}
+
+/** Fetches with redirects followed manually so each hop is re-validated
+ * against the same SSRF guard as the original URL; `redirect: "follow"`
+ * would otherwise let a public URL redirect straight to an internal one.
+ * One 8s budget covers every hop and the body read, so a redirect chain
+ * cannot multiply the timeout and starve the weekly cron's 60s limit. */
+async function safeFetch(initialUrl: URL, maxRedirects = 5): Promise<Response> {
+  const signal = AbortSignal.timeout(8000);
+  let current = initialUrl;
+  for (let i = 0; i <= maxRedirects; i++) {
+    if (!(await resolvesToPublicAddress(current.hostname))) {
+      throw new Error("unsafe destination");
+    }
+    const res = await fetch(current.toString(), {
+      redirect: "manual",
+      signal,
+      headers: { "user-agent": "TossVisibilityBot/1.0 (+https://toss-enterprise.vercel.app)" },
+    });
+    const location = res.headers.get("location");
+    if (res.status >= 300 && res.status < 400 && location) {
+      const next = isSafeExternalUrl(new URL(location, current).toString());
+      if (!next) throw new Error("unsafe destination");
+      current = next;
+      continue;
+    }
+    return res;
+  }
+  throw new Error("too many redirects");
+}
+
+/** Content of the first `<meta name="...">` tag with this name, or null if
+ * absent. Parses attributes instead of pattern-matching the tag, so unquoted
+ * values (`name=viewport`, common in minified HTML) and content-before-name
+ * ordering are recognised; a regex miss here becomes a false HIGH-priority
+ * action item for the owner. */
+export function metaContent(html: string, name: string): string | null {
+  for (const [tag] of html.matchAll(/<meta\b[^>]*>/gi)) {
+    const attrs = new Map<string, string>();
+    for (const m of tag.matchAll(/([^\s"'<>\/=]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/g)) {
+      attrs.set(m[1].toLowerCase(), m[2] ?? m[3] ?? m[4] ?? "");
+    }
+    if (attrs.get("name")?.toLowerCase() === name) return attrs.get("content") ?? "";
+  }
+  return null;
+}
 
 async function checkWebsite(rawUrl: string | null): Promise<WebsiteCheck> {
   const actionItems: ActionItemDraft[] = [];
@@ -103,11 +155,7 @@ async function checkWebsite(rawUrl: string | null): Promise<WebsiteCheck> {
   let finalUrl = url;
 
   try {
-    const res = await fetch(url.toString(), {
-      redirect: "follow",
-      signal: AbortSignal.timeout(8000),
-      headers: { "user-agent": "TossVisibilityBot/1.0 (+https://toss-enterprise.vercel.app)" },
-    });
+    const res = await safeFetch(url);
     const elapsedMs = Date.now() - startedAt;
     finalUrl = new URL(res.url || url.toString());
 
@@ -152,7 +200,7 @@ async function checkWebsite(rawUrl: string | null): Promise<WebsiteCheck> {
       });
     }
 
-    if (/<meta[^>]+name=["']description["'][^>]+content=["'][^"']{20,}/i.test(html)) {
+    if ((metaContent(html, "description")?.trim().length ?? 0) >= 20) {
       score += 15;
     } else {
       actionItems.push({
@@ -164,7 +212,7 @@ async function checkWebsite(rawUrl: string | null): Promise<WebsiteCheck> {
       });
     }
 
-    if (/<meta[^>]+name=["']viewport["']/i.test(html)) {
+    if (metaContent(html, "viewport") !== null) {
       score += 10;
     } else {
       actionItems.push({
@@ -176,12 +224,12 @@ async function checkWebsite(rawUrl: string | null): Promise<WebsiteCheck> {
       });
     }
 
-    if (elapsedMs <= 3000) {
-      score += 10;
-    } else {
+    const speed = speedPoints(elapsedMs);
+    score += speed;
+    if (speed < SPEED_FULL_POINTS) {
       actionItems.push({
         title: "Speed up your website",
-        description: `Your homepage took ${(elapsedMs / 1000).toFixed(1)}s to respond. Slow sites lose visitors before they see anything; aim for under 3 seconds.`,
+        description: `Your homepage took about ${(elapsedMs / 1000).toFixed(0)}s to respond when we checked from our servers. Slow sites lose visitors before they see anything; aim for under 4 seconds.`,
         priority: "LOW",
         category: "Website",
       });
@@ -203,17 +251,33 @@ async function checkWebsite(rawUrl: string | null): Promise<WebsiteCheck> {
   return { score, actionItems };
 }
 
-function checkGooglePresence(b: BusinessInput): WebsiteCheck {
+type GoogleCheck = WebsiteCheck & { reviewCount: number; avgRating: number };
+
+async function checkGooglePresence(
+  b: BusinessInput,
+  sessionToken: string | undefined,
+  previous: { reviewCount: number; avgRating: number } | undefined
+): Promise<GoogleCheck> {
   const actionItems: ActionItemDraft[] = [];
   let score = 0;
+  let reviewCount = previous?.reviewCount ?? 0;
+  let avgRating = previous?.avgRating ?? 0;
 
-  if (b.googleBizUrl && b.googleBizUrl.trim() !== "") {
+  if (b.googlePlaceId) {
+    // Presence is scored on a verified selection, not on whether this live
+    // fetch succeeds: a transient Google outage must never tank a score.
     score += 60;
+
+    const details = await getPlaceDetails(b.googlePlaceId, sessionToken);
+    if (details) {
+      reviewCount = details.userRatingCount ?? reviewCount;
+      avgRating = details.rating ?? avgRating;
+    }
   } else {
     actionItems.push({
       title: "Claim your Google Business Profile",
       description:
-        "You have no Google Business Profile on file. It is free, and it is how customers nearby find you on Google Maps and Search. This is the single highest-impact fix on this list.",
+        "You have no Google Business Profile connected. Use \"Connect your Google Business Profile\" on this page to find and link your listing. This is the single highest-impact fix on this list.",
       priority: "HIGH",
       category: "Google",
     });
@@ -234,7 +298,7 @@ function checkGooglePresence(b: BusinessInput): WebsiteCheck {
   if (b.category && b.category.trim() !== "") score += 10;
   if (b.city && b.city.trim() !== "") score += 10;
 
-  return { score, actionItems };
+  return { score, actionItems, reviewCount, avgRating };
 }
 
 function checkSocialPresence(b: BusinessInput): WebsiteCheck {
@@ -267,10 +331,14 @@ function checkSocialPresence(b: BusinessInput): WebsiteCheck {
   return { score, actionItems };
 }
 
-export async function scoreBusiness(b: BusinessInput): Promise<ScoreResult> {
+export async function scoreBusiness(
+  b: BusinessInput,
+  placeSessionToken?: string,
+  previousGoogleData?: { reviewCount: number; avgRating: number }
+): Promise<ScoreResult> {
   const [website, google, social] = await Promise.all([
     checkWebsite(b.website),
-    Promise.resolve(checkGooglePresence(b)),
+    checkGooglePresence(b, placeSessionToken, previousGoogleData),
     Promise.resolve(checkSocialPresence(b)),
   ]);
 
@@ -286,6 +354,8 @@ export async function scoreBusiness(b: BusinessInput): Promise<ScoreResult> {
     googleScore: google.score,
     socialScore: social.score,
     websiteScore: website.score,
+    reviewCount: google.reviewCount,
+    avgRating: google.avgRating,
     actionItems,
   };
 }

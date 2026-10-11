@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useClerk } from "@clerk/nextjs";
 import {
   LayoutDashboard,
   Building2,
@@ -22,6 +23,27 @@ const navItems = [
 
 interface SidebarProps {
   onClose?: () => void;
+}
+
+// The root layout only mounts ClerkProvider when this key is set (so CI and
+// key-less local builds still prerender); useClerk() throws without it.
+const hasClerkConfig = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+
+function ClerkSignOutButton({ onClose }: SidebarProps) {
+  const router = useRouter();
+  const { signOut } = useClerk();
+
+  function handleSignOut() {
+    onClose?.();
+    signOut(() => router.push("/"));
+  }
+
+  return (
+    <button onClick={handleSignOut} className="sidebar-item w-full">
+      <LogOut size={15} strokeWidth={1.5} />
+      <span>Sign Out</span>
+    </button>
+  );
 }
 
 export default function Sidebar({ onClose }: SidebarProps) {
@@ -129,10 +151,14 @@ export default function Sidebar({ onClose }: SidebarProps) {
 
       {/* Sign out */}
       <div style={{ borderTop: "1px solid rgba(201,169,110,0.08)" }}>
-        <Link href="/" className="sidebar-item w-full" onClick={onClose}>
-          <LogOut size={15} strokeWidth={1.5} />
-          <span>Sign Out</span>
-        </Link>
+        {hasClerkConfig ? (
+          <ClerkSignOutButton onClose={onClose} />
+        ) : (
+          <Link href="/" className="sidebar-item w-full" onClick={onClose}>
+            <LogOut size={15} strokeWidth={1.5} />
+            <span>Sign Out</span>
+          </Link>
+        )}
       </div>
     </aside>
   );

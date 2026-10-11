@@ -24,6 +24,7 @@ toss-enterprise/
 │   ├── website/           # @toss/website       (live)
 │   └── visibility-os/     # @toss/visibility-os (live, scoring MVP)
 ├── packages/              # shared importable code (workspace)
+│   └── email/             # @toss/email (live)
 ├── services/              # backend services and workers (workspace once first service lands)
 ├── agents/                # headless AI workers, one package each (workspace)
 │   ├── visibility-agent/  # @toss/visibility-agent (scaffold)

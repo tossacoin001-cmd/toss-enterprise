@@ -4,8 +4,8 @@ This document owns how deploys happen and how to roll back. Pipeline internals: 
 
 ## How production deploys work today
 
-- **apps/website**: push to `main` deploys via the Vercel GitHub integration (root `vercel.json` points it at the app). The CI workflow also runs a Vercel deploy; this double path is a known defect scheduled for Phase 0 (keep the integration, delete the CI deploy job).
-- **apps/visibility-os**: separate Vercel project, deployed via the GitHub integration with `apps/visibility-os/vercel.json`. This config has broken repeatedly (see commit history). Any change to it must be verified on a preview deployment before merging.
+- **apps/website**: push to `main` deploys via the Vercel GitHub integration. There is no root `vercel.json` in the repo (verified 2026-08-29; an earlier version of this doc claimed one existed) — the Vercel project's Root Directory setting, configured in the Vercel dashboard, points it at `apps/website`. The CI workflow also runs a Vercel deploy; this double path is a known defect scheduled for Phase 0 (keep the integration, delete the CI deploy job).
+- **apps/visibility-os**: separate Vercel project, deployed via the GitHub integration with `apps/visibility-os/vercel.json`. This config has broken repeatedly (see commit history); `tests/vercel-config.test.ts` now runs the real build command and checks it. The build command (1) runs `prisma migrate deploy` **only when `VERCEL_ENV` is exactly `production`**, and (2) builds the app's workspace packages first (`pnpm --filter "@toss/visibility-os..." build`). Previews and development builds never migrate: the `POSTGRES_*` variables point every environment at the same production database, so a preview that migrated would change production before merge ([ADR-0013](../01-architecture/decisions/0013-migrations-only-in-production-builds-and-url-safety.md)). Migrations are expand-only (add, never drop or rename in the same release) and `tests/migrations.test.ts` enforces it. Previews therefore run against the production schema.
 
 ## Deploy rules
 
