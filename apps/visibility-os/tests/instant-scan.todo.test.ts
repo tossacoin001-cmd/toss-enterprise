@@ -121,7 +121,7 @@ describe("UX: Pages and experience", () => {
   it.todo("UX-10 [P2] [S3] Copy link and share buttons work on Android Chrome, iOS Safari, Samsung Internet and Opera Mini");
   it.todo("UX-11 [P1] [S3] A returning visitor re-scanning within 24 hours sees the saved result with how long ago; rescan opens after 24 hours");
   it.todo("UX-12 [P0] [S3] The sign-up offer appears after the result, is dismissible, and the result stays visible");
-  it.todo("UX-13 [P0] [S3] What is open or locked matches the founder's decision (A: nothing locked on first scan, B: top 3) - pending");
+  it.todo("UX-13 [P0] [S3] Decision A (founder, 2026-10-10): the first scan shows the whole result with nothing locked; sign-up is offered after, to save, track and get the weekly email");
   it.todo("UX-14 [P1] [S3] Empty and error states are friendly and give a next step (retry, WhatsApp)");
   it.todo("UX-15 [P1] [S3] Brand and voice follow docs/06-brand with no overclaiming");
 });
@@ -163,6 +163,60 @@ describe("RL: Reliability and performance", () => {
 describe("AN: Measurement", () => {
   it.todo("AN-01 [P1] [S5] Events: scan_started, scan_completed, scan_could_not_check, cap_hit, rate_limited, signup_from_scan, with no personal data");
   it.todo("AN-02 [P1] [S5] A daily summary of those counts reaches the founder");
+  it.todo("AN-03 [P0] [S5] The funnel is measured with targets: visitors who finish a scan 35% or more, finishers who sign up 12% or more, signed-up users who return within 7 days 40% or more; targets are revisited after the first 100 scans");
+  it.todo("AN-04 [P1] [S5] Time to first result and the share of scans ending in could not check are tracked, so a slow or blocked period is noticed within a day");
+});
+
+describe("XP: Sells itself: understood and valuable in seconds", () => {
+  it.todo("XP-01 [P0] [S3] From the home page to the first result in 3 steps or fewer and 20 seconds or less on a mid-range Android on 3G");
+  it.todo("XP-02 [P0] [S3] The first screen of the home page shows a real example result and one obvious action, with no scrolling and no sign-up");
+  it.todo("XP-03 [P0] [S3] Plain language: every customer-facing sentence reads at grade 7 or below, and technical words (meta, canonical, schema, SEO) never appear without a plain explanation first");
+  it.todo("XP-04 [P0] [S1] Every finding carries what it is, why it matters to customers or money, how to fix it in one line, and how long it takes");
+  it.todo("XP-05 [P1] [S3] Every fix offers do it yourself (5 steps or fewer) and do it for me (WhatsApp prefilled with the finding)");
+  it.todo("XP-06 [P1] [S3] Five real owners shown a result are asked what to do first: at least 4 of 5 answer correctly within 30 seconds, unaided");
+  it.todo("XP-07 [P1] [S3] The first screen of the result names the single most valuable next step before any list or score detail");
+  it.todo("XP-08 [P1] [S3] Zero explanation needed: no screen needs a tutorial, tooltip or video to make the first scan work");
+});
+
+describe("RT: Solves problems as they happen (real time)", () => {
+  it.todo("RT-01 [P0] [S5] Watch: for signed-in businesses a certificate expiring in 30, 14 and 7 days, and a site that goes down, trigger an alert instead of waiting for the weekly email");
+  it.todo("RT-02 [P0] [S5] No false alarms: a site is called down only after two failed checks a few minutes apart, from a classified cause; transient timeouts never alert (fake clock)");
+  it.todo("RT-03 [P1] [S5] Alert hygiene: at most one alert per issue per day, no alerts in quiet hours (WAT night), opt out per alert type");
+  it.todo("RT-04 [P1] [S3] The scan shows results as each check finishes; the first result appears within 3 seconds");
+  it.todo("RT-05 [P1] [S4] After a fix, a rescan shows the gain at once: You fixed X, plus 6 points");
+  it.todo("RT-06 [P1] [Later] When the Google connection exists: a new review or rating change is surfaced within 24 hours with a drafted reply");
+});
+
+describe("UP: Keeps users updated", () => {
+  it.todo("UP-01 [P0] [S4] A What's new feed in the app lists real changes in plain words, marks unread items and shows them after login");
+  it.todo("UP-02 [P0] [S4] Email cadence: welcome with what happens next, a day-3 progress note, a day-6 trial note, then the weekly digest; never more than one email a day; each type can be switched off");
+  it.todo("UP-03 [P1] [S4] The notifications bell shows real items (score change, fix recorded, new feature), never a static placeholder");
+  it.todo("UP-04 [P1] [Later] WhatsApp updates: explicit opt-in, an approved template, one-tap stop");
+  it.todo("UP-05 [P1] [S5] A public status page link in the footer shows whether the service is up (the uptime monitor's page)");
+  it.todo("UP-06 [P1] [S3] Coming-soon features (AI visibility, competitors, review replies) show a notify-me button; requests are counted and shown to the founder");
+});
+
+describe("BG: Belonging: users feel part of it", () => {
+  it.todo("BG-01 [P0] [S3] Personal from the first screen: the business name and city appear throughout, never a generic placeholder");
+  it.todo("BG-02 [P1] [S4] Progress is visible: score history, weeks improving, and a celebration when a fix lands, in warm and understated words");
+  it.todo("BG-03 [P1] [S4] Founding members (the first 30) see a founding mark, keep the locked price for 12 months, and have a direct WhatsApp line to the founder; benefits persist");
+  it.todo("BG-04 [P1] [S4] One-tap Was this useful? on every finding and a request-a-feature box; answers are stored and summarised for the founder weekly; What's new says You asked, we built");
+  it.todo("BG-05 [P1] [S5] Community proof only when true: aggregate counts (for example businesses scanned this month) appear only from real data and only above a minimum of 50; below that they are hidden, never invented");
+  it.todo("BG-06 [P2] [S4] Share your progress: a card or link such as My score rose from 41 to 63, opened by friends without a sign-up");
+  it.todo("BG-07 [P1] [S3] Voice is warm, respectful and plain, never condescending (copy review against docs/06-brand)");
+  it.todo("BG-08 [P2] [S4] Each week shows what the product did for you: This week we checked 14 things");
+});
+
+describe("QL: Quality bar: fast, seamless, no dead ends", () => {
+  it.todo("QL-01 [P0] [S3] Performance budget on a mid-range Android over 4G: Lighthouse performance 90 or more, accessibility and best practices 95 or more, largest content under 2.5s, layout shift 0.1 or less, first-load script 170 KB or less");
+  it.todo("QL-02 [P0] [S3] No dead ends: a crawler follows every link and presses every button on every page; none is a 404 or does nothing, and every disabled control says why");
+  it.todo("QL-03 [P0] [S3] Every failure has a human message, a next step and a reference: stop the database, make Clerk time out, throttle the network, and look at each screen");
+  it.todo("QL-04 [P0] [S3] Sign-up form visible within 3 seconds at p90 from Lagos (it takes 9 to 18 seconds today; needs the region fix) and takes 3 fields or fewer");
+  it.todo("QL-05 [P1] [S3] The first scan journey transfers 400 KB or less, because data is expensive");
+  it.todo("QL-06 [P1] [S3] Accessibility to WCAG AA, large text, screen reader pass");
+  it.todo("QL-07 [P1] [S3] Visual snapshots of the key screens at 360, 390, 768 and 1280 pixels");
+  it.todo("QL-08 [P1] [S3] Every interactive element has hover, focus, disabled and loading states");
+  it.todo("QL-09 [P2] [S5] Installable to the home screen with an icon; the last result opens offline");
 });
 
 describe("UB: User behaviour scenarios", () => {

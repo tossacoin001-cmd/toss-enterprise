@@ -1,7 +1,7 @@
 import "server-only";
 import { lookup } from "node:dns/promises";
-import net from "node:net";
 import { getPlaceDetails } from "./google-places";
+import { isBlockedIp, isSafeExternalUrl } from "./url-safety";
 
 /**
  * Visibility scoring v1: deterministic checks, now backed by a real Google
@@ -40,48 +40,7 @@ export type ScoreResult = {
   actionItems: ActionItemDraft[];
 };
 
-/** Blocks non-http(s) URLs and private/loopback hosts before a server-side fetch. */
-export function isSafeExternalUrl(raw: string): URL | null {
-  let url: URL;
-  try {
-    url = new URL(raw.startsWith("http") ? raw : `https://${raw}`);
-  } catch {
-    return null;
-  }
-  if (url.protocol !== "https:" && url.protocol !== "http:") return null;
-  const host = url.hostname.toLowerCase();
-  if (
-    host === "localhost" ||
-    host === "0.0.0.0" ||
-    host === "[::1]" ||
-    /^127\./.test(host) ||
-    /^10\./.test(host) ||
-    /^192\.168\./.test(host) ||
-    /^172\.(1[6-9]|2\d|3[01])\./.test(host) ||
-    !host.includes(".")
-  ) {
-    return null;
-  }
-  return url;
-}
-
-function isPrivateIp(ip: string): boolean {
-  const type = net.isIP(ip);
-  if (type === 4) {
-    const [a, b] = ip.split(".").map(Number);
-    return a === 10 || a === 127 || a === 0 || (a === 169 && b === 254) ||
-      (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168);
-  }
-  if (type === 6) {
-    const lower = ip.toLowerCase();
-    if (lower === "::1") return true;
-    if (lower.startsWith("fe80:")) return true;
-    if (/^f[cd][0-9a-f]{2}:/.test(lower)) return true;
-    const mapped = lower.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
-    return mapped ? isPrivateIp(mapped[1]) : false;
-  }
-  return true;
-}
+export { isSafeExternalUrl };
 
 /** DNS-resolves a hostname and confirms every address is public, closing the
  * rebinding gap a hostname-string check alone leaves open (a public-looking
@@ -89,7 +48,7 @@ function isPrivateIp(ip: string): boolean {
 async function resolvesToPublicAddress(hostname: string): Promise<boolean> {
   try {
     const records = await lookup(hostname, { all: true, verbatim: true });
-    return records.length > 0 && records.every((r) => !isPrivateIp(r.address));
+    return records.length > 0 && records.every((r) => !isBlockedIp(r.address));
   } catch {
     return false;
   }

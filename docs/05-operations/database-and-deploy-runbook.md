@@ -4,7 +4,7 @@ Read this when the Visibility OS site errors, a deploy goes red, or an uptime al
 
 ## How the pieces fit
 
-- The Vercel build command (`apps/visibility-os/vercel.json`) runs `prisma migrate deploy` and then builds. **If the database is unreachable, the whole deploy fails.**
+- The Vercel build command (`apps/visibility-os/vercel.json`) runs `prisma migrate deploy` **in production builds only**, then builds. **If the database is unreachable, a production deploy fails.** Preview builds do not touch the database.
 - The database is the Supabase project `supabase-champagne-nest`, attached through the Vercel integration (`POSTGRES_PRISMA_URL`, `POSTGRES_URL_NON_POOLING`).
 - `GET /api/health` runs one cheap database read and answers `{"status":"ok"}` (200) or `{"status":"down"}` (503). It reveals nothing else.
 - The daily cron (`/api/cron/weekly-score`) also reads the database every day.
@@ -20,9 +20,17 @@ Read this when the Visibility OS site errors, a deploy goes red, or an uptime al
 
 If any of these is not turned on, turn it on before launch. The failure above was silent because none of them existed.
 
-## Known risk: previews share the production database
+## Previews share the production database (mitigated 2026-10-11)
 
-The `POSTGRES_*` variables in Vercel apply to Production, Preview and Development alike, and the build runs `prisma migrate deploy`. So **building any branch preview applies its migrations to the production database.** This is harmless while every migration is additive and backward compatible (the 2026-10-09 one was applied to production this way by the preview build), but a destructive migration on any branch would hit production before it is merged. Until previews get their own database: write only additive migrations (add, never drop or rename in the same release), and review the migration folder before pushing a branch. Discovered 2026-10-10.
+The `POSTGRES_*` variables in Vercel apply to Production, Preview and Development alike, so every environment talks to the **same database**. Until 2026-10-11 the build ran `prisma migrate deploy` for every build, which meant building any branch preview applied that branch's migrations to production before anything was merged (the 2026-10-09 migration reached production this way; it was additive, so no harm).
+
+What protects production now ([ADR-0013](../01-architecture/decisions/0013-migrations-only-in-production-builds-and-url-safety.md)):
+
+1. **Only production builds migrate.** `vercel.json` runs the migration when `VERCEL_ENV` is exactly `production`. Anything else, including a typo or an unset value, skips it. `tests/vercel-config.test.ts` runs the real command in all those cases.
+2. **Migrations must be expand-only**, because production migrates before the new code goes live and the old code keeps running meanwhile. Add tables, columns (nullable or with a default) and indexes. To remove or rename something, do it in a second release after nothing uses it. `tests/migrations.test.ts` fails on drops, renames, type changes, truncates, deleting every row, and new required columns with no default. A destructive migration needs a recorded decision and a `-- DESTRUCTIVE-APPROVED: <reason>` line.
+3. **A separate preview database is still the cleaner answer**, deferred until a preview needs database-backed behaviour or before the first paying customer.
+
+What this means in practice: a preview build log has **no migration step**, so previews run against the production schema. Previews cannot sign in (Clerk keys exist only in Production), and use the database only for `/api/health`. A new migration reaches the database only when its branch is merged to `main` and the production build runs.
 
 ## Playbook: site shows errors or /api/health is 503
 
@@ -36,7 +44,8 @@ The `POSTGRES_*` variables in Vercel apply to Production, Preview and Developmen
 1. Open the failed deployment from the email or from Vercel, and read the **last 30 lines** of the build log.
 2. `Can't reach database server` or a bare schema-engine error: the database is paused. Follow the playbook above, then **Redeploy**.
 3. `Can't resolve '@toss/<package>'` (for example `@toss/email`): the build command is not building the app's workspace packages. Their `dist` folders are gitignored, so they must be built in the same command. `apps/visibility-os/vercel.json` uses `pnpm --filter "@toss/visibility-os..." build` for this, and `tests/vercel-config.test.ts` guards it. Local builds can pass anyway because an old `dist` folder exists, so reproduce with `rm -rf packages/<package>/dist` first.
-4. A migration error: the migration is the problem, not the database. Do not edit an applied migration; add a new one.
+4. A migration error (production builds only, since previews do not migrate): the migration is the problem, not the database. Do not edit an applied migration; add a new one. If `tests/migrations.test.ts` fails in CI, the migration breaks the expand-only rule: redesign it as an additive change, or record the approval line after a decision.
+4a. The preview build is green but the page misbehaves: the preview runs against the production schema and has not applied its own migration. Test migration-dependent behaviour locally against a throwaway database, not on the preview.
 5. A type or build error: reproduce locally with `pnpm type-check`, `pnpm lint`, `pnpm --filter @toss/visibility-os test`, `pnpm build`.
 
 ## Before the first paying customer

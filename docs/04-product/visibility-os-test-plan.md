@@ -1,15 +1,15 @@
 # Visibility OS: full test specification
 
-- **Status:** Written 2026-10-10, before any instant-scan code. 151 tests specified; 11 already run for real; 4 verified once by hand; 136 waiting for their build slice.
+- **Status:** Written 2026-10-10, before any instant-scan code. 194 tests specified: 15 run for real today, 4 verified once by hand, 175 waiting for their build slice. Updated 2026-10-11 with the experience tests (sells itself, real time, updates, belonging, quality bar).
 - **Plan this tests:** [visibility-os-instant-scan-plan.md](visibility-os-instant-scan-plan.md). Test rules: [testing-strategy.md](../02-engineering/testing-strategy.md).
-- **Where the tests live:** the 11 running tests are in `apps/visibility-os/tests/` (`scoring.test.ts`, `scoring-properties.test.ts`, `ssrf.test.ts`, and others). The other 140 are written as `it.todo` in [instant-scan.todo.test.ts](../../apps/visibility-os/tests/instant-scan.todo.test.ts): they show up as "todo" on every run and become real tests in their slice. Both this page and that file are generated from one list so they cannot disagree.
-- **Rule:** a slice is not done until its rows are real, passing tests. 78 of the 151 are P0 (must pass before launch).
+- **Where the tests live:** the running tests are in `apps/visibility-os/tests/` (`scoring.test.ts`, `scoring-properties.test.ts`, `ssrf.test.ts`, and others). The other 179 are written as `it.todo` in [instant-scan.todo.test.ts](../../apps/visibility-os/tests/instant-scan.todo.test.ts): they show up as "todo" on every run and become real tests in their slice. Both this page and that file are generated from one list so they cannot disagree.
+- **Rule:** a slice is not done until its rows are real, passing tests. 96 of the 194 are P0 (must pass before launch).
 
 ## How to read the tables
 
 - **Pri:** P0 launch blocker, P1 should pass at launch, P2 nice to have.
 - **When:** the slice that makes the test possible (S0 to S5 in the plan), or Now.
-- **Status:** Running (a real test passes today), Running (known gap) (a test passes *because* a bug exists and turns red the day it is fixed), Verified once, not automated, Specified.
+- **Status:** Running (a real test passes today), Verified once, not automated, Specified.
 
 ## What has been tested already (2026-10-10)
 
@@ -80,13 +80,14 @@ Changes the plan makes because of S0: (1) Instagram, Facebook and TikTok are sel
 | Slice | Done when |
 |---|---|
 | S0 | The five go criteria above are answered with numbers |
-| S1 | All rows tagged S1 are real tests and pass; the three known gaps flipped from `it.fails` to `it`; existing audit shows no false unreachable on the 30-site sample |
+| S1 | All rows tagged S1 are real tests and pass; the security gaps closed (done 2026-10-11); existing audit shows no false unreachable on the 30-site sample |
 | S2 | All S2 rows pass against a real database; Turnstile test-key matrix passes; 24-hour cache and caps proven with a fake clock |
 | S3 | Browser journeys pass on phone and desktop viewports; accessibility scan clean; wording audit passes; a real-phone pass for UB-01 |
 | S4 | The scan-to-sign-up journey passes end to end; scan score equals dashboard score |
 | S5 | Smoke test runs after each production deploy; events and the daily summary arrive |
 
 ## The tests
+
 ### IN: Input and URL handling
 
 | ID | Pri | When | Method | Status | What must be true |
@@ -187,9 +188,9 @@ Changes the plan makes because of S0: (1) Instagram, Facebook and TikTok are sel
 | ID | Pri | When | Method | Status | What must be true |
 |---|---|---|---|---|---|
 | SE-01 | P0 | Now | unit | Running | Loopback, private, link-local, cloud metadata, IPv6, hex/decimal/octal and IPv4-mapped addresses, and names that resolve to them, are blocked (23 of 33 probes blocked today) |
-| SE-02 | P0 | S1 | unit | Running (known gap) | FINDING: only ports 80 and 443 may be contacted (today 6379, 22, 25 and 8443 are requested) |
-| SE-03 | P1 | S1 | unit | Running (known gap) | FINDING: credentials in a URL (user:pass@host) are rejected (today they are sent) |
-| SE-04 | P0 | S1 | unit | Running (known gap) | FINDING: all reserved ranges are blocked: 100.64/10, 198.18/15, 192.0.0.0/24, 224/4, 240/4, 255.255.255.255 (today they are requested) |
+| SE-02 | P0 | Now | unit | Running | Only the scheme's own port (80 for http, 443 for https) may be contacted. Found 2026-10-10 (6379, 22, 25, 8443 were requested); fixed 2026-10-11 |
+| SE-03 | P1 | Now | unit | Running | Credentials in a URL (user:pass@host) are rejected. Found 2026-10-10; fixed 2026-10-11 |
+| SE-04 | P0 | Now | unit | Running | Every IANA special-use IPv4 and IPv6 range is blocked, with range edges tested (100.64/10, 198.18/15, 192.0.0.0/24, multicast, reserved, NAT64, 6to4, Teredo). Found 2026-10-10; fixed 2026-10-11 |
 | SE-05 | P0 | S1 | unit | Specified | A redirect to a blocked address or non-standard port mid-chain is stopped |
 | SE-06 | P1 | S1 | integration | Specified | RISK: the address is checked, then fetched again (a gap for DNS rebinding); resolve once and connect to that address |
 | SE-07 | P0 | S3 | unit + e2e | Specified | Title, description and handles containing script tags, quotes, HTML or huge strings render as text and store safely |
@@ -202,6 +203,9 @@ Changes the plan makes because of S0: (1) Instagram, Facebook and TikTok are sel
 | SE-14 | P0 | Now | integration | Verified once, not automated | Cron and webhook endpoints refuse missing or wrong secrets (verified locally) |
 | SE-15 | P1 | S1 | integration | Specified | Outbound requests identify as TossVisibilityBot with a contact URL, within planned volume, cached 24 hours |
 | SE-16 | P1 | S3 | integration | Specified | No endpoint redirects to a user-supplied URL |
+| SE-17 | P0 | Now | unit | Running | Migration safety: no migration drops, renames, retypes, truncates, or adds a required column without a default, unless it carries an explicit DESTRUCTIVE-APPROVED line with a reason (previews share the production database) |
+| SE-18 | P0 | Now | integration | Running | The real Vercel build command runs migrations only when VERCEL_ENV is exactly production; preview, development, unknown and mis-cased values build without touching the database |
+| SE-19 | P0 | Now | unit | Running | IP addresses of any kind are rejected as website addresses, including public ones, plus local and internal names (.local, .internal, .lan, .home.arpa, .corp, .localhost) |
 
 ### PV: Privacy and legal
 
@@ -231,7 +235,7 @@ Changes the plan makes because of S0: (1) Instagram, Facebook and TikTok are sel
 | UX-10 | P2 | S3 | device | Specified | Copy link and share buttons work on Android Chrome, iOS Safari, Samsung Internet and Opera Mini |
 | UX-11 | P1 | S3 | e2e | Specified | A returning visitor re-scanning within 24 hours sees the saved result with how long ago; rescan opens after 24 hours |
 | UX-12 | P0 | S3 | e2e | Specified | The sign-up offer appears after the result, is dismissible, and the result stays visible |
-| UX-13 | P0 | S3 | e2e | Specified | What is open or locked matches the founder's decision (A: nothing locked on first scan, B: top 3) - pending |
+| UX-13 | P0 | S3 | e2e | Specified | Decision A (founder, 2026-10-10): the first scan shows the whole result with nothing locked; sign-up is offered after, to save, track and get the weekly email |
 | UX-14 | P1 | S3 | e2e | Specified | Empty and error states are friendly and give a next step (retry, WhatsApp) |
 | UX-15 | P1 | S3 | review | Specified | Brand and voice follow docs/06-brand with no overclaiming |
 
@@ -282,6 +286,71 @@ Changes the plan makes because of S0: (1) Instagram, Facebook and TikTok are sel
 |---|---|---|---|---|---|
 | AN-01 | P1 | S5 | integration | Specified | Events: scan_started, scan_completed, scan_could_not_check, cap_hit, rate_limited, signup_from_scan, with no personal data |
 | AN-02 | P1 | S5 | manual | Specified | A daily summary of those counts reaches the founder |
+| AN-03 | P0 | S5 | integration | Specified | The funnel is measured with targets: visitors who finish a scan 35% or more, finishers who sign up 12% or more, signed-up users who return within 7 days 40% or more; targets are revisited after the first 100 scans |
+| AN-04 | P1 | S5 | integration | Specified | Time to first result and the share of scans ending in could not check are tracked, so a slow or blocked period is noticed within a day |
+
+### XP: Sells itself: understood and valuable in seconds
+
+| ID | Pri | When | Method | Status | What must be true |
+|---|---|---|---|---|---|
+| XP-01 | P0 | S3 | e2e + device | Specified | From the home page to the first result in 3 steps or fewer and 20 seconds or less on a mid-range Android on 3G |
+| XP-02 | P0 | S3 | e2e + visual | Specified | The first screen of the home page shows a real example result and one obvious action, with no scrolling and no sign-up |
+| XP-03 | P0 | S3 | unit | Specified | Plain language: every customer-facing sentence reads at grade 7 or below, and technical words (meta, canonical, schema, SEO) never appear without a plain explanation first |
+| XP-04 | P0 | S1 | unit | Specified | Every finding carries what it is, why it matters to customers or money, how to fix it in one line, and how long it takes |
+| XP-05 | P1 | S3 | e2e | Specified | Every fix offers do it yourself (5 steps or fewer) and do it for me (WhatsApp prefilled with the finding) |
+| XP-06 | P1 | S3 | usability | Specified | Five real owners shown a result are asked what to do first: at least 4 of 5 answer correctly within 30 seconds, unaided |
+| XP-07 | P1 | S3 | review | Specified | The first screen of the result names the single most valuable next step before any list or score detail |
+| XP-08 | P1 | S3 | e2e | Specified | Zero explanation needed: no screen needs a tutorial, tooltip or video to make the first scan work |
+
+### RT: Solves problems as they happen (real time)
+
+| ID | Pri | When | Method | Status | What must be true |
+|---|---|---|---|---|---|
+| RT-01 | P0 | S5 | integration | Specified | Watch: for signed-in businesses a certificate expiring in 30, 14 and 7 days, and a site that goes down, trigger an alert instead of waiting for the weekly email |
+| RT-02 | P0 | S5 | unit | Specified | No false alarms: a site is called down only after two failed checks a few minutes apart, from a classified cause; transient timeouts never alert (fake clock) |
+| RT-03 | P1 | S5 | unit | Specified | Alert hygiene: at most one alert per issue per day, no alerts in quiet hours (WAT night), opt out per alert type |
+| RT-04 | P1 | S3 | e2e | Specified | The scan shows results as each check finishes; the first result appears within 3 seconds |
+| RT-05 | P1 | S4 | e2e | Specified | After a fix, a rescan shows the gain at once: You fixed X, plus 6 points |
+| RT-06 | P1 | Later | integration | Specified | When the Google connection exists: a new review or rating change is surfaced within 24 hours with a drafted reply |
+| RT-07 | P0 | Now | unit | Running | The weekly digest leads with movement or the best next step and never says nothing happened (tests exist) |
+
+### UP: Keeps users updated
+
+| ID | Pri | When | Method | Status | What must be true |
+|---|---|---|---|---|---|
+| UP-01 | P0 | S4 | e2e | Specified | A What's new feed in the app lists real changes in plain words, marks unread items and shows them after login |
+| UP-02 | P0 | S4 | integration | Specified | Email cadence: welcome with what happens next, a day-3 progress note, a day-6 trial note, then the weekly digest; never more than one email a day; each type can be switched off |
+| UP-03 | P1 | S4 | e2e | Specified | The notifications bell shows real items (score change, fix recorded, new feature), never a static placeholder |
+| UP-04 | P1 | Later | integration | Specified | WhatsApp updates: explicit opt-in, an approved template, one-tap stop |
+| UP-05 | P1 | S5 | manual | Specified | A public status page link in the footer shows whether the service is up (the uptime monitor's page) |
+| UP-06 | P1 | S3 | e2e | Specified | Coming-soon features (AI visibility, competitors, review replies) show a notify-me button; requests are counted and shown to the founder |
+
+### BG: Belonging: users feel part of it
+
+| ID | Pri | When | Method | Status | What must be true |
+|---|---|---|---|---|---|
+| BG-01 | P0 | S3 | e2e | Specified | Personal from the first screen: the business name and city appear throughout, never a generic placeholder |
+| BG-02 | P1 | S4 | e2e | Specified | Progress is visible: score history, weeks improving, and a celebration when a fix lands, in warm and understated words |
+| BG-03 | P1 | S4 | integration | Specified | Founding members (the first 30) see a founding mark, keep the locked price for 12 months, and have a direct WhatsApp line to the founder; benefits persist |
+| BG-04 | P1 | S4 | integration | Specified | One-tap Was this useful? on every finding and a request-a-feature box; answers are stored and summarised for the founder weekly; What's new says You asked, we built |
+| BG-05 | P1 | S5 | unit | Specified | Community proof only when true: aggregate counts (for example businesses scanned this month) appear only from real data and only above a minimum of 50; below that they are hidden, never invented |
+| BG-06 | P2 | S4 | e2e | Specified | Share your progress: a card or link such as My score rose from 41 to 63, opened by friends without a sign-up |
+| BG-07 | P1 | S3 | review | Specified | Voice is warm, respectful and plain, never condescending (copy review against docs/06-brand) |
+| BG-08 | P2 | S4 | e2e | Specified | Each week shows what the product did for you: This week we checked 14 things |
+
+### QL: Quality bar: fast, seamless, no dead ends
+
+| ID | Pri | When | Method | Status | What must be true |
+|---|---|---|---|---|---|
+| QL-01 | P0 | S3 | automated | Specified | Performance budget on a mid-range Android over 4G: Lighthouse performance 90 or more, accessibility and best practices 95 or more, largest content under 2.5s, layout shift 0.1 or less, first-load script 170 KB or less |
+| QL-02 | P0 | S3 | automated | Specified | No dead ends: a crawler follows every link and presses every button on every page; none is a 404 or does nothing, and every disabled control says why |
+| QL-03 | P0 | S3 | chaos | Specified | Every failure has a human message, a next step and a reference: stop the database, make Clerk time out, throttle the network, and look at each screen |
+| QL-04 | P0 | S3 | automated | Specified | Sign-up form visible within 3 seconds at p90 from Lagos (it takes 9 to 18 seconds today; needs the region fix) and takes 3 fields or fewer |
+| QL-05 | P1 | S3 | e2e | Specified | The first scan journey transfers 400 KB or less, because data is expensive |
+| QL-06 | P1 | S3 | automated + manual | Specified | Accessibility to WCAG AA, large text, screen reader pass |
+| QL-07 | P1 | S3 | visual | Specified | Visual snapshots of the key screens at 360, 390, 768 and 1280 pixels |
+| QL-08 | P1 | S3 | review | Specified | Every interactive element has hover, focus, disabled and loading states |
+| QL-09 | P2 | S5 | e2e | Specified | Installable to the home screen with an icon; the last result opens offline |
 
 ### UB: User behaviour scenarios
 

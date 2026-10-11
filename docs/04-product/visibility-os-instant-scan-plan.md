@@ -105,7 +105,7 @@ Known weakness, accepted: a determined attacker with many addresses could use up
 
 ## 6. Fixes to the existing audit (same engine, lands with slice 1)
 
-0. Close the three security gaps the tests found (SE-02 to SE-04): today 10 of 33 dangerous addresses are still requested, including odd ports. This is worth doing before the Phase A pull request merges, since the signed-in audit has the same hole.
+0. ~~Close the three security gaps the tests found (SE-02 to SE-04)~~ **Done 2026-10-11** in the Phase A pull request ([ADR-0013](../01-architecture/decisions/0013-migrations-only-in-production-builds-and-url-safety.md)): ports, credentials, IP addresses, internal names and every reserved range are now rejected, with tests. Still open for S1: resolve once then connect to that address (SE-06).
 1. Never write "Your website is unreachable" from one timeout. Retry once, classify, and say "we could not check" unless DNS or the certificate proves it.
 2. Stream with a byte cap instead of downloading the whole body.
 3. Treat a social-profile URL typed into the website field as a social profile, not a website.
@@ -123,7 +123,7 @@ Each slice ships on its own, behind tests, and stops for review.
 | **S4 Claim and funnel** | Sign-up claims the scan, pre-fills the business, trial starts | Full journey: scan, sign up, dashboard shows the same findings |
 | **S5 Observability** | Counters for scans, cache hits, "busy", could-not-check rate; alert on the cap | Health and runbook updated |
 
-New ADR (0013) is written in S1. The plan assumes the Phase A branch is merged first.
+The instant-scan ADR (0014) is written in S1. The plan assumes the Phase A branch is merged first.
 
 ## 8. Not tested, and how each is covered
 
@@ -141,5 +141,5 @@ New ADR (0013) is written in S1. The plan assumes the Phase A branch is merged f
 1. ~~Approve slices S0 to S5, with S0 as the go/no-go.~~ Done: approved, S0 passed.
 2. Create a free Cloudflare account and a Turnstile site for tossvisibilityos.com (needed for S2).
 3. Confirm the three limits: 3 per browser per day, 30 per network, 300 per day overall.
-4. Choose how the first scan opens: **A** (recommended) show the whole result on the first scan and keep sign-up for saving, weekly monitoring, history and later Google reviews and competitors; or **B** show the top 3 fixes and keep the rest for sign-up. The founder's rule that nobody is asked to sign up before their first result holds either way.
+4. ~~Choose how the first scan opens.~~ **Decided: A** (founder, 2026-10-10). The first scan shows the whole result. Sign-up is offered afterwards, to save it, track it, get the weekly email, and later Google reviews and competitors. Nobody is asked to sign up before their first result.
 5. Done: S0 to S5 approved, the abuse limits confirmed, Cloudflare account created (Turnstile site for tossvisibilityos.com still to create).

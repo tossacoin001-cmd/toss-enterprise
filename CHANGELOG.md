@@ -2,6 +2,11 @@
 
 Notable changes to the Toss Enterprise OS, newest first. The detailed record is the Conventional Commit history; this file only keeps the milestones.
 
+## 2026-10-11
+
+- Visibility OS safety fixes ([ADR-0013](docs/01-architecture/decisions/0013-migrations-only-in-production-builds-and-url-safety.md)). (1) Migrations now run only in production builds: previews share the production database, so a preview build used to migrate production before merge. Migrations must also be expand-only, enforced by a test. (2) One URL-safety module replaces the old checks: only ports 80/443, no credentials, no IP addresses, no internal names, every IANA reserved range blocked (10 of 33 dangerous addresses were still being requested). 203 tests pass, including a test that runs the real Vercel build command for production, preview, development and unknown environments.
+- Test specification grown to 194 tests with five experience areas: sells itself in seconds, solves problems as they happen, keeps users updated, belonging, and a quality bar (speed, no dead ends, human errors).
+
 ## 2026-10-10
 
 - Instant-scan slice S0 done: GO. Probed 18 sites and 12 social pages from Vercel's network (during a build, read back from the build log). Real sites answer in 0.3s median (Lagos: 3.6s); Instagram, Facebook and TikTok cannot be verified from servers (identical login page), YouTube, X and LinkedIn can; a 1.2 MB page showed that tags must be read to the end of the head, not a fixed 500 KB. Test list now 151.
