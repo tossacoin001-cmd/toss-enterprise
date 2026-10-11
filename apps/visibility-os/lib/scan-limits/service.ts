@@ -29,6 +29,15 @@ export type ScanDeps2 = {
   alert: (what: string) => void;
 };
 
+/** The visitor's own words about the business, kept short, so the result page can use them. */
+const metaOf = (input: ScanInput): ScanReport["meta"] => {
+  const meta: NonNullable<ScanReport["meta"]> = {};
+  if (input.name) meta.name = input.name.slice(0, 120);
+  if (input.city) meta.city = input.city.slice(0, 120);
+  if (input.category) meta.category = input.category.slice(0, 120);
+  return meta;
+};
+
 export type ApiResult = { status: number; body: unknown; setCookie?: string };
 
 const PLATFORMS: ReadonlySet<string> = new Set<SocialPlatform>(["instagram", "facebook", "tiktok", "x", "youtube", "linkedin"]);
@@ -118,7 +127,7 @@ export async function requestScan(req: { body: unknown; headers: Headers; cookie
 
     deps.schedule(async () => {
       try {
-        await deps.store.finish(scan.id, "done", await deps.runScan(input));
+        await deps.store.finish(scan.id, "done", { ...(await deps.runScan(input)), meta: metaOf(input) });
       } catch {
         await deps.store.finish(scan.id, "incomplete", null).catch(() => undefined);
       }
@@ -130,7 +139,7 @@ export async function requestScan(req: { body: unknown; headers: Headers; cookie
   } catch {
     // The database failed: still give the visitor their result, just not stored or shareable.
     try {
-      return { status: 200, body: { id: null, status: "done", stored: false, result: await deps.runScan(input) } };
+      return { status: 200, body: { id: null, status: "done", stored: false, result: { ...(await deps.runScan(input)), meta: metaOf(input) } } };
     } catch {
       return { status: 503, body: { error: "unavailable", message: "Something went wrong on our side. Please try again in a minute." } };
     }

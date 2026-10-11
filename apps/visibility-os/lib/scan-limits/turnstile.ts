@@ -20,7 +20,7 @@ export async function verifyTurnstile(
   if (ip) body.set("remoteip", ip);
 
   try {
-    const res = await (deps.fetch ?? fetch)(VERIFY_URL, { method: "POST", body, signal: AbortSignal.timeout(deps.timeoutMs ?? 5000) });
+    const res = await (deps.fetch ?? fetch)(VERIFY_URL, { method: "POST", body, signal: AbortSignal.timeout(deps.timeoutMs ?? 8000) });
     if (!res.ok) return { ok: false, reason: "unavailable" };
     const answer = (await res.json()) as { success?: unknown; "error-codes"?: unknown };
     if (answer.success === true) return { ok: true };
