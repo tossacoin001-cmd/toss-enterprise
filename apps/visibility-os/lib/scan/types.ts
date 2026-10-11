@@ -93,5 +93,5 @@ export type ScanReport = {
   whatsapp?: { e164: string; link: string } | null;
   inputNote?: { kind: string; platform?: SocialPlatform; handle?: string };
   /** What the visitor told us about the business, kept with the result so the page can be personal. */
-  meta?: { name?: string; city?: string; category?: string };
+  meta?: { name?: string; city?: string; category?: string; platforms?: SocialPlatform[] };
 };

@@ -185,3 +185,28 @@ body {
   background-size: 80px 80px;
   opacity: 0.025;
 }
+
+/* Motion. It has a job (welcome, show the score, show people) and a budget: only transform and
+   opacity, short, and only for visitors who have not asked for less motion. Nothing is hidden
+   without it, so the page is complete with motion off. Tests: tests/front-page/motion.test.ts. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes pop { from { opacity: 0; transform: scale(0.97) translateY(10px); } to { opacity: 1; transform: none; } }
+  @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+  @keyframes tick { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
+
+  .rise { animation: rise 0.7s ease-out both; }
+  .rise-1 { animation-delay: 0.08s; }
+  .rise-2 { animation-delay: 0.16s; }
+  .rise-3 { animation-delay: 0.24s; }
+  .pop { animation: pop 0.8s ease-out 0.2s both; }
+  .grow-x { transform-origin: left; animation: grow 0.9s ease-out 0.5s both; }
+  .tick { animation: tick 0.4s ease-out 0.9s both; }
+  .float { animation: float 6s ease-in-out infinite; }
+  .float-2 { animation-delay: -2s; }
+  .float-3 { animation-delay: -4s; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}

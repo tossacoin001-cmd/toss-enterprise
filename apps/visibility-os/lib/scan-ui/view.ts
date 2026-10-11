@@ -1,6 +1,7 @@
 import type { Finding, PlanStep, ScanReport } from "@/lib/scan/types";
 import { TOSS_WHATSAPP } from "./constants";
 import { HOWTO } from "./howto";
+import { PERSONAL_PLAN, isPersonal } from "./personal";
 
 /**
  * Everything a visitor reads on the result page, built as plain data so every rule can be tested
@@ -111,6 +112,7 @@ export function buildView(api: ScanApi, ctx: ViewContext): ResultView {
   else if (https?.cause === "certificate_expired" || https?.cause === "certificate_untrusted" || https?.cause === "certificate_wrong_name") state = "certificate";
   else if (report.score.website === null) state = "could_not_open";
 
+  const personal = isPersonal(report.meta?.category ?? ctx.category);
   const who = name || host || "my business";
   const message = (f: Pick<Finding, "title">) => `Hi Toss, I just ran a free Visibility OS scan for ${who}. Please help me with: ${tidy(f.title, 90)}.`;
   const href = (f: Pick<Finding, "title">) => `https://wa.me/${ctx.whatsappNumber ?? TOSS_WHATSAPP}?text=${encodeURIComponent(message(f))}`;
@@ -118,12 +120,13 @@ export function buildView(api: ScanApi, ctx: ViewContext): ResultView {
   // With no social media at all, "open an account" already covers linking it and checking it: show one fix, not three.
   const noSocial = report.findings.some((f) => f.id === "social.present" && f.state === "missing");
   const shown = noSocial ? report.fixes.filter((f) => f.id !== "social.linked" && !(f.id === "social.verified" && f.detail === "none_found")) : report.fixes;
-  const fixes: FixView[] = shown.map((f) => ({
+  const fixes: FixView[] = shown.filter((f) => !(personal && f.id === "google.profile")).map((f) => ({
     id: f.id, title: f.title, why: f.why, fix: f.fix, minutes: f.minutes, priority: PRIORITY_LABEL[f.priority], steps: HOWTO[f.id] ?? [], doItForMe: href(f),
   }));
 
   let nextStep: ResultView["nextStep"] = null;
-  const first = report.startHere?.[0];
+  const plan = state === "no_website" ? (personal ? [...PERSONAL_PLAN] : report.startHere) : undefined;
+  const first = plan?.[0];
   if (state === "no_website" && first) nextStep = { title: first.title, why: first.why, minutes: first.minutes, doItForMe: href(first) };
   else if (fixes[0]) nextStep = { title: fixes[0].title, why: fixes[0].why, minutes: fixes[0].minutes, doItForMe: fixes[0].doItForMe };
 
@@ -140,9 +143,11 @@ export function buildView(api: ScanApi, ctx: ViewContext): ResultView {
       ? `We could not look at ${title} this time`
       : `Good news. ${title} has the basics covered.`;
 
-  const couldNot = report.findings.filter((f) => f.state === "could_not_check").map((f) => ({ id: f.id, title: f.title, why: f.why }));
+  const couldNot = report.findings.filter((f) => f.state === "could_not_check" && !(personal && f.id === "google.profile")).map((f) => ({ id: f.id, title: f.title, why: f.why }));
   const notices = ["This scan only looks at public information on the internet."];
   if (report.findings.some((f) => f.caveat === "js_built")) notices.push("Your site builds some pages in the browser, so we may have missed things that are there.");
+  const unverifiable = (report.meta?.platforms ?? []).filter((p) => p === "instagram" || p === "facebook" || p === "tiktok");
+  if (unverifiable.length) notices.push("We cannot look inside Instagram, Facebook or TikTok from outside, so we took your word for those. They are not counted in your score.");
   if (report.site?.movedToOtherDomain) notices.push(`Your address leads to ${host}, so we checked that site.`);
 
   return {
@@ -150,7 +155,7 @@ export function buildView(api: ScanApi, ctx: ViewContext): ResultView {
     good: report.findings.filter((f) => f.state === "found" && f.points > 0).map((f) => ({ id: f.id, title: f.title })),
     couldNot,
     couldNotNote: couldNot.length ? "We could not check these, so they are not counted in your score." : null,
-    startHere: report.startHere,
+    startHere: plan,
     notices,
     signUp: {
       show: true,

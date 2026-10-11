@@ -35,6 +35,8 @@ const metaOf = (input: ScanInput): ScanReport["meta"] => {
   if (input.name) meta.name = input.name.slice(0, 120);
   if (input.city) meta.city = input.city.slice(0, 120);
   if (input.category) meta.category = input.category.slice(0, 120);
+  const platforms = Object.keys(input.handles ?? {}) as SocialPlatform[];
+  if (platforms.length) meta.platforms = platforms; // which platforms, never the handles
   return meta;
 };
 
