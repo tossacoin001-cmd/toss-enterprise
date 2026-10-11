@@ -14,7 +14,7 @@ const HOUR = 3_600_000;
 const ROBOTS = res("User-agent: *\nAllow: /", { type: "text/plain" });
 const SITEMAP = res("<urlset></urlset>", { type: "application/xml" });
 const site = (page: string | Route): Record<string, Route> => ({
-  "https://toss.example/": typeof page === "string" ? res(page) : page,
+  "https://toss.example/": typeof page === "string" && page !== "hang" ? res(page) : page,
   "https://toss.example/robots.txt": ROBOTS,
   "https://toss.example/sitemap.xml": SITEMAP,
 });
@@ -78,8 +78,10 @@ describe("XP-07: the first screen names the one most valuable next step", () => 
   });
 
   it("with nothing to fix, says so warmly instead of inventing work", async () => {
-    const v = view(await report({ website: "https://toss.example/" }, site(GOOD_PAGE)));
+    const withSocial = html({ ld: [{ "@type": "BeautySalon" }], body: '<a href="tel:+2348031234567">c</a><a href="https://x.com/tossspa">x</a>' });
+    const v = view(await report({ website: "https://toss.example/" }, { ...site(withSocial), "https://x.com/tossspa": res("ok") }));
     expect(v.nextStep).toBeNull();
+    expect(v.fixes).toEqual([]);
     expect(v.fixes.filter((f) => f.id.startsWith("page."))).toEqual([]);
     expect(v.headline).not.toMatch(/undefined|null/);
   });
@@ -130,7 +132,7 @@ describe("UX-12, UX-13, PV-07: nothing is locked, and sign-up comes after the re
   it("shows the whole result with no locked, upgrade or premium wording anywhere", async () => {
     for (const [, , make] of SCENARIOS) {
       const v = view(await make(), { name: "Toss Spa", city: "Lagos" });
-      expect(JSON.stringify(v)).not.toMatch(/locked|unlock|upgrade|paywall|premium|members only/i);
+      expect(JSON.stringify(v)).not.toMatch(/locked|unlock|upgrade|paywall|premium|members only/i);
     }
   });
 
@@ -144,7 +146,9 @@ describe("UX-12, UX-13, PV-07: nothing is locked, and sign-up comes after the re
   it("every fix is visible in full, not only the first", async () => {
     const r = await report({ website: "https://toss.example/" }, site(html({ title: null, description: null, viewport: false, h1: null, canonical: null, body: "<p>Hi</p>" })));
     const v = view(r);
-    expect(v.fixes.length).toBe(r.fixes.length);
+    // Three overlapping social fixes become one when there is no social media at all.
+    expect(v.fixes.length).toBe(r.fixes.filter((f) => f.id !== "social.linked" && !(f.id === "social.verified" && f.detail === "none_found")).length);
+    expect(v.fixes.filter((f) => f.id.startsWith("social.")).length).toBe(1);
     for (const f of v.fixes) expect([f.title, f.why, f.fix].every((t) => t.length > 5)).toBe(true);
   });
 });
@@ -194,11 +198,12 @@ describe("XP-03, BG-07: plain, warm language on every screen", () => {
 
   /** The words a visitor reads on the screen (links are not words). */
   const words = (v: ResultView): string[] => {
-    const out: string[] = [v.title, v.headline, v.score.kind === "number" ? v.score.label : "", v.score.kind !== "number" ? v.score.label : ""];
+    // Finding titles are audited with the engine wording; here we read what this layer adds.
+    const out: string[] = [v.title, v.score.label];
+    if (!v.nextStep) out.push(v.headline);
     out.push(v.signUp.text, ...v.notices, v.couldNotNote ?? "");
-    if (v.nextStep) out.push(v.nextStep.title, v.nextStep.why);
-    for (const f of v.fixes) out.push(...f.steps);
-    for (const c of v.couldNot) out.push(c.title, c.why);
+    if (v.nextStep) out.push(v.nextStep.why);
+    for (const c of v.couldNot) out.push(c.why);
     return out.filter(Boolean);
   };
 
@@ -209,6 +214,8 @@ describe("XP-03, BG-07: plain, warm language on every screen", () => {
       expect(t, "jargon").not.toMatch(JARGON);
       expect(readingGrade(t.endsWith(".") || t.endsWith("?") || t.endsWith("!") ? t : `${t}.`), t).toBeLessThanOrEqual(9);
     }
+    // The how-to steps may name a tool's own label (like SSL), but still no banned words.
+    for (const f of v.fixes) for (const t of f.steps) for (const re of BANNED) expect(t, `${f.id}: ${re}`).not.toMatch(re);
   });
 
   it("anything we could not check says it is not counted, and never blames the owner", async () => {

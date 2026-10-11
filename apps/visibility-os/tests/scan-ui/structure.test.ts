@@ -35,7 +35,7 @@ describe("UX-01, UX-13: no sign-up wall before the first result", () => {
     expect(offer).toMatch(/\/sign-up/);
     const result = src("components/scan/ResultView.tsx");
     expect(result).toMatch(/SignUpOffer/);
-    expect(result.indexOf("fixes")).toBeLessThan(result.indexOf("SignUpOffer"));
+    expect(result.indexOf("view.fixes")).toBeLessThan(result.lastIndexOf("<SignUpOffer"));
     expect(src("components/scan/ScanBox.tsx")).not.toMatch(/\/sign-up/);
   });
 });

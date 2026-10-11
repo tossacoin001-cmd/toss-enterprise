@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://tossvisibilityos.com"),
   title: "Visibility OS by Toss Enterprise",
   description:
     "See exactly how visible your business is online, and exactly what to fix. Visibility OS scores your Google presence, website, and social profiles, then gives you a ranked action plan.",

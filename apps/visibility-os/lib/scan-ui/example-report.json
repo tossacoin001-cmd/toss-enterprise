@@ -1,0 +1,306 @@
+{
+  "scannedAt": "2026-10-11",
+  "report": {
+    "path": "website",
+    "findings": [
+      {
+        "id": "site.reachable",
+        "group": "website",
+        "state": "found",
+        "priority": "HIGH",
+        "title": "Your website opens",
+        "why": "Customers can open your website, which is the first step to winning them.",
+        "fix": "Nothing to fix here. Keep your hosting and address paid up.",
+        "minutes": 30,
+        "points": 25,
+        "earned": 25
+      },
+      {
+        "id": "site.https",
+        "group": "website",
+        "state": "found",
+        "priority": "HIGH",
+        "title": "Your site uses a secure connection",
+        "why": "A secure connection shows a padlock in browsers, and customers trust it.",
+        "fix": "Nothing to fix here. Keep it up to date.",
+        "minutes": 20,
+        "points": 15,
+        "earned": 15
+      },
+      {
+        "id": "page.title",
+        "group": "website",
+        "state": "found",
+        "priority": "MEDIUM",
+        "title": "Your page has a title",
+        "why": "The title is the headline customers see on Google and in their browser tab.",
+        "fix": "Nothing to fix here. Keep it up to date.",
+        "minutes": 10,
+        "points": 10,
+        "earned": 10
+      },
+      {
+        "id": "page.description",
+        "group": "website",
+        "state": "found",
+        "priority": "MEDIUM",
+        "title": "Your page has a short description for Google",
+        "why": "This short text under your name on Google tells customers why to choose you.",
+        "fix": "Nothing to fix here. Keep it up to date.",
+        "minutes": 10,
+        "points": 10,
+        "earned": 10
+      },
+      {
+        "id": "page.mobile",
+        "group": "website",
+        "state": "found",
+        "priority": "HIGH",
+        "title": "Your site is set up for phones",
+        "why": "Most of your customers browse on phones, and your site fits their screens.",
+        "fix": "Nothing to fix here. Keep it up to date.",
+        "minutes": 15,
+        "points": 8,
+        "earned": 8
+      },
+      {
+        "id": "page.heading",
+        "group": "website",
+        "state": "found",
+        "priority": "LOW",
+        "title": "Your page has a main heading",
+        "why": "A clear heading tells visitors and Google what your business does at a glance.",
+        "fix": "Nothing to fix here. Keep it up to date.",
+        "minutes": 10,
+        "points": 4,
+        "earned": 4
+      },
+      {
+        "id": "page.canonical",
+        "group": "website",
+        "state": "missing",
+        "priority": "LOW",
+        "title": "Your page does not name its main address",
+        "why": "Without it, Google may treat copies of your page as separate pages and split your ranking.",
+        "fix": "Ask your website builder to set the main address for each page.",
+        "minutes": 10,
+        "points": 4,
+        "earned": 0
+      },
+      {
+        "id": "trust.contact",
+        "group": "website",
+        "state": "found",
+        "priority": "HIGH",
+        "title": "Customers can see how to reach you",
+        "why": "A phone number or chat button helps visitors become customers.",
+        "fix": "Nothing to fix here. Keep it up to date.",
+        "minutes": 15,
+        "points": 8,
+        "earned": 8
+      },
+      {
+        "id": "trust.schema",
+        "group": "website",
+        "state": "missing",
+        "priority": "LOW",
+        "title": "Search engines cannot read your business details",
+        "why": "Google shows your hours, area and phone number more clearly when your site gives them in a form it can read.",
+        "fix": "Ask your website builder to add your business details in the form Google reads.",
+        "minutes": 30,
+        "points": 6,
+        "earned": 0
+      },
+      {
+        "id": "find.robots_sitemap",
+        "group": "website",
+        "state": "missing",
+        "priority": "LOW",
+        "title": "Search engines have no list of your pages",
+        "why": "A list of your pages helps Google find and show all of them, not only the first one.",
+        "fix": "Ask your website builder to create the page list and the file that guides search engines.",
+        "minutes": 20,
+        "points": 4,
+        "earned": 0
+      },
+      {
+        "id": "speed",
+        "group": "website",
+        "state": "found",
+        "priority": "LOW",
+        "title": "Your site opens quickly for us",
+        "why": "It opened quickly when we visited from our server, which keeps visitors from leaving.",
+        "fix": "Nothing to fix here. Keep it up to date.",
+        "minutes": 60,
+        "points": 6,
+        "earned": 3
+      },
+      {
+        "id": "social.present",
+        "group": "social",
+        "state": "missing",
+        "priority": "MEDIUM",
+        "title": "We found no social media for your business",
+        "why": "Customers look at Instagram or Facebook to see if a business is real.",
+        "fix": "Open an account on the platform your customers use, and link it from your website.",
+        "minutes": 20,
+        "points": 40,
+        "earned": 0
+      },
+      {
+        "id": "social.linked",
+        "group": "social",
+        "state": "missing",
+        "priority": "MEDIUM",
+        "title": "Your website does not link to your social media",
+        "why": "Visitors who like what they see look for your social pages, and a link makes it easy.",
+        "fix": "Add your Instagram, Facebook or TikTok link in the footer of your website.",
+        "minutes": 10,
+        "points": 30,
+        "earned": 0
+      },
+      {
+        "id": "social.verified",
+        "group": "social",
+        "state": "missing",
+        "priority": "MEDIUM",
+        "title": "We found no social profile to check",
+        "why": "Without a profile there is nothing for customers to follow.",
+        "fix": "Open one account and link it from your website.",
+        "minutes": 10,
+        "points": 30,
+        "earned": 0,
+        "detail": "none_found"
+      }
+    ],
+    "fixes": [
+      {
+        "id": "social.linked",
+        "group": "social",
+        "state": "missing",
+        "priority": "MEDIUM",
+        "title": "Your website does not link to your social media",
+        "why": "Visitors who like what they see look for your social pages, and a link makes it easy.",
+        "fix": "Add your Instagram, Facebook or TikTok link in the footer of your website.",
+        "minutes": 10,
+        "points": 30,
+        "earned": 0
+      },
+      {
+        "id": "social.verified",
+        "group": "social",
+        "state": "missing",
+        "priority": "MEDIUM",
+        "title": "We found no social profile to check",
+        "why": "Without a profile there is nothing for customers to follow.",
+        "fix": "Open one account and link it from your website.",
+        "minutes": 10,
+        "points": 30,
+        "earned": 0,
+        "detail": "none_found"
+      },
+      {
+        "id": "social.present",
+        "group": "social",
+        "state": "missing",
+        "priority": "MEDIUM",
+        "title": "We found no social media for your business",
+        "why": "Customers look at Instagram or Facebook to see if a business is real.",
+        "fix": "Open an account on the platform your customers use, and link it from your website.",
+        "minutes": 20,
+        "points": 40,
+        "earned": 0
+      },
+      {
+        "id": "page.canonical",
+        "group": "website",
+        "state": "missing",
+        "priority": "LOW",
+        "title": "Your page does not name its main address",
+        "why": "Without it, Google may treat copies of your page as separate pages and split your ranking.",
+        "fix": "Ask your website builder to set the main address for each page.",
+        "minutes": 10,
+        "points": 4,
+        "earned": 0
+      },
+      {
+        "id": "find.robots_sitemap",
+        "group": "website",
+        "state": "missing",
+        "priority": "LOW",
+        "title": "Search engines have no list of your pages",
+        "why": "A list of your pages helps Google find and show all of them, not only the first one.",
+        "fix": "Ask your website builder to create the page list and the file that guides search engines.",
+        "minutes": 20,
+        "points": 4,
+        "earned": 0
+      },
+      {
+        "id": "trust.schema",
+        "group": "website",
+        "state": "missing",
+        "priority": "LOW",
+        "title": "Search engines cannot read your business details",
+        "why": "Google shows your hours, area and phone number more clearly when your site gives them in a form it can read.",
+        "fix": "Ask your website builder to add your business details in the form Google reads.",
+        "minutes": 30,
+        "points": 6,
+        "earned": 0
+      }
+    ],
+    "topFixes": [
+      {
+        "id": "social.linked",
+        "group": "social",
+        "state": "missing",
+        "priority": "MEDIUM",
+        "title": "Your website does not link to your social media",
+        "why": "Visitors who like what they see look for your social pages, and a link makes it easy.",
+        "fix": "Add your Instagram, Facebook or TikTok link in the footer of your website.",
+        "minutes": 10,
+        "points": 30,
+        "earned": 0
+      },
+      {
+        "id": "social.verified",
+        "group": "social",
+        "state": "missing",
+        "priority": "MEDIUM",
+        "title": "We found no social profile to check",
+        "why": "Without a profile there is nothing for customers to follow.",
+        "fix": "Open one account and link it from your website.",
+        "minutes": 10,
+        "points": 30,
+        "earned": 0,
+        "detail": "none_found"
+      },
+      {
+        "id": "social.present",
+        "group": "social",
+        "state": "missing",
+        "priority": "MEDIUM",
+        "title": "We found no social media for your business",
+        "why": "Customers look at Instagram or Facebook to see if a business is real.",
+        "fix": "Open an account on the platform your customers use, and link it from your website.",
+        "minutes": 20,
+        "points": 40,
+        "earned": 0
+      }
+    ],
+    "couldNotCheck": [],
+    "score": {
+      "website": 83,
+      "social": 0,
+      "total": 42,
+      "earned": 83,
+      "possible": 200,
+      "pointsAvailable": 117
+    },
+    "site": {
+      "finalUrl": "https://tossvisibilityos.com/",
+      "status": 200,
+      "movedToOtherDomain": false,
+      "usedHttpFallback": false
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # Visibility OS: S3 plan, the scan page
 
-Status: tests written, code not started (2026-10-11). Part of the [instant scan plan](visibility-os-instant-scan-plan.md); the API it calls is live ([ADR-0016](../01-architecture/decisions/0016-instant-scan-api-limits-and-turnstile.md)).
+Status: built (2026-10-11). 101 tests pass; checked end to end in a real browser on a phone-sized screen. Privacy and terms are drafts and need a legal read. Part of the [instant scan plan](visibility-os-instant-scan-plan.md); the API it calls is live ([ADR-0016](../01-architecture/decisions/0016-instant-scan-api-limits-and-turnstile.md)).
 
 ## What the visitor experiences
 

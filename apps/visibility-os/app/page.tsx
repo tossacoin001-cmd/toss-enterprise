@@ -1,26 +1,32 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import ExampleResult from "@/components/scan/ExampleResult";
+import ScanBox from "@/components/scan/ScanBox";
+import { SITE_URL, SOCIAL } from "@/lib/brand";
 
-const sampleBreakdown = [
-  { label: "Google", value: 40, max: 100 },
-  { label: "Website", value: 85, max: 100 },
-  { label: "Social", value: 70, max: 100 },
-];
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
-const sampleActions = [
-  { priority: "#ef4444", title: "Claim your Google Business Profile", tag: "Google" },
-  { priority: "#C9A96E", title: "Add a search description to your website", tag: "Website" },
-];
+const socialLinks = Object.entries(SOCIAL).filter(([, url]) => url);
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  name: "Visibility OS by Toss Enterprise",
+  url: SITE_URL,
+  telephone: "+2348087919951",
+  description: "A free check of how visible your business is online, with a plain list of what to fix first.",
+  ...(socialLinks.length ? { sameAs: socialLinks.map(([, url]) => url) } : {}),
+};
 
 const steps = [
   {
     n: "01",
-    title: "Connect your business",
-    desc: "Name, city, website, Instagram, Google profile. Two minutes, no technical setup.",
+    title: "Type your website address",
+    desc: "No website yet? Tell us your name and your Instagram instead. No sign-up, no card, about 20 seconds.",
   },
   {
     n: "02",
-    title: "Get your score",
-    desc: "We audit your Google presence, website health, and social profiles, then score you out of 100.",
+    title: "See your score",
+    desc: "We check your website and social links, say plainly what we could not check, and score you out of 100.",
   },
   {
     n: "03",
@@ -66,96 +72,46 @@ function Logo() {
 export default function Home() {
   return (
     <div className="relative" style={{ background: "linear-gradient(180deg, #092D22 0%, #050E09 55%)" }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       <div className="hero-grid absolute inset-0 pointer-events-none" />
 
       {/* Nav */}
-      <header className="relative max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+      <header className="relative max-w-6xl mx-auto px-6 h-16 sm:h-20 flex items-center justify-between">
         <Logo />
         <nav className="flex items-center gap-3">
           <Link
             href="/sign-in"
-            className="px-4 py-2 text-xs tracking-[0.15em] uppercase"
+            className="px-4 py-3 text-xs tracking-[0.15em] uppercase whitespace-nowrap"
             style={{ color: "rgba(250,247,242,0.6)" }}
           >
             Sign in
           </Link>
-          <Link href="/sign-up" className="btn-gold px-5 py-2.5 text-xs tracking-[0.15em] uppercase">
+          <Link href="/sign-up" className="btn-gold hidden sm:inline-block px-5 py-2.5 text-xs tracking-[0.15em] uppercase">
             Get your score
           </Link>
         </nav>
       </header>
 
       {/* Hero */}
-      <section className="relative max-w-6xl mx-auto px-6 pt-16 pb-20 grid lg:grid-cols-2 gap-14 items-center">
+      <section className="relative max-w-6xl mx-auto px-6 pt-4 sm:pt-16 pb-20 grid lg:grid-cols-2 gap-14 items-center">
         <div>
-          <p className="text-[11px] tracking-[0.3em] uppercase mb-5" style={{ color: "#C9A96E" }}>
+          <p className="hidden sm:block text-[11px] tracking-[0.3em] uppercase mb-5" style={{ color: "#C9A96E" }}>
             A Toss Enterprise product
           </p>
           <h1
-            className="font-display text-5xl sm:text-6xl font-light leading-[1.05] mb-6"
+            className="font-display text-4xl sm:text-6xl font-light leading-[1.05] mb-4 sm:mb-6"
             style={{ color: "#FAF7F2" }}
           >
             Know exactly how <span className="gold-text font-medium">visible</span> your business is online.
           </h1>
-          <p className="text-base leading-relaxed max-w-md mb-9" style={{ color: "rgba(250,247,242,0.55)" }}>
+          <p className="text-sm sm:text-base leading-relaxed max-w-md mb-5 sm:mb-9" style={{ color: "rgba(250,247,242,0.55)" }}>
             Visibility OS audits your Google presence, website, and social profiles, scores you out of 100,
             and hands you a ranked action plan. Built for ambitious local businesses, from Lagos to anywhere.
           </p>
-          <div className="flex items-center gap-4 flex-wrap">
-            <Link href="/sign-up" className="btn-gold px-8 py-3.5 text-xs tracking-[0.2em] uppercase">
-              Get your free score
-            </Link>
-            <span className="text-xs" style={{ color: "rgba(250,247,242,0.35)" }}>
-              Free in early access. No card needed.
-            </span>
-          </div>
+          <div className="max-w-md"><ScanBox /></div>
         </div>
 
-        {/* Score mock */}
-        <div className="green-card p-7" aria-hidden="true">
-          <div className="flex items-start justify-between mb-6">
-            <div>
-              <p className="text-[10px] tracking-[0.25em] uppercase mb-1" style={{ color: "#C9A96E" }}>
-                Restaurant, Lagos
-              </p>
-              <p className="font-display text-2xl font-light" style={{ color: "#FAF7F2" }}>
-                Adaeze&apos;s Kitchen
-              </p>
-            </div>
-            <div className="text-right">
-              <div className="font-display text-5xl font-light gold-text">64</div>
-              <div className="text-[10px] tracking-[0.2em] uppercase" style={{ color: "rgba(250,247,242,0.4)" }}>
-                Visibility score
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-3 mb-6">
-            {sampleBreakdown.map((b) => (
-              <div key={b.label}>
-                <div className="flex justify-between text-xs mb-1.5">
-                  <span style={{ color: "rgba(250,247,242,0.6)" }}>{b.label}</span>
-                  <span style={{ color: "#C9A96E" }}>{b.value}</span>
-                </div>
-                <div className="score-bar-track">
-                  <div className="score-bar-fill" style={{ width: `${(b.value / b.max) * 100}%` }} />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="space-y-2">
-            {sampleActions.map((a) => (
-              <div key={a.title} className="action-item">
-                <span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: a.priority }} />
-                <span className="flex-1 text-sm" style={{ color: "#FAF7F2" }}>
-                  {a.title}
-                </span>
-                <span className="badge badge-gold shrink-0">{a.tag}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <ExampleResult />
       </section>
 
       {/* How it works */}
@@ -235,6 +191,15 @@ export default function Home() {
           >
             Toss Enterprise
           </a>
+          . <Link href="/privacy" className="underline underline-offset-4" style={{ color: "#C9A96E" }}>Privacy</Link>
+          {" · "}
+          <Link href="/terms" className="underline underline-offset-4" style={{ color: "#C9A96E" }}>Terms</Link>
+          {socialLinks.map(([name, url]) => (
+            <span key={name}>
+              {" · "}
+              <a href={url} rel="noopener noreferrer" className="underline underline-offset-4" style={{ color: "#C9A96E" }}>{name === "x" ? "X" : "LinkedIn"}</a>
+            </span>
+          ))}
           . Questions?{" "}
           <a
             href="https://wa.me/2348087919951"
