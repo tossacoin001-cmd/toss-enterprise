@@ -1,5 +1,9 @@
+import { ClerkLoading, ClerkProvider } from "@clerk/nextjs";
+import AuthSkeleton from "@/components/AuthSkeleton";
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
-  return (
+  const key = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  const page = (
     <div
       className="min-h-screen flex items-center justify-center px-4"
       style={{ background: "linear-gradient(180deg, #092D22 0%, #050E09 100%)" }}
@@ -17,8 +21,20 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             Visibility <span className="gold-text">OS</span>
           </span>
         </div>
+        {key && (
+          <ClerkLoading>
+            <AuthSkeleton />
+          </ClerkLoading>
+        )}
         {children}
       </div>
     </div>
+  );
+
+  if (!key) return page;
+  return (
+    <ClerkProvider signInUrl="/sign-in" signUpUrl="/sign-up">
+      {page}
+    </ClerkProvider>
   );
 }

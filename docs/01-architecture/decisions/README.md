@@ -26,3 +26,4 @@ Every significant decision gets an ADR: technology choices, structural changes, 
 | [0011](0011-daily-time-boxed-weekly-run-and-connect-listing.md) | Daily time-boxed weekly run, one-click unsubscribe, connect a Google listing later | Accepted |
 | [0012](0012-supabase-free-tier-until-first-paying-customer.md) | Free Supabase tier with monitoring until the first paying customer, then Pro | Accepted |
 | [0013](0013-migrations-only-in-production-builds-and-url-safety.md) | Migrations only in production builds, expand-only migrations, one URL-safety module | Accepted |
+| [0014](0014-fast-auth-pages-and-scoped-clerk.md) | Prerendered sign-in and sign-up, Clerk only where needed, health timing | Accepted |

@@ -123,7 +123,7 @@ Each slice ships on its own, behind tests, and stops for review.
 | **S4 Claim and funnel** | Sign-up claims the scan, pre-fills the business, trial starts | Full journey: scan, sign up, dashboard shows the same findings |
 | **S5 Observability** | Counters for scans, cache hits, "busy", could-not-check rate; alert on the cap | Health and runbook updated |
 
-The instant-scan ADR (0014) is written in S1. The plan assumes the Phase A branch is merged first.
+The engine ADR (0015) is written in S1 (see [the S1 plan](visibility-os-s1-engine-plan.md)). The plan assumes the Phase A branch is merged first.
 
 ## 8. Not tested, and how each is covered
 
