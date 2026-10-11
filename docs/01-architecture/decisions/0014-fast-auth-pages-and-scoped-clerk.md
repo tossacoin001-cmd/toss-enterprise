@@ -33,3 +33,16 @@ Measured on the live site from Lagos on 2026-10-11 (five cold visits, then repea
 - The home page loses about 250 KB and 3 requests. A test guards that Clerk is not reintroduced in the root layout.
 - Any new page that makes signed-in `fetch` calls must sit under a layout with the provider.
 - Key-less builds (CI) render a plain message on the auth pages instead of failing, since they are now prerendered.
+
+## Result (measured on production, 2026-10-11, after deploy)
+
+Nine cold visits to `/sign-up` from Lagos, before and after:
+
+| | Before (5 visits) | After (9 visits) |
+|---|---|---|
+| Form visible, median | 2.5s | 2.0s |
+| Form visible, worst | 8.8s (about 10s after idle) | 2.7s |
+| First paint, worst | 6.4s | 1.2s |
+| Cache | `MISS`, built in Washington on every visit | `HIT` from the Cape Town edge |
+
+The target (form visible within 3s) holds on every measured visit. The database answers in about 8 ms once connected (the `Server-Timing` header), so it sits in the same region as the app's servers; moving the servers toward Lagos would make signed-in pages slower, not faster. The remaining time is Clerk's own script and two API calls.

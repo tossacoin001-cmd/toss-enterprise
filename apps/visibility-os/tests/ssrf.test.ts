@@ -9,7 +9,9 @@ vi.mock("node:dns/promises", () => ({
   }),
 }));
 
-import { scoreBusiness, type BusinessInput } from "@/lib/scoring";
+import { scoreBusiness as score, type BusinessInput } from "@/lib/scoring";
+
+const scoreBusiness = (b: BusinessInput) => score(b, undefined, undefined, { certDaysLeft: async () => null });
 
 // SE-01..SE-05. The scan fetches addresses typed by strangers, so the question
 // is simple: does fetch() ever get called for an address it must not touch?
@@ -103,6 +105,8 @@ describe("redirects cannot smuggle the scan to a place it must not go", () => {
   it("an ordinary redirect (http to https, www) is still followed", async () => {
     vi.stubGlobal("fetch", redirectTo("https://www.toss.example/"));
     await scoreBusiness({ ...base, website: "http://toss.example" });
-    expect(calls).toHaveLength(2);
+    // The first page, the redirect target, and the two small file checks on the final site.
+    expect(calls.slice(0, 2)).toEqual(["http://toss.example/", "https://www.toss.example/"]);
+    expect(calls.every((u) => /^https?:\/\/(www\.)?toss\.example\//.test(u))).toBe(true);
   });
 });
