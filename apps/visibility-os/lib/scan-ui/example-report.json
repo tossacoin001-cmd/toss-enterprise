@@ -78,14 +78,14 @@
       {
         "id": "page.canonical",
         "group": "website",
-        "state": "missing",
+        "state": "found",
         "priority": "LOW",
-        "title": "Your page does not name its main address",
-        "why": "Without it, Google may treat copies of your page as separate pages and split your ranking.",
-        "fix": "Ask your website builder to set the main address for each page.",
+        "title": "Your page tells Google its main address",
+        "why": "This stops Google from treating copies of your page as separate pages.",
+        "fix": "Nothing to fix here. Keep it up to date.",
         "minutes": 10,
         "points": 4,
-        "earned": 0
+        "earned": 4
       },
       {
         "id": "trust.contact",
@@ -102,26 +102,26 @@
       {
         "id": "trust.schema",
         "group": "website",
-        "state": "missing",
+        "state": "found",
         "priority": "LOW",
-        "title": "Search engines cannot read your business details",
-        "why": "Google shows your hours, area and phone number more clearly when your site gives them in a form it can read.",
-        "fix": "Ask your website builder to add your business details in the form Google reads.",
+        "title": "Search engines can read your business details",
+        "why": "Google can show your hours, area and phone number more clearly.",
+        "fix": "Nothing to fix here. Keep it up to date.",
         "minutes": 30,
         "points": 6,
-        "earned": 0
+        "earned": 6
       },
       {
         "id": "find.robots_sitemap",
         "group": "website",
-        "state": "missing",
+        "state": "found",
         "priority": "LOW",
-        "title": "Search engines have no list of your pages",
-        "why": "A list of your pages helps Google find and show all of them, not only the first one.",
-        "fix": "Ask your website builder to create the page list and the file that guides search engines.",
+        "title": "Search engines can find your pages",
+        "why": "A list of your pages helps Google find and show all of them.",
+        "fix": "Nothing to fix here. Keep it up to date.",
         "minutes": 20,
         "points": 4,
-        "earned": 0
+        "earned": 4
       },
       {
         "id": "speed",
@@ -133,7 +133,7 @@
         "fix": "Nothing to fix here. Keep it up to date.",
         "minutes": 60,
         "points": 6,
-        "earned": 3
+        "earned": 6
       },
       {
         "id": "social.present",
@@ -210,42 +210,6 @@
         "minutes": 20,
         "points": 40,
         "earned": 0
-      },
-      {
-        "id": "page.canonical",
-        "group": "website",
-        "state": "missing",
-        "priority": "LOW",
-        "title": "Your page does not name its main address",
-        "why": "Without it, Google may treat copies of your page as separate pages and split your ranking.",
-        "fix": "Ask your website builder to set the main address for each page.",
-        "minutes": 10,
-        "points": 4,
-        "earned": 0
-      },
-      {
-        "id": "find.robots_sitemap",
-        "group": "website",
-        "state": "missing",
-        "priority": "LOW",
-        "title": "Search engines have no list of your pages",
-        "why": "A list of your pages helps Google find and show all of them, not only the first one.",
-        "fix": "Ask your website builder to create the page list and the file that guides search engines.",
-        "minutes": 20,
-        "points": 4,
-        "earned": 0
-      },
-      {
-        "id": "trust.schema",
-        "group": "website",
-        "state": "missing",
-        "priority": "LOW",
-        "title": "Search engines cannot read your business details",
-        "why": "Google shows your hours, area and phone number more clearly when your site gives them in a form it can read.",
-        "fix": "Ask your website builder to add your business details in the form Google reads.",
-        "minutes": 30,
-        "points": 6,
-        "earned": 0
       }
     ],
     "topFixes": [
@@ -289,12 +253,12 @@
     ],
     "couldNotCheck": [],
     "score": {
-      "website": 83,
+      "website": 100,
       "social": 0,
-      "total": 42,
-      "earned": 83,
+      "total": 50,
+      "earned": 100,
       "possible": 200,
-      "pointsAvailable": 117
+      "pointsAvailable": 100
     },
     "site": {
       "finalUrl": "https://tossvisibilityos.com/",
