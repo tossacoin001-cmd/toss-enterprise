@@ -8,14 +8,12 @@ vi.mock("node:dns/promises", () => ({
   ]),
 }));
 
-import {
-  SPEED_FULL_POINTS,
-  isSafeExternalUrl,
-  metaContent,
-  scoreBusiness,
-  speedPoints,
-  type BusinessInput,
-} from "@/lib/scoring";
+import { isSafeExternalUrl, scoreBusiness as score, type BusinessInput } from "@/lib/scoring";
+
+// The page, speed and social checks now live in the scan engine (lib/scan, ADR-0015) and are
+// tested in tests/engine/. This file covers how scoring wires them in. The certificate lookup
+// would open a real connection, so it is switched off here.
+const scoreBusiness = (b: BusinessInput) => score(b, undefined, undefined, { certDaysLeft: async () => null });
 
 const business = (over: Partial<BusinessInput> = {}): BusinessInput => ({
   name: "Toss Spa",
@@ -39,33 +37,6 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-describe("metaContent", () => {
-  // Regression: a regex that required quoted attributes in name-then-content
-  // order reported minified sites as "not mobile-friendly" (HIGH priority).
-  it.each([
-    ["<meta name=viewport content=\"width=device-width,initial-scale=1\">", "viewport", "width=device-width,initial-scale=1"],
-    ['<meta name="viewport" content="width=device-width">', "viewport", "width=device-width"],
-    ["<meta content='Best spa in Lekki for massages' name='description'>", "description", "Best spa in Lekki for massages"],
-    ['<META NAME=Description CONTENT="Award winning bakery in Ikeja">', "description", "Award winning bakery in Ikeja"],
-    ['<meta property="og:description" content="not the right tag at all">', "description", null],
-    ["<meta charset=utf-8>", "viewport", null],
-    ['<meta name="twitter:description" content="x"><meta name="description" content="the real long one">', "description", "the real long one"],
-  ])("%s -> %s", (tag, name, expected) => {
-    expect(metaContent(tag, name)).toBe(expected);
-  });
-});
-
-describe("speedPoints", () => {
-  // Regression: a hard 3s cutoff flipped the score by 10 between identical runs.
-  it("is tiered, not a cliff", () => {
-    expect(speedPoints(800)).toBe(SPEED_FULL_POINTS);
-    expect(speedPoints(3500)).toBe(SPEED_FULL_POINTS);
-    expect(speedPoints(4000)).toBe(SPEED_FULL_POINTS);
-    expect(speedPoints(6500)).toBe(SPEED_FULL_POINTS / 2);
-    expect(speedPoints(9000)).toBe(0);
-  });
-});
-
 describe("isSafeExternalUrl", () => {
   it.each(["http://localhost", "http://127.0.0.1:3001", "http://10.1.2.3", "http://192.168.0.5", "http://172.20.1.1", "ftp://example.com", "http://intranet"])(
     "rejects %s",
@@ -77,7 +48,7 @@ describe("isSafeExternalUrl", () => {
 });
 
 describe("website check", () => {
-  it("gives full marks to a minified, modern page and flags nothing", async () => {
+  it("a minified, modern page passes the title, description and phone checks", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async () =>
@@ -87,19 +58,16 @@ describe("website check", () => {
       )
     );
     const r = await scoreBusiness(business());
-    expect(r.websiteScore).toBe(100);
-    expect(titles(r).filter((t) => /website|mobile|description|Speed/i.test(t))).toEqual([]);
+    const website = r.actionItems.filter((a) => a.category === "Website").map((a) => a.title);
+    expect(website.some((t) => /title|short description|phone screens/i.test(t))).toBe(false);
+    expect(r.websiteScore).toBeGreaterThan(70);
   });
 
   it("flags a page that really lacks the tags", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => html("<html><body>hi</body></html>")));
     const r = await scoreBusiness(business());
     expect(titles(r)).toEqual(
-      expect.arrayContaining([
-        "Add a page title to your website",
-        "Add a search description to your website",
-        "Make your website mobile-friendly",
-      ])
+      expect.arrayContaining(["Your home page has no title", "Your home page has no short description for Google", "Your site may not fit phone screens"])
     );
   });
 
@@ -107,8 +75,9 @@ describe("website check", () => {
     const fetchMock = vi.fn(async () => new Response(null, { status: 302, headers: { location: "http://127.0.0.1:3001/" } }));
     vi.stubGlobal("fetch", fetchMock);
     const r = await scoreBusiness(business());
+    // We could not look, so we claim nothing about the site and the score is not made up.
     expect(r.websiteScore).toBe(0);
-    expect(titles(r)).toContain("Your website is unreachable");
+    expect(r.actionItems.filter((a) => a.category === "Website")).toEqual([]);
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
@@ -127,14 +96,28 @@ describe("website check", () => {
       .mockResolvedValueOnce(html("<title>Toss</title>"));
     vi.stubGlobal("fetch", fetchMock);
     const r = await scoreBusiness(business());
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(r.websiteScore).toBeGreaterThanOrEqual(30);
+    expect(fetchMock.mock.calls.slice(0, 2).map((c) => String(c[0]))).toEqual(["https://toss.example/", "https://www.toss.example/"]);
+    expect(r.websiteScore).toBeGreaterThanOrEqual(25);
   });
 
   it("asks for a website when none is on file", async () => {
     const r = await scoreBusiness(business({ website: null }));
-    expect(titles(r)).toContain("Get a website");
+    expect(titles(r)).toContain("Add a website of your own");
     expect(r.websiteScore).toBe(0);
+  });
+});
+
+describe("social check", () => {
+  it("an Instagram handle on its own is not proof, so it no longer earns a perfect social score", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => html("<html><body>hi</body></html>")));
+    const r = await scoreBusiness(business());
+    expect(r.socialScore).toBeLessThan(100);
+  });
+
+  it("keeps the last known score when a part could not be checked this time", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("denied", { status: 403 })));
+    const r = await score(business(), undefined, { reviewCount: 0, avgRating: 0, websiteScore: 80, socialScore: 40 }, { certDaysLeft: async () => null, retryDelayMs: 0 });
+    expect(r.websiteScore).toBe(80);
   });
 });
 

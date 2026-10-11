@@ -53,7 +53,7 @@ async function scoreFor(f: Flags): Promise<number> {
     website: f.website ? `${f.https ? "https" : "http"}://toss.example` : null,
     instagramHandle: f.instagram ? "tossspa" : null,
   };
-  return (await scoreBusiness(input)).total;
+  return (await scoreBusiness(input, undefined, undefined, { certDaysLeft: async () => null })).total;
 }
 
 const randomFlags = (rand: () => number): Flags =>

@@ -25,7 +25,9 @@ export async function runAndPersistScore(
   const result = await scoreBusiness(
     business,
     placeSessionToken,
-    previous ? { reviewCount: previous.reviewCount, avgRating: previous.avgRating } : undefined
+    previous
+      ? { reviewCount: previous.reviewCount, avgRating: previous.avgRating, websiteScore: previous.websiteScore, socialScore: previous.socialScore }
+      : undefined
   );
 
   const [score] = await db.$transaction([

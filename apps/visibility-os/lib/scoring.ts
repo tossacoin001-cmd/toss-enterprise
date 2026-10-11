@@ -1,12 +1,12 @@
 import "server-only";
-import { lookup } from "node:dns/promises";
 import { getPlaceDetails } from "./google-places";
-import { isBlockedIp, isSafeExternalUrl } from "./url-safety";
+import { runScan, type Finding, type ScanDeps } from "./scan";
+import { isSafeExternalUrl } from "./url-safety";
 
 /**
- * Visibility scoring v1: deterministic checks, now backed by a real Google
- * Places lookup for the Google subscore. Weights: Google presence 40%,
- * website 40%, social 20%. The visibility-agent
+ * Visibility scoring: deterministic checks, backed by a real Google Places
+ * lookup for the Google subscore and by the scan engine (lib/scan) for the
+ * website and social subscores. Weights: Google presence 40%, website 40%, social 20%. The visibility-agent
  * (docs/03-ai/agents/visibility-agent.md) will extend this with a scheduled
  * cadence and social data later; the same subscore fields are reused, so the
  * dashboard needs no changes when it does.
@@ -42,213 +42,43 @@ export type ScoreResult = {
 
 export { isSafeExternalUrl };
 
-/** DNS-resolves a hostname and confirms every address is public, closing the
- * rebinding gap a hostname-string check alone leaves open (a public-looking
- * name that resolves to an internal IP). */
-async function resolvesToPublicAddress(hostname: string): Promise<boolean> {
-  try {
-    const records = await lookup(hostname, { all: true, verbatim: true });
-    return records.length > 0 && records.every((r) => !isBlockedIp(r.address));
-  } catch {
-    return false;
-  }
-}
+/** Last known scores, used only when a part could not be checked this time. */
+export type PreviousScores = { reviewCount: number; avgRating: number; websiteScore?: number; socialScore?: number };
 
 type WebsiteCheck = {
   score: number;
   actionItems: ActionItemDraft[];
 };
 
-export const SPEED_FULL_POINTS = 10;
-
-/** Tiered, not a cliff: the check runs from a US server, so a site that is
- * fast for Nigerian visitors can still take 3 to 4s here. A hard 3s cutoff
- * flipped the score by 10 points between identical runs and made the weekly
- * email report drops that were network noise. */
-export function speedPoints(elapsedMs: number): number {
-  if (elapsedMs <= 4000) return SPEED_FULL_POINTS;
-  if (elapsedMs <= 8000) return SPEED_FULL_POINTS / 2;
-  return 0;
-}
-
-/** Fetches with redirects followed manually so each hop is re-validated
- * against the same SSRF guard as the original URL; `redirect: "follow"`
- * would otherwise let a public URL redirect straight to an internal one.
- * One 8s budget covers every hop and the body read, so a redirect chain
- * cannot multiply the timeout and starve the weekly cron's 60s limit. */
-async function safeFetch(initialUrl: URL, maxRedirects = 5): Promise<Response> {
-  const signal = AbortSignal.timeout(8000);
-  let current = initialUrl;
-  for (let i = 0; i <= maxRedirects; i++) {
-    if (!(await resolvesToPublicAddress(current.hostname))) {
-      throw new Error("unsafe destination");
-    }
-    const res = await fetch(current.toString(), {
-      redirect: "manual",
-      signal,
-      headers: { "user-agent": "TossVisibilityBot/1.0 (+https://toss-enterprise.vercel.app)" },
-    });
-    const location = res.headers.get("location");
-    if (res.status >= 300 && res.status < 400 && location) {
-      const next = isSafeExternalUrl(new URL(location, current).toString());
-      if (!next) throw new Error("unsafe destination");
-      current = next;
-      continue;
-    }
-    return res;
-  }
-  throw new Error("too many redirects");
-}
-
-/** Content of the first `<meta name="...">` tag with this name, or null if
- * absent. Parses attributes instead of pattern-matching the tag, so unquoted
- * values (`name=viewport`, common in minified HTML) and content-before-name
- * ordering are recognised; a regex miss here becomes a false HIGH-priority
- * action item for the owner. */
-export function metaContent(html: string, name: string): string | null {
-  for (const [tag] of html.matchAll(/<meta\b[^>]*>/gi)) {
-    const attrs = new Map<string, string>();
-    for (const m of tag.matchAll(/([^\s"'<>\/=]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/g)) {
-      attrs.set(m[1].toLowerCase(), m[2] ?? m[3] ?? m[4] ?? "");
-    }
-    if (attrs.get("name")?.toLowerCase() === name) return attrs.get("content") ?? "";
-  }
-  return null;
-}
-
-async function checkWebsite(rawUrl: string | null): Promise<WebsiteCheck> {
-  const actionItems: ActionItemDraft[] = [];
-
-  if (!rawUrl || rawUrl.trim() === "") {
-    return {
-      score: 0,
-      actionItems: [
-        {
-          title: "Get a website",
-          description:
-            "You have no website on file. Customers who find you on Google or Instagram have nowhere to go next. Even a one-page site with your services, prices, and WhatsApp button changes that.",
-          priority: "HIGH",
-          category: "Website",
-        },
-      ],
-    };
-  }
-
-  const url = isSafeExternalUrl(rawUrl.trim());
-  if (!url) {
-    return {
-      score: 0,
-      actionItems: [
-        {
-          title: "Fix your website address",
-          description: `"${rawUrl}" is not a valid public website address. Update it in your business settings so we can audit the site.`,
-          priority: "HIGH",
-          category: "Website",
-        },
-      ],
-    };
-  }
-
-  let score = 0;
-  const startedAt = Date.now();
-  let html = "";
-  let finalUrl = url;
-
-  try {
-    const res = await safeFetch(url);
-    const elapsedMs = Date.now() - startedAt;
-    finalUrl = new URL(res.url || url.toString());
-
-    if (!res.ok) {
-      return {
-        score: 0,
-        actionItems: [
-          {
-            title: "Your website is not loading",
-            description: `${url.hostname} responded with an error (HTTP ${res.status}). Anyone clicking through from Google or Instagram right now hits a dead end.`,
-            priority: "HIGH",
-            category: "Website",
-          },
-        ],
-      };
-    }
-
-    score += 30; // reachable
-    html = (await res.text()).slice(0, 500_000);
-
-    if (finalUrl.protocol === "https:") {
-      score += 20;
-    } else {
-      actionItems.push({
-        title: "Secure your website with HTTPS",
-        description:
-          "Your site loads over plain HTTP. Browsers mark it 'Not secure', which scares customers off and hurts your Google ranking. Your host can enable HTTPS, usually for free.",
-        priority: "HIGH",
-        category: "Website",
-      });
-    }
-
-    if (/<title[^>]*>[^<]{3,}<\/title>/i.test(html)) {
-      score += 15;
-    } else {
-      actionItems.push({
-        title: "Add a page title to your website",
-        description:
-          "Your homepage has no title tag. The title is the blue headline people see on Google; without it, Google guesses and you lose clicks.",
-        priority: "MEDIUM",
-        category: "Website",
-      });
-    }
-
-    if ((metaContent(html, "description")?.trim().length ?? 0) >= 20) {
-      score += 15;
-    } else {
-      actionItems.push({
-        title: "Add a search description to your website",
-        description:
-          "Your homepage has no meta description. That is the text under your name in Google results; a good one tells customers why to pick you.",
-        priority: "MEDIUM",
-        category: "Website",
-      });
-    }
-
-    if (metaContent(html, "viewport") !== null) {
-      score += 10;
-    } else {
-      actionItems.push({
-        title: "Make your website mobile-friendly",
-        description:
-          "Your homepage is missing the mobile viewport setting. Most of your customers browse on phones, and Google ranks mobile-unfriendly sites lower.",
-        priority: "HIGH",
-        category: "Website",
-      });
-    }
-
-    const speed = speedPoints(elapsedMs);
-    score += speed;
-    if (speed < SPEED_FULL_POINTS) {
-      actionItems.push({
-        title: "Speed up your website",
-        description: `Your homepage took about ${(elapsedMs / 1000).toFixed(0)}s to respond when we checked from our servers. Slow sites lose visitors before they see anything; aim for under 4 seconds.`,
-        priority: "LOW",
-        category: "Website",
-      });
-    }
-  } catch {
-    return {
-      score: 0,
-      actionItems: [
-        {
-          title: "Your website is unreachable",
-          description: `We could not reach ${url.hostname} at all. If the site is down or the domain expired, every ad, bio link, and Google listing pointing at it is wasted.`,
-          priority: "HIGH",
-          category: "Website",
-        },
-      ],
-    };
-  }
-
-  return { score, actionItems };
+/** Website and social checks come from the scan engine (lib/scan, ADR-0015): only what could be
+ * checked counts, and a page we could not reach never becomes a claim about the owner. When a part
+ * could not be checked at all, the last known score is kept so one bad moment does not move it. */
+async function checkWebsiteAndSocial(
+  b: BusinessInput,
+  previous: PreviousScores | undefined,
+  engineDeps: ScanDeps | undefined
+): Promise<{ website: WebsiteCheck; social: WebsiteCheck }> {
+  const report = await runScan(
+    {
+      website: b.website,
+      name: b.name,
+      city: b.city,
+      category: b.category,
+      handles: b.instagramHandle && b.instagramHandle.trim() ? { instagram: b.instagramHandle } : undefined,
+    },
+    engineDeps
+  );
+  const draft = (f: Finding): ActionItemDraft => ({
+    title: f.title,
+    description: `${f.why} ${f.fix}`,
+    priority: f.priority,
+    category: f.group === "social" ? "Social" : "Website",
+  });
+  const items = (group: Finding["group"]) => report.fixes.filter((f) => f.group === group).map(draft);
+  return {
+    website: { score: report.score.website ?? previous?.websiteScore ?? 0, actionItems: items("website") },
+    social: { score: report.score.social ?? previous?.socialScore ?? 0, actionItems: items("social") },
+  };
 }
 
 type GoogleCheck = WebsiteCheck & { reviewCount: number; avgRating: number };
@@ -301,45 +131,15 @@ async function checkGooglePresence(
   return { score, actionItems, reviewCount, avgRating };
 }
 
-function checkSocialPresence(b: BusinessInput): WebsiteCheck {
-  const actionItems: ActionItemDraft[] = [];
-  let score = 0;
-
-  const handle = (b.instagramHandle ?? "").trim().replace(/^@/, "");
-  if (handle.length > 0) {
-    score += 70;
-    if (/^[A-Za-z0-9._]{2,30}$/.test(handle)) {
-      score += 30;
-    } else {
-      actionItems.push({
-        title: "Fix your Instagram handle",
-        description: `"${b.instagramHandle}" does not look like a valid Instagram handle. Update it so customers (and our audits) can find your profile.`,
-        priority: "LOW",
-        category: "Social",
-      });
-    }
-  } else {
-    actionItems.push({
-      title: "Add your Instagram handle",
-      description:
-        "No Instagram profile is on file. For local businesses, Instagram is often the first place customers check whether you are real and active.",
-      priority: "MEDIUM",
-      category: "Social",
-    });
-  }
-
-  return { score, actionItems };
-}
-
 export async function scoreBusiness(
   b: BusinessInput,
   placeSessionToken?: string,
-  previousGoogleData?: { reviewCount: number; avgRating: number }
+  previousGoogleData?: PreviousScores,
+  engineDeps?: ScanDeps
 ): Promise<ScoreResult> {
-  const [website, google, social] = await Promise.all([
-    checkWebsite(b.website),
+  const [{ website, social }, google] = await Promise.all([
+    checkWebsiteAndSocial(b, previousGoogleData, engineDeps),
     checkGooglePresence(b, placeSessionToken, previousGoogleData),
-    Promise.resolve(checkSocialPresence(b)),
   ]);
 
   const total = Math.round(0.4 * google.score + 0.4 * website.score + 0.2 * social.score);
