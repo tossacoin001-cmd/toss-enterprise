@@ -345,6 +345,28 @@ describe("NW-02, NW-03, SC-08: no website yet", () => {
   });
 });
 
+describe("NW-01: with only a name, nothing has been looked at, and the page never says it was", () => {
+  it("makes no request, leaves social out of the score and asks for a handle, instead of claiming none was found", async () => {
+    const { report, net } = await scan({ name: "Toss Spa", city: "Lagos" }, {});
+    expect(net.calls).toEqual([]);
+    for (const id of ["social.present", "social.verified"]) {
+      const x = f(report, id);
+      expect(x.state, id).toBe("could_not_check");
+      expect(`${x.title} ${x.why} ${x.fix}`, id).not.toMatch(/we found no|no social media for your business|we found nothing/i);
+      expect(`${x.title} ${x.fix}`, id).toMatch(/handle|tell us/i);
+    }
+    expect(report.score.social).toBeNull();
+    expect(report.score.pointsAvailable).toBe(200);
+    expect(report.fixes.some((x) => x.group === "social")).toBe(false);
+  });
+
+  it("a handle on a platform we can check is looked at: found when it exists", async () => {
+    const { report, net } = await scan({ name: "Toss", handles: { x: "tossspa" } }, { "https://x.com/tossspa": res("ok") });
+    expect(net.calls).toEqual(["https://x.com/tossspa"]);
+    expect(f(report, "social.verified").state).toBe("found");
+  });
+});
+
 describe("SC-06: the order of fixes", () => {
   it("fixes come highest priority first, then quickest, then most valuable, and the top three are the first three", async () => {
     const { report } = await scan({ website: "toss.example" }, { "https://toss.example/": netError("ECONNREFUSED"), "http://toss.example/": res(html({ title: null, description: null, viewport: false, ld: [], body: "<p>Hi</p>" })), "*": res("", { status: 404 }) });

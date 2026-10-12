@@ -198,8 +198,16 @@ async function scanInside(input: ScanInput, deps: ScanDeps, signal: AbortSignal)
   const anyLink = Object.keys(linked).length > 0;
   const decided = !websiteUrl || pageLoaded; // we know what the site does or does not link to
 
+  // With no website and no handle we have not looked at anything, so we say that instead of "none found".
+  const notGiven = !websiteUrl && !anyHandle;
   findings.push(
-    anyLink || anyLive ? make("social.present", "found") : !anyHandle && decided ? make("social.present", "missing") : unchecked("social.present")
+    anyLink || anyLive
+      ? make("social.present", "found")
+      : notGiven
+        ? make("social.present", "could_not_check", { detail: "not_given" })
+        : !anyHandle && decided
+          ? make("social.present", "missing")
+          : unchecked("social.present")
   );
   if (websiteUrl) {
     findings.push(
@@ -211,7 +219,9 @@ async function scanInside(input: ScanInput, deps: ScanDeps, signal: AbortSignal)
       ? make("social.verified", "missing", { detail: "broken_link" })
       : anyLive
         ? make("social.verified", "found")
-        : anyHandle || !decided
+        : notGiven
+          ? make("social.verified", "could_not_check", { detail: "not_given" })
+          : anyHandle || !decided
           ? unchecked("social.verified")
           : make("social.verified", "missing", { detail: "none_found" })
   );
