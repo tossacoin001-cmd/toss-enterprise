@@ -46,7 +46,13 @@ function social(host: string, path: string[], search: URLSearchParams): InputKin
   if (host === "x.com" || host === "twitter.com") {
     return ["intent", "share", "home", "i", "search", "hashtag"].includes(first) ? { kind: "invalid" } : make("x", clean(first));
   }
-  if (host === "linkedin.com") return first === "company" || first === "in" ? make("linkedin", clean(path[1] ?? "")) : { kind: "invalid" };
+  if (host === "linkedin.com") {
+    if (first === "company") return make("linkedin", clean(path[1] ?? ""));
+    // A person's page is not a company page and cannot be looked up from a server, so it keeps its "in/" marker:
+    // the social check never asks LinkedIn for it and never calls it broken.
+    if (first === "in") return path[1] ? make("linkedin", `in/${clean(path[1])}`) : { kind: "invalid" };
+    return { kind: "invalid" };
+  }
   if (host === "youtube.com" || host === "youtu.be") {
     if (first.startsWith("@")) return make("youtube", `@${clean(first)}`);
     if (["channel", "c", "user"].includes(first) && path[1]) return make("youtube", `${first}/${path[1]}`);

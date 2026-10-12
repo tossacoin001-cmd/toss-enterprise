@@ -93,6 +93,20 @@ describe("it feels personal without pretending", () => {
   });
 });
 
+describe("our own social links are on the page, and only ones that are really ours", () => {
+  it("links our X page and our LinkedIn page, cleanly (no tracking parameters), and says which is which", () => {
+    expect(html).toContain('href="https://x.com/tossenterprise"');
+    expect(html).toMatch(/href="https:\/\/www\.linkedin\.com\/in\/yusuf-azeez-a7935a266"/);
+    expect(html).not.toMatch(/utm_|\?s=\d+|share_via/);
+    expect(text(html)).toMatch(/on X/);
+    expect(text(html)).toMatch(/LinkedIn/);
+  });
+
+  it("describes them to search engines too", () => {
+    expect(html).toMatch(/"sameAs":\[[^\]]*x\.com\/tossenterprise/);
+  });
+});
+
 describe("it stays light and readable", () => {
   it("the page HTML stays small, with no extra script or font beyond what the box needs", () => {
     expect(html.length).toBeLessThan(75_000);

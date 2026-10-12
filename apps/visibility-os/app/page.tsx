@@ -195,7 +195,7 @@ export default function Home() {
           {socialLinks.map(([name, url]) => (
             <span key={name}>
               {" · "}
-              <a href={url} rel="noopener noreferrer" className="underline underline-offset-4" style={{ color: "#C9A96E" }}>{name === "x" ? "X" : "LinkedIn"}</a>
+              <a href={url} rel="noopener noreferrer" className="underline underline-offset-4" style={{ color: "#C9A96E" }}>{name === "x" ? "Follow us on X" : "Follow us on LinkedIn"}</a>
             </span>
           ))}
           . Questions?{" "}

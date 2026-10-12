@@ -24,6 +24,7 @@ describe("classifyWebsiteInput", () => {
     ["x.com/tossspa", "x", "tossspa"],
     ["https://twitter.com/tossspa", "x", "tossspa"],
     ["linkedin.com/company/toss-spa", "linkedin", "toss-spa"],
+    ["https://www.linkedin.com/in/yusuf-azeez-a7935a266?utm_source=share_via&utm_medium=member_ios", "linkedin", "in/yusuf-azeez-a7935a266"],
     ["https://www.youtube.com/@tossspa", "youtube", "@tossspa"],
   ])("%s is a social profile", (v, platform, handle) => expect(classifyWebsiteInput(v)).toEqual({ kind: "social", platform, handle }));
 
