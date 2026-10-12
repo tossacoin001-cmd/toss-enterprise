@@ -259,6 +259,23 @@ describe("EN-12: social links and what can be verified", () => {
     expect(f(gone.report, "social.verified")).toMatchObject({ state: "missing", priority: "MEDIUM", earned: 0 });
   });
 
+  it("a personal LinkedIn profile is a link and a presence, but is never looked up and never called broken (a person's page is not a company page)", async () => {
+    const { report, net } = await scan(WEBSITE, site(html({ body: '<a href="https://www.linkedin.com/in/ada-creates-123">in</a>' })));
+    expect(f(report, "social.linked").state).toBe("found");
+    expect(f(report, "social.present").state).toBe("found");
+    expect(f(report, "social.verified").state).toBe("could_not_check");
+    expect(net.calls.some((u) => u.includes("linkedin.com"))).toBe(false);
+  });
+
+  it("our own kind of page: X is looked up and found, a personal LinkedIn is left unchecked, and nothing is called broken", async () => {
+    const { report } = await scan(
+      WEBSITE,
+      site(html({ body: '<a href="https://x.com/tossenterprise">x</a><a href="https://www.linkedin.com/in/ada-123">in</a>' }), { "https://x.com/tossenterprise": res("ok") })
+    );
+    expect(f(report, "social.verified").state).toBe("found");
+    expect(report.findings.some((x) => x.detail === "broken_link")).toBe(false);
+  });
+
   it("no social links on a loaded page is missing; a handle the owner typed but the site does not link is flagged, not scored as present", async () => {
     const none = await scan(WEBSITE, site(html({ body: "<p>Hi</p>" })));
     expect(f(none.report, "social.linked").state).toBe("missing");
