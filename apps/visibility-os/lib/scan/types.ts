@@ -52,7 +52,7 @@ export type Finding = {
   /** The page is built with JavaScript, so an absence may not be real. */
   caveat?: "js_built";
   /** Narrows the wording when one check can be missing in two different ways. */
-  detail?: "broken_link" | "none_found";
+  detail?: "broken_link" | "none_found" | "not_given";
 };
 
 export type ScanInput = {
