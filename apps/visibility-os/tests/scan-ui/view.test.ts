@@ -108,6 +108,67 @@ describe("NW-08, NW-06: no website yet never shows a bare, discouraging zero", (
   });
 });
 
+describe("each audience has its own experience of the result", () => {
+  const noSite = (meta: NonNullable<ScanReport["meta"]>, input: Parameters<typeof runScan>[0]) =>
+    report(input, {}).then((r) => ({ ...r, meta }) as ScanReport);
+
+  it("business on Instagram: told plainly that Instagram cannot be looked inside, taken on trust and not counted, with a free first step", async () => {
+    const r = await noSite({ name: "Ada Salon", city: "Lagos", category: "Hair salon", platforms: ["instagram"] }, { name: "Ada Salon", city: "Lagos", handles: { instagram: "adasalon" } });
+    const v = view(r, { name: "Ada Salon", city: "Lagos" });
+    expect(v.state).toBe("no_website");
+    expect(v.notices.join(" ")).toMatch(/Instagram[^.]*(your word|on trust)/i);
+    expect(v.notices.join(" ")).toMatch(/not counted/i);
+    expect(v.nextStep!.title).toMatch(/Google Business Profile/i);
+    expect(v.startHere![0].cost).toBe("free");
+    expect(JSON.stringify(v)).not.toMatch(/we found no social media/i);
+  });
+
+  it("business with a handle we CAN check: no 'on trust' notice, and the profile counts", async () => {
+    const r = await report({ name: "Ada", handles: { x: "adasalon" } }, { "https://x.com/adasalon": res("ok") });
+    const v = view({ ...r, meta: { name: "Ada", platforms: ["x"] } }, { name: "Ada" });
+    expect(v.notices.join(" ")).not.toMatch(/your word|on trust/i);
+    expect(v.good.map((g) => g.id)).toContain("social.verified");
+  });
+
+  it("a person gets a personal plan: bio, best work, easy contact, proof, one-page site; nothing about shops or Google listings", async () => {
+    const r = await noSite({ name: "Ada Creates", category: "Personal brand", platforms: ["instagram", "x"] }, { name: "Ada Creates", category: "Personal brand", handles: { instagram: "adacreates" } });
+    const v = view(r, { name: "Ada Creates", category: "Personal brand" });
+    expect(v.state).toBe("no_website");
+    const ids = v.startHere!.map((s) => s.id);
+    expect(ids.every((id) => id.startsWith("personal."))).toBe(true);
+    expect(ids.length).toBeGreaterThanOrEqual(4);
+    expect(ids.length).toBeLessThanOrEqual(6);
+    expect(ids).toContain("personal.site");
+    expect(v.startHere![0].cost).toBe("free");
+    expect(v.nextStep!.title).toBe(v.startHere![0].title);
+    expect(JSON.stringify(v)).not.toMatch(/Google Business Profile|customers walk|opening hours|your shop|your branch|WhatsApp Business/i);
+  });
+
+  it("a person's own words for their work also count (creator, freelancer, consultant)", async () => {
+    for (const category of ["Creator", "Freelance designer", "personal brand", "Freelancer"]) {
+      const r = await noSite({ name: "Ada", category }, { name: "Ada", category });
+      expect(view(r, { name: "Ada", category }).startHere![0].id, category).toMatch(/^personal\./);
+    }
+    const shop = await noSite({ name: "Ada Salon", category: "Hair salon" }, { name: "Ada Salon", category: "Hair salon" });
+    expect(view(shop, { name: "Ada Salon", category: "Hair salon" }).startHere![0].id).not.toMatch(/^personal\./);
+  });
+
+  it("a person with a website is still a normal website result, with the same do-it-yourself fixes", async () => {
+    const r = await report({ website: "https://toss.example/", category: "Personal brand" }, site(html({ title: null, body: "<p>Hi</p>" })));
+    const v = view({ ...r, meta: { name: "Ada", category: "Personal brand" } }, { name: "Ada", category: "Personal brand" });
+    expect(v.state).toBe("normal");
+    expect(v.fixes.length).toBeGreaterThan(0);
+  });
+
+  it("every plan step, for every audience, has a how-to and a prefilled WhatsApp message", async () => {
+    for (const category of ["Hair salon", "Personal brand"]) {
+      const r = await noSite({ name: "Ada", category }, { name: "Ada", category });
+      const v = view(r, { name: "Ada", category });
+      expect(v.nextStep!.doItForMe).toMatch(/^https:\/\/wa\.me\//);
+    }
+  });
+});
+
 describe("BG-01, UB-05: personal and not tied to one country", () => {
   it("uses the business name and city in the title", async () => {
     const v = view(await SCENARIOS[0][2](), { name: "Toss Spa", city: "Lagos" });

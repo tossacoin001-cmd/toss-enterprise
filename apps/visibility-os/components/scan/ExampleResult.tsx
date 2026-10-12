@@ -12,21 +12,37 @@ export default function ExampleResult() {
   const shown = view.fixes.slice(0, 3);
   return (
     <aside className="green-card p-7" aria-label="A real example result">
-      <div className="flex items-start justify-between mb-5 gap-4">
-        <div>
+      <div className="flex flex-wrap items-start justify-between mb-5 gap-x-4 gap-y-2">
+        <div className="min-w-0">
           <p className="text-[10px] tracking-[0.25em] uppercase mb-1" style={{ color: "#C9A96E" }}>A real scan of our own site</p>
-          <p className="font-display text-2xl font-light" style={{ color: "#FAF7F2" }}>tossvisibilityos.com</p>
+          <p className="font-display text-xl sm:text-2xl font-light break-words" style={{ color: "#FAF7F2" }}>tossvisibilityos.com</p>
         </div>
-        <div className="text-right shrink-0">
+        <div className="shrink-0 sm:text-right">
           <div className="font-display text-5xl font-light gold-text">{view.score.kind === "number" ? view.score.value : "-"}</div>
           <div className="text-[10px] tracking-[0.2em] uppercase" style={{ color: "rgba(250,247,242,0.5)" }}>out of 100</div>
         </div>
+      </div>
+      <div className="space-y-3 mb-5">
+        {[
+          ["Website", report.score.website],
+          ["Social", report.score.social],
+        ].map(([label, value]) => (
+          <div key={String(label)}>
+            <div className="flex justify-between text-xs mb-1.5">
+              <span style={{ color: "rgba(250,247,242,0.6)" }}>{label}</span>
+              <span style={{ color: "#C9A96E" }}>{value === null ? "not checked" : String(value)}</span>
+            </div>
+            <div className="score-bar-track">
+              <div className="score-bar-fill grow-x" style={{ width: `${typeof value === "number" ? value : 0}%` }} />
+            </div>
+          </div>
+        ))}
       </div>
       <p className="text-xs mb-3" style={{ color: "rgba(250,247,242,0.6)" }}>What the scan found we should fix first:</p>
       <ul className="space-y-2">
         {shown.map((f) => (
           <li key={f.id} className="action-item">
-            <span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: "#C9A96E" }} />
+            <span className="tick w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: "#C9A96E" }} />
             <span className="flex-1 text-sm" style={{ color: "#FAF7F2" }}>{f.title}</span>
           </li>
         ))}

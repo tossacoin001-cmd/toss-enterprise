@@ -77,6 +77,22 @@ describe("SE-07: what a visitor types is shown as text, never as markup", () => 
   });
 });
 
+describe("RL-04, UX-14: the visitor is never left waiting for ever on a weak connection", () => {
+  it("the scan box gives up waiting for the safety check after a set time, says why, and lets them press again", () => {
+    const box = src("components/scan/ScanBox.tsx");
+    expect(box).toMatch(/SAFETY_CHECK_PATIENCE_MS\s*=\s*\d/);
+    expect(box).toMatch(/setTimeout\([\s\S]{0,400}SAFETY_CHECK_PATIENCE_MS/);
+    expect(box).toMatch(/press the button again/i);
+  });
+
+  it("the safety check loads on first touch, not on page load, so people who only read pay no data for it", () => {
+    const box = src("components/scan/ScanBox.tsx");
+    expect(box).toMatch(/onFocus=\{loadCheck\}/);
+    expect(box).toMatch(/onPointerDown=\{loadCheck\}/);
+    expect(box).not.toMatch(/setTimeout\(loadCheck/);
+  });
+});
+
 describe("PV-04, PV-06: privacy comes before the button", () => {
   it("the scan box links the privacy notice and the terms before its submit button", () => {
     const box = src("components/scan/ScanBox.tsx");
