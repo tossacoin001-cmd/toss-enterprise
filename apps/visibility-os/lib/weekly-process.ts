@@ -45,12 +45,13 @@ export function dbRunDeps(): RunDeps<DueUser> {
     async processUser(user): Promise<UserOutcome> {
       const results = await Promise.allSettled(
         user.businesses.map(async (business): Promise<DigestEntry> => {
-          const { score, previous, actionItems } = await runAndPersistScore(business);
+          const { score, previous, actionItems, changes } = await runAndPersistScore(business);
           return {
             name: business.name,
             total: score.total,
             delta: computeDelta(previous, score),
             topActionItem: actionItems[0] ?? null,
+            changes,
           };
         })
       );

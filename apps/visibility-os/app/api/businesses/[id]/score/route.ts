@@ -31,7 +31,7 @@ export async function POST(
       return NextResponse.json({ error: "Business not found" }, { status: 404 });
     }
 
-    const { score, actionItems } = await runAndPersistScore(business, placeSessionToken);
+    const { score, actionItems } = await runAndPersistScore(business, placeSessionToken, { recheck: false });
 
     return NextResponse.json(
       { score, actionItemCount: actionItems.length },
