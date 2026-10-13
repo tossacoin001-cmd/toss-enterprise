@@ -1,7 +1,7 @@
 import { certDaysLeft as realCertDaysLeft } from "./cert";
 import { entryMeta, PLAN, variantFor, type Detail } from "./copy";
 import { analyseHtml, type PageSignals } from "./analyse-html";
-import { fetchPage, isCertainCause, type FetchPageResult, type LookupFn } from "./fetch-page";
+import { fetchPage, isCertainCause, type FetchPageResult, type LookupFn, type MissingVerdict } from "./fetch-page";
 import { classifyWebsiteInput, describeInput } from "./input";
 import { normalizeWhatsapp } from "./phone";
 import { verifySocial, VERIFIABLE, type Verdict } from "./social";
@@ -19,6 +19,8 @@ export type ScanDeps = {
   fetch?: typeof fetch;
   lookup?: LookupFn;
   now?: () => number;
+  /** Independent check before we say a domain does not exist. Defaults to Cloudflare DNS-over-HTTPS. */
+  confirmMissing?: (host: string) => Promise<MissingVerdict>;
   certDaysLeft?: (host: string, timeoutMs?: number) => Promise<number | null>;
   timeoutMs?: number;
   retryDelayMs?: number;
@@ -119,7 +121,7 @@ async function scanInside(input: ScanInput, deps: ScanDeps, signal: AbortSignal)
   let page: FetchPageResult | null = null;
   let signals: PageSignals | null = null;
   if (websiteUrl) {
-    const run = fetchPage(websiteUrl, { timeoutMs, retryDelayMs: deps.retryDelayMs, signal }, { fetch: doFetch, lookup: deps.lookup, now: deps.now });
+    const run = fetchPage(websiteUrl, { timeoutMs, retryDelayMs: deps.retryDelayMs, signal }, { fetch: doFetch, lookup: deps.lookup, now: deps.now, confirmMissing: deps.confirmMissing });
     const stop = new Promise<FetchPageResult>((resolve) =>
       signal.addEventListener("abort", () => setTimeout(() => resolve({ ok: false, cause: "timeout", retried: false }), 100), { once: true })
     );

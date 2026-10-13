@@ -29,7 +29,9 @@ export const isCertainCause = (cause: FailureCause): boolean => CERTAIN.has(caus
 type LookupResult = { address: string; family: number }[];
 export type LookupFn = (host: string, options: { all: true; verbatim: true }) => Promise<LookupResult>;
 
-export type FetchPageDeps = { fetch?: typeof fetch; lookup?: LookupFn; now?: () => number };
+/** Does an independent resolver agree that a name does not exist? Only "gone" lets us say so. */
+export type MissingVerdict = "gone" | "exists" | "unsure";
+export type FetchPageDeps = { fetch?: typeof fetch; lookup?: LookupFn; now?: () => number; confirmMissing?: (host: string) => Promise<MissingVerdict> };
 export type FetchPageOptions = { timeoutMs?: number; retries?: number; retryDelayMs?: number; maxRedirects?: number; signal?: AbortSignal };
 
 export type FetchPageResult =
@@ -167,6 +169,7 @@ export async function fetchPage(input: string, options: FetchPageOptions = {}, d
   const doFetch = deps.fetch ?? fetch;
   const lookup = deps.lookup ?? (dnsLookup as unknown as LookupFn);
   const now = deps.now ?? Date.now;
+  const confirm = deps.confirmMissing ?? ((host: string) => confirmMissingViaDoh(host, doFetch));
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const retries = options.retries ?? 1;
   const retryDelayMs = options.retryDelayMs ?? 400;
@@ -190,7 +193,9 @@ export async function fetchPage(input: string, options: FetchPageOptions = {}, d
   /** One request, retried on a bad moment. Never follows a redirect itself. */
   async function hop(url: URL): Promise<{ ok: true; res: Response; signal: AbortSignal } | Failure> {
     for (let attempt = 0; ; attempt++) {
-      const dns = await checkHost(url.hostname, lookup);
+      let dns = await checkHost(url.hostname, lookup);
+      // Never say a name does not exist unless an independent resolver agrees; otherwise it was a bad moment.
+      if (dns === "domain_not_found" && (await confirm(url.hostname)) !== "gone") dns = "connection_failed";
       if (dns !== "ok") {
         if (dns === "connection_failed" && attempt < retries && !options.signal?.aborted) {
           retried = true;
@@ -215,6 +220,7 @@ export async function fetchPage(input: string, options: FetchPageOptions = {}, d
         await safeCancel(res.body);
       } catch (err) {
         cause = classifyError(err);
+        if (cause === "domain_not_found" && (await confirm(url.hostname)) !== "gone") cause = "connection_failed";
       }
       if (retryable(cause) && attempt < retries && !options.signal?.aborted) {
         retried = true;
@@ -293,6 +299,31 @@ export async function fetchPage(input: string, options: FetchPageOptions = {}, d
     if (fallback.ok) return { ...fallback, usedHttpFallback: true };
   }
   return result;
+}
+
+const HOST_OK = /^(?=.{1,253}$)([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9-]{2,63}$/i;
+
+/**
+ * "This address does not exist" is a serious thing to tell an owner, and a lookup can fail on our side
+ * (a weak connection, a resolver having a bad moment). So before we say it, a second, independent
+ * resolver (Cloudflare's public DNS-over-HTTPS) must clearly say the name does not exist (NXDOMAIN).
+ * Anything else, including not being able to ask, is "unsure" and never becomes an accusation.
+ */
+export async function confirmMissingViaDoh(host: string, doFetch: typeof fetch, timeoutMs = 4000): Promise<MissingVerdict> {
+  if (!HOST_OK.test(host)) return "unsure";
+  try {
+    const res = await doFetch(`https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(host)}&type=A`, {
+      headers: { accept: "application/dns-json" },
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (!res.ok) return "unsure";
+    const body = (await res.json()) as { Status?: number; Answer?: unknown[] };
+    if (body.Status === 3) return "gone";
+    if (body.Status === 0 && Array.isArray(body.Answer) && body.Answer.length > 0) return "exists";
+    return "unsure";
+  } catch {
+    return "unsure";
+  }
 }
 
 async function checkHost(host: string, lookup: LookupFn): Promise<"ok" | "unsafe_address" | "domain_not_found" | "connection_failed"> {
