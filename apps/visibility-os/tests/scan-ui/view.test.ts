@@ -20,7 +20,7 @@ const site = (page: string | Route): Record<string, Route> => ({
 });
 
 async function report(input: Parameters<typeof runScan>[0], routes: Record<string, Route>): Promise<ScanReport> {
-  return runScan(input, { fetch: fakeNet(routes).fetch, lookup: fakeLookup().lookup, now: () => NOW, certDaysLeft: async () => 90, timeoutMs: 80, retryDelayMs: 0 });
+  return runScan(input, { fetch: fakeNet(routes).fetch, lookup: fakeLookup().lookup, now: () => NOW, certDaysLeft: async () => 90, timeoutMs: 80, retryDelayMs: 0, confirmMissing: async () => "gone" });
 }
 const api = (result: ScanReport | null, over: Partial<ScanApi> = {}): ScanApi => ({
   id: "a".repeat(32), status: result ? "done" : "running", result, createdAt: NOW - 30_000, ...over,

@@ -1,14 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { BODY_AFTER_HEAD_BYTES, HEAD_CAP_BYTES, fetchPage, isCertainCause } from "@/lib/scan/fetch-page";
+import { BODY_AFTER_HEAD_BYTES, HEAD_CAP_BYTES, confirmMissingViaDoh, fetchPage, isCertainCause, type FetchPageDeps } from "@/lib/scan/fetch-page";
 import { GOOD_PAGE, chunked, dnsError, endlessBody, fakeLookup, fakeNet, html, netError, redirect, res } from "./helpers";
 
 // EN-01..EN-06, EN-25, SE-05, SE-15. Everything here runs against a scripted
 // fake internet: each way a real site can fail is reproduced, not guessed.
 
 const FAST = { timeoutMs: 80, retryDelayMs: 0 };
-const run = (url: string, routes: Parameters<typeof fakeNet>[0], opts: Parameters<typeof fetchPage>[1] = {}, dns = fakeLookup()) => {
+// By default an independent resolver agrees that a missing name is missing; tests of the doubtful cases say otherwise.
+const run = (url: string, routes: Parameters<typeof fakeNet>[0], opts: Parameters<typeof fetchPage>[1] = {}, dns = fakeLookup(), extra: Partial<FetchPageDeps> = {}) => {
   const net = fakeNet(routes);
-  return fetchPage(url, { ...FAST, ...opts }, { fetch: net.fetch, lookup: dns.lookup }).then((result) => ({ result, net, dns }));
+  return fetchPage(url, { ...FAST, ...opts }, { fetch: net.fetch, lookup: dns.lookup, confirmMissing: async () => "gone", ...extra }).then((result) => ({ result, net, dns }));
 };
 
 describe("a normal page", () => {
@@ -61,6 +62,33 @@ describe("EN-01: every way a request can fail is classified", () => {
     const { result, net } = await run("https://nope.example/", {}, {}, fakeLookup({ "nope.example": dnsError("ENOTFOUND") }));
     expect(result).toMatchObject({ ok: false, cause: "domain_not_found" });
     expect(net.calls).toEqual([]);
+  });
+
+  it.each([
+    ["exists", "an independent resolver finds the name"],
+    ["unsure", "the independent resolver cannot be reached or is not sure"],
+  ] as const)("EN-02: a lookup that fails on our side is never called 'does not exist' (%s: %s)", async (verdict, _why) => {
+    const { result, net } = await run("https://nope.example/", {}, {}, fakeLookup({ "nope.example": dnsError("ENOTFOUND") }), { confirmMissing: async () => verdict });
+    expect(result).toMatchObject({ ok: false, cause: "connection_failed", retried: true });
+    if (!result.ok) expect(isCertainCause(result.cause)).toBe(false);
+    expect(net.calls).toEqual([]);
+  });
+
+  it("the same holds when the failure comes from the request itself, not the lookup", async () => {
+    const { result } = await run("https://toss.example/", { "https://toss.example/": netError("ENOTFOUND") }, {}, fakeLookup(), { confirmMissing: async () => "exists" });
+    expect(result).toMatchObject({ ok: false, cause: "connection_failed" });
+  });
+
+  it("a lookup that fails once and then works is just a bad moment: the page is read", async () => {
+    let n = 0;
+    const lookup = (async () => {
+      if (n++ === 0) throw dnsError("ENOTFOUND");
+      return [{ address: "93.184.216.34", family: 4 }];
+    }) as unknown as FetchPageDeps["lookup"];
+    const net = fakeNet({ "https://toss.example/": res(GOOD_PAGE) });
+    const result = await fetchPage("https://toss.example/", FAST, { fetch: net.fetch, lookup, confirmMissing: async () => "exists" });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.retried).toBe(true);
   });
 
   it.each([
@@ -259,5 +287,48 @@ describe("EN-05 and EN-06: content types and character sets", () => {
     const { result } = await run("https://toss.example/", { "https://toss.example/": res(bom) });
     expect(result.ok && result.html).toContain("<title>Ọlá Spa</title>");
     expect(result.ok && result.html.charCodeAt(0)).not.toBe(0xfeff);
+  });
+});
+
+describe("EN-02: the independent check that a name really does not exist", () => {
+  const dns = (body: unknown, status = 200) => ({ "https://cloudflare-dns.com": res(JSON.stringify(body), { type: "application/dns-json", status }) });
+  const ask = (routes: Parameters<typeof fakeNet>[0], host = "nope.example") => {
+    const net = fakeNet(routes);
+    return confirmMissingViaDoh(host, net.fetch, 80).then((verdict) => ({ verdict, net }));
+  };
+
+  it("only a clear 'no such name' answer (NXDOMAIN) counts as gone", async () => {
+    expect((await ask(dns({ Status: 3 }))).verdict).toBe("gone");
+  });
+
+  it("an answer with addresses means the name exists", async () => {
+    expect((await ask(dns({ Status: 0, Answer: [{ type: 1, data: "93.184.216.34" }] }))).verdict).toBe("exists");
+  });
+
+  it.each([
+    ["a server failure (SERVFAIL)", dns({ Status: 2 })],
+    ["a name with no address records (NODATA)", dns({ Status: 0 })],
+    ["an HTTP error", dns({}, 500)],
+    ["a page that is not JSON", { "https://cloudflare-dns.com": res("<html>", { type: "text/html" }) }],
+    ["a network error", { "https://cloudflare-dns.com": netError("ECONNRESET") }],
+    ["no answer in time", { "https://cloudflare-dns.com": "hang" as const }],
+  ])("%s is 'unsure', never 'gone'", async (_n, routes) => {
+    expect((await ask(routes)).verdict).toBe("unsure");
+  });
+
+  it("asks one well-known public resolver over https with the name in the query, and nothing else", async () => {
+    const { net } = await ask(dns({ Status: 3 }), "nope.example");
+    expect(net.calls).toHaveLength(1);
+    const url = new URL(net.calls[0]);
+    expect(url.origin).toBe("https://cloudflare-dns.com");
+    expect(url.pathname).toBe("/dns-query");
+    expect(url.searchParams.get("name")).toBe("nope.example");
+    expect(net.requests[0].headers.get("accept")).toBe("application/dns-json");
+  });
+
+  it.each(["a b.example", "x.example/../y", "bad_name.example?x=1", "", "a".repeat(300) + ".example", "ex ample.com", "toss.example\u000a"])("%j is never sent anywhere", async (host) => {
+    const { verdict, net } = await ask(dns({ Status: 3 }), host);
+    expect(verdict).toBe("unsure");
+    expect(net.calls).toEqual([]);
   });
 });
