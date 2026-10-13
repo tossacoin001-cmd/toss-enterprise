@@ -19,7 +19,7 @@ export default function ExampleResult() {
         </div>
         <div className="shrink-0 sm:text-right">
           <div className="font-display text-5xl font-light gold-text">{view.score.kind === "number" ? view.score.value : "-"}</div>
-          <div className="text-[10px] tracking-[0.2em] uppercase" style={{ color: "rgba(250,247,242,0.5)" }}>out of 100</div>
+          <div className="text-[10px] tracking-[0.2em] uppercase" style={{ color: "rgba(250,247,242,0.5)" }}>Readiness score, out of 100</div>
         </div>
       </div>
       <div className="space-y-3 mb-5">
@@ -47,7 +47,10 @@ export default function ExampleResult() {
           </li>
         ))}
       </ul>
-      <p className="text-[11px] mt-4" style={{ color: "rgba(250,247,242,0.45)" }}>
+      <p className="text-[11px] mt-4" style={{ color: "rgba(250,247,242,0.55)" }}>
+        Not measured yet: how you show up in search, your reviews, and AI assistants.
+      </p>
+      <p className="text-[11px] mt-2" style={{ color: "rgba(250,247,242,0.45)" }}>
         Scanned on {example.scannedAt}. Yours takes about 20 seconds.
       </p>
     </aside>

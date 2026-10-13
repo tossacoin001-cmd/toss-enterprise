@@ -72,6 +72,25 @@ export default function ResultView({ view }: { view: View }) {
         </section>
       )}
 
+      {view.nextLevel.length > 0 && (
+        <section aria-labelledby="next-level">
+          <h2 id="next-level" className="font-display text-2xl font-light mb-4" style={{ color: "#FAF7F2" }}>
+            The next level
+          </h2>
+          <ol className="space-y-3">
+            {view.nextLevel.map((s, i) => (
+              <li key={s.id} className="action-item">
+                <span className="font-display text-xl gold-text w-6 shrink-0">{i + 1}</span>
+                <span className="flex-1">
+                  <span className="block text-sm font-medium" style={{ color: "#FAF7F2" }}>{s.title}</span>
+                  <span className="block text-xs mt-1" style={MUTED}>{s.why} About {s.minutes} minutes. Free.</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
       {view.fixes.length > 0 && (
         <section aria-labelledby="fixes-title">
           <h2 id="fixes-title" className="font-display text-2xl font-light mb-4" style={{ color: "#FAF7F2" }}>
@@ -137,6 +156,18 @@ export default function ResultView({ view }: { view: View }) {
         </section>
       )}
 
+      {view.notMeasured.length > 0 && (
+        <section aria-labelledby="not-measured">
+          <h2 id="not-measured" className="font-display text-2xl font-light mb-3" style={{ color: "#FAF7F2" }}>
+            Not measured yet
+          </h2>
+          <p className="text-sm mb-3" style={MUTED}>Your readiness score is about the foundations. It does not tell you how many people find you. We do not measure these yet:</p>
+          <ul className="space-y-2 text-sm list-disc pl-5" style={MUTED}>
+            {view.notMeasured.map((n) => (<li key={n}>{n}</li>))}
+          </ul>
+        </section>
+      )}
+
       <section aria-label="Notes" className="text-xs space-y-2" style={{ color: "rgba(250,247,242,0.5)" }}>
         {view.notices.map((n) => (<p key={n}>{n}</p>))}
         <p>
@@ -147,7 +178,7 @@ export default function ResultView({ view }: { view: View }) {
         </p>
       </section>
 
-      {view.signUp.show && <SignUpOffer text={view.signUp.text} />}
+      {view.signUp.show && <SignUpOffer text={view.signUp.text} watch={view.watch.text} />}
 
       <ShareLinks text={view.share.text} path={view.share.path} />
     </div>

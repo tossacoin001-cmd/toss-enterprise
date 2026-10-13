@@ -51,7 +51,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
 
     await db.business.update({ where: { id }, data: { googlePlaceId: details.placeId } });
-    const { score } = await runAndPersistScore({ ...business, googlePlaceId: details.placeId });
+    const { score } = await runAndPersistScore({ ...business, googlePlaceId: details.placeId }, undefined, { recheck: false });
     return NextResponse.json({ score });
   } catch (e) {
     console.error("[PATCH /api/businesses/:id]", e);

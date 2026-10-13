@@ -1,6 +1,7 @@
 import "server-only";
 import type { VisibilityScore } from "@prisma/client";
 import type { ActionItemDraft } from "./scoring";
+import type { ChangeSet } from "./value/changes";
 
 export type ScoreDelta = {
   scoreDelta: number;
@@ -26,7 +27,20 @@ export type DigestEntry = {
   total: number;
   delta: ScoreDelta;
   topActionItem: ActionItemDraft | null;
+  /** What changed since last week. Missing on a first run. */
+  changes?: ChangeSet | null;
 };
+
+/** The lines about what changed, most important first: breaks, then good news, then what we could not check. */
+function describeChanges(entry: DigestEntry): string[] {
+  const c = entry.changes;
+  if (!c) return [];
+  const lines: string[] = [];
+  if (c.alerts.length) lines.push(`Needs your attention at ${entry.name}:`, ...c.alerts.map((a) => `- ${a.text}`));
+  if (c.good.length) lines.push(`Good news at ${entry.name}:`, ...c.good.map((g) => `- ${g.text}`));
+  if (c.notes.length) lines.push(`For your information:`, ...c.notes.map((n) => `- ${n.text}`));
+  return lines;
+}
 
 function describeBusiness(entry: DigestEntry): string {
   const { name, total, delta, topActionItem } = entry;
@@ -35,7 +49,7 @@ function describeBusiness(entry: DigestEntry): string {
   if (moved) {
     const parts: string[] = [];
     const sign = delta.scoreDelta > 0 ? "+" : "";
-    parts.push(`visibility score ${total - delta.scoreDelta} -> ${total} (${sign}${delta.scoreDelta})`);
+    parts.push(`readiness score ${total - delta.scoreDelta} -> ${total} (${sign}${delta.scoreDelta})`);
     if (delta.reviewDelta > 0) {
       parts.push(`${delta.reviewDelta} new Google review${delta.reviewDelta === 1 ? "" : "s"}`);
     }
@@ -47,10 +61,10 @@ function describeBusiness(entry: DigestEntry): string {
   }
 
   if (topActionItem) {
-    return `${name}: holding steady at ${total}/100. Biggest opportunity: ${topActionItem.title} - ${topActionItem.description}`;
+    return `${name}: holding steady at ${total}/100 readiness. Biggest opportunity: ${topActionItem.title} - ${topActionItem.description}`;
   }
 
-  return `${name}: holding steady at ${total}/100. Nothing left on your action list, nice work.`;
+  return `${name}: holding steady at ${total}/100 readiness. Nothing left on your action list, nice work.`;
 }
 
 export type DigestLinks = {
@@ -63,16 +77,23 @@ export function buildDigestEmail(
   entries: DigestEntry[],
   links?: DigestLinks
 ): { subject: string; text: string } {
-  const subject =
-    entries.length === 1
+  const needsAttention = entries.some((e) => e.changes?.alerts.length);
+  const subject = needsAttention
+    ? entries.length === 1
+      ? `Something needs your attention: ${entries[0].name}`
+      : "Something needs your attention on your Visibility OS check-in"
+    : entries.length === 1
       ? `Your weekly Visibility OS check-in: ${entries[0].name}`
       : "Your weekly Visibility OS check-in";
+
+  const changeLines = entries.flatMap(describeChanges);
 
   const text = [
     entries.length === 1
       ? "Here is where your business stands this week."
       : "Here is where your businesses stand this week.",
     "",
+    ...(changeLines.length ? [...changeLines, ""] : []),
     ...entries.map(describeBusiness),
     "",
     links

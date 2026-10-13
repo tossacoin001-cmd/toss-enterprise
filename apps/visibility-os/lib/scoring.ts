@@ -1,6 +1,6 @@
 import "server-only";
 import { getPlaceDetails } from "./google-places";
-import { runScan, type Finding, type ScanDeps } from "./scan";
+import { runScan, type Finding, type ScanDeps, type ScanReport } from "./scan";
 import { isSafeExternalUrl } from "./url-safety";
 
 /**
@@ -38,6 +38,8 @@ export type ScoreResult = {
   reviewCount: number;
   avgRating: number;
   actionItems: ActionItemDraft[];
+  /** What the scan found, kept so the weekly watch can say what changed. */
+  report: ScanReport;
 };
 
 export { isSafeExternalUrl };
@@ -57,7 +59,7 @@ async function checkWebsiteAndSocial(
   b: BusinessInput,
   previous: PreviousScores | undefined,
   engineDeps: ScanDeps | undefined
-): Promise<{ website: WebsiteCheck; social: WebsiteCheck }> {
+): Promise<{ website: WebsiteCheck; social: WebsiteCheck; report: ScanReport }> {
   const report = await runScan(
     {
       website: b.website,
@@ -78,6 +80,7 @@ async function checkWebsiteAndSocial(
   return {
     website: { score: report.score.website ?? previous?.websiteScore ?? 0, actionItems: items("website") },
     social: { score: report.score.social ?? previous?.socialScore ?? 0, actionItems: items("social") },
+    report,
   };
 }
 
@@ -137,7 +140,7 @@ export async function scoreBusiness(
   previousGoogleData?: PreviousScores,
   engineDeps?: ScanDeps
 ): Promise<ScoreResult> {
-  const [{ website, social }, google] = await Promise.all([
+  const [{ website, social, report }, google] = await Promise.all([
     checkWebsiteAndSocial(b, previousGoogleData, engineDeps),
     checkGooglePresence(b, placeSessionToken, previousGoogleData),
   ]);
@@ -157,5 +160,6 @@ export async function scoreBusiness(
     reviewCount: google.reviewCount,
     avgRating: google.avgRating,
     actionItems,
+    report,
   };
 }

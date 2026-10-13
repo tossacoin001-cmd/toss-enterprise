@@ -55,6 +55,8 @@ model VisibilityScore {
   websiteScore Int      @default(0)
   reviewCount  Int      @default(0)
   avgRating    Float    @default(0)
+  // This week's findings, kept so next week can say what changed (the weekly watch).
+  findings     Json?
   recordedAt   DateTime @default(now())
 
   @@index([businessId])
