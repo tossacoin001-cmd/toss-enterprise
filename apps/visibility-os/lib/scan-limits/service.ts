@@ -36,7 +36,11 @@ const metaOf = (input: ScanInput): ScanReport["meta"] => {
   if (input.city) meta.city = input.city.slice(0, 120);
   if (input.category) meta.category = input.category.slice(0, 120);
   const platforms = Object.keys(input.handles ?? {}) as SocialPlatform[];
-  if (platforms.length) meta.platforms = platforms; // which platforms, never the handles
+  if (platforms.length) {
+    meta.platforms = platforms;
+    // Kept so a visitor who signs up can start from what they typed (the privacy notice lists the social handle).
+    meta.handles = Object.fromEntries(platforms.map((p) => [p, String(input.handles?.[p] ?? "").slice(0, 100)])) as NonNullable<ScanReport["meta"]>["handles"];
+  }
   return meta;
 };
 

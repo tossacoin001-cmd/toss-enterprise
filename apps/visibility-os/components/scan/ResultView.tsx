@@ -178,7 +178,7 @@ export default function ResultView({ view }: { view: View }) {
         </p>
       </section>
 
-      {view.signUp.show && <SignUpOffer text={view.signUp.text} watch={view.watch.text} />}
+      {view.signUp.show && <SignUpOffer text={view.signUp.text} watch={view.watch.text} scanId={view.scanId} />}
 
       <ShareLinks text={view.share.text} path={view.share.path} />
     </div>

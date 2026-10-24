@@ -1,10 +1,11 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import Link from "next/link";
-import VisibilityScoreCard from "@/components/VisibilityScoreCard";
+import { useRouter } from "next/navigation";
 import ConnectGoogleCard from "@/components/ConnectGoogleCard";
+import { Button, Notice, PageHeader, StatusBadge } from "@/components/ui";
+import ActionPlan, { sortActions, type ActionRow } from "@/components/workspace/ActionPlan";
+import { describeScore, type Part, type ScoreRow } from "@/lib/workspace/score-state";
 
 type Business = {
   id: string;
@@ -14,258 +15,156 @@ type Business = {
   googlePlaceId?: string | null;
 };
 
-type Score = {
-  total: number;
-  googleScore: number;
-  socialScore: number;
-  websiteScore: number;
-  reviewCount: number;
-  avgRating: number;
-};
-
-type ActionItem = {
-  id: string;
-  title: string;
-  description: string | null;
-  priority: "LOW" | "MEDIUM" | "HIGH";
-  category: string | null;
-};
-
 interface DashboardClientProps {
   business: Business;
-  score: Score | null;
-  actionItems: ActionItem[];
+  /** The latest saved check, or null when none has been run. A stored 0 is a real 0. */
+  score: ScoreRow | null;
+  actions: ActionRow[];
   allBusinesses: Business[];
   /** Whether the server has a Google Places key (see isPlacesConfigured). */
   googleEnabled?: boolean;
+  /** Server time in milliseconds, so what the page says about age is the same on server and browser. */
+  now: number;
 }
 
-function priorityColor(p: string) {
-  if (p === "HIGH") return "#ef4444";
-  if (p === "MEDIUM") return "#C9A96E";
-  return "rgba(250,247,242,0.3)";
+function partText(p: Part): string {
+  if (p.kind === "score") return `${p.value} out of 100`;
+  if (p.kind === "not_connected") return "Not connected";
+  return "Could not be checked";
 }
 
-const fadeUp = (i = 0) => ({
-  initial: { opacity: 0, y: 16 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5, ease: "easeOut" as const, delay: i * 0.08 },
-});
-
-export default function DashboardClient({
-  business,
-  score,
-  actionItems,
-  allBusinesses,
-  googleEnabled = false,
-}: DashboardClientProps) {
+export default function DashboardClient({ business, score, actions, allBusinesses, googleEnabled = false, now }: DashboardClientProps) {
   const router = useRouter();
-  const [auditing, setAuditing] = useState(false);
-  const [auditError, setAuditError] = useState("");
-  const currentScore = score?.total ?? 0;
+  const [checking, setChecking] = useState(false);
+  const [error, setError] = useState("");
+  const view = describeScore(score, { hasGoogle: Boolean(business.googlePlaceId) }, now);
 
-  async function runAudit() {
-    setAuditing(true);
-    setAuditError("");
+  async function runCheck() {
+    setChecking(true);
+    setError("");
     try {
       const res = await fetch(`/api/businesses/${business.id}/score`, { method: "POST" });
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error ?? "Audit failed. Please try again.");
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(data.error ?? "The check did not finish. Please try again.");
       }
       router.refresh();
     } catch (e) {
-      setAuditError(e instanceof Error ? e.message : "Audit failed. Please try again.");
+      setError(e instanceof Error ? e.message : "The check did not finish. Please try again.");
     } finally {
-      setAuditing(false);
+      setChecking(false);
     }
   }
 
-  const stats = [
-    { label: "Reviews", value: score?.reviewCount ?? "—", sub: "Google reviews" },
-    { label: "Rating", value: score?.avgRating ? `${score.avgRating.toFixed(1)}★` : "—", sub: "Avg star rating" },
-    { label: "Google", value: score?.googleScore ?? "—", sub: "Google score" },
-    { label: "Social", value: score?.socialScore ?? "—", sub: "Social score" },
-  ];
+  const todo = actions.filter((a) => a.status === "PENDING").length;
+  const inProgress = actions.filter((a) => a.status === "IN_PROGRESS").length;
+  const done = actions.filter((a) => a.status === "DONE").length;
+  const open = sortActions(actions.filter((a) => a.status !== "DONE"));
+  const meta = [business.category, business.city].filter(Boolean).join(" · ");
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      {/* Header */}
-      <motion.div {...fadeUp(0)}>
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <p className="text-xs tracking-[0.25em] uppercase mb-1" style={{ color: "#C9A96E" }}>
-              {business.category ?? "Business"}
-            </p>
-            <h2
-              className="font-display text-3xl font-light"
-              style={{ color: "#FAF7F2" }}
-            >
-              {business.name}
-            </h2>
-            {business.city && (
-              <p className="text-xs mt-0.5" style={{ color: "rgba(250,247,242,0.4)" }}>
-                {business.city}
+    <div className="ws-stack" style={{ maxWidth: 1000, margin: "0 auto" }}>
+      <PageHeader
+        title={business.name}
+        description={meta || undefined}
+        actions={
+          allBusinesses.length > 1 ? (
+            <div>
+              <label className="ws-label" htmlFor="business-picker">Business</label>
+              <select id="business-picker" className="ws-select" value={business.id} onChange={(e) => router.push(`/businesses/${e.target.value}`)}>
+                {allBusinesses.map((b) => (<option key={b.id} value={b.id}>{b.name}</option>))}
+              </select>
+            </div>
+          ) : undefined
+        }
+      />
+
+      {error && <Notice tone="danger" live="assertive">{error}</Notice>}
+
+      <div className="ws-grid ws-grid--2">
+        <section className="ws-card" aria-labelledby="readiness-title">
+          <h2 id="readiness-title" className="ws-h2">Readiness score</h2>
+
+          {view.state === "none" ? (
+            <div className="ws-stack" style={{ marginTop: "0.6rem" }}>
+              <p style={{ fontSize: "1.5rem", fontWeight: 650 }}>Not checked yet</p>
+              <p className="ws-muted">Run your first check to see how ready you are to be found, and what to do first.</p>
+              <Button disabled={checking} onClick={runCheck}>{checking ? "Checking..." : "Run first check"}</Button>
+            </div>
+          ) : (
+            <div className="ws-stack" style={{ marginTop: "0.6rem" }}>
+              <p className="ws-num" style={{ fontSize: "2.8rem", lineHeight: 1, fontWeight: 700 }}>
+                {view.total} <span className="ws-muted" style={{ fontSize: "1rem", fontWeight: 500 }}>out of 100</span>
               </p>
-            )}
-          </div>
-          <div className="flex items-center gap-3">
-            {currentScore > 0 && (
-              <button
-                onClick={runAudit}
-                disabled={auditing}
-                className="btn-outline-gold px-4 py-2 text-xs tracking-[0.15em] uppercase disabled:opacity-50"
-              >
-                {auditing ? "Auditing…" : "Re-run Audit"}
-              </button>
-            )}
-            {allBusinesses.length < 3 && (
-              <Link
-                href="/onboarding"
-                className="btn-outline-gold px-4 py-2 text-xs tracking-[0.15em] uppercase"
-              >
-                + Add Business
-              </Link>
-            )}
-          </div>
-        </div>
-      </motion.div>
+              <p className="ws-muted ws-small">{view.checkedText}</p>
 
-      {/* Score + stats row */}
-      <div className="grid lg:grid-cols-3 gap-4">
-        <motion.div className="lg:col-span-2" {...fadeUp(1)}>
-          <VisibilityScoreCard
-            score={currentScore}
-            businessName={business.name}
-            breakdown={
-              score
-                ? {
-                    google: score.googleScore,
-                    social: score.socialScore,
-                    website: score.websiteScore,
-                  }
-                : undefined
-            }
-          />
-        </motion.div>
+              {view.state === "stale" && (
+                <Notice tone="warn" title="This check is out of date">Your last check is older than a week. Check again to see where you stand now.</Notice>
+              )}
+              {view.state === "partial" && view.coverage !== null && (
+                <Notice tone="info" title={`We checked ${view.coverage}% of the points`}>
+                  We could not check some parts of your site this time, so they are not counted in your score.
+                </Notice>
+              )}
 
-        {/* Quick stats */}
-        <motion.div className="grid grid-cols-2 gap-2 content-start" {...fadeUp(2)}>
-          {stats.map((s) => (
-            <div key={s.label} className="stat-card">
-              <div
-                className="font-display text-2xl font-light"
-                style={{ color: s.value === "—" ? "rgba(250,247,242,0.2)" : "#FAF7F2" }}
-              >
-                {s.value}
-              </div>
-              <div className="text-[10px] mt-1" style={{ color: "rgba(250,247,242,0.4)" }}>
-                {s.sub}
+              <ul className="ws-stack ws-small" style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                <li className="ws-row" style={{ justifyContent: "space-between" }}><span>Website</span><span className="ws-num">{partText(view.parts.website)}</span></li>
+                <li className="ws-row" style={{ justifyContent: "space-between" }}><span>Social</span><span className="ws-num">{partText(view.parts.social)}</span></li>
+                <li className="ws-row" style={{ justifyContent: "space-between" }}><span>Google</span><span className="ws-num">{partText(view.parts.google)}</span></li>
+                <li className="ws-row" style={{ justifyContent: "space-between" }}>
+                  <span>Reviews</span>
+                  <span className="ws-num">
+                    {view.parts.reviews.kind === "count"
+                      ? `${view.parts.reviews.count} reviews${view.parts.reviews.rating ? `, ${view.parts.reviews.rating.toFixed(1)} stars` : ""}`
+                      : "Not connected"}
+                  </span>
+                </li>
+              </ul>
+
+              <div className="ws-row">
+                <Button variant="secondary" disabled={checking || !view.canRecheck} onClick={runCheck}>{checking ? "Checking..." : "Check again"}</Button>
+                {view.recheckHint && <p className="ws-muted ws-small">{view.recheckHint}</p>}
               </div>
             </div>
-          ))}
-        </motion.div>
+          )}
+        </section>
+
+        <section className="ws-card ws-card--quiet" aria-labelledby="progress-title">
+          <h2 id="progress-title" className="ws-h2">Your progress</h2>
+          <p style={{ marginTop: "0.6rem" }}>
+            <span className="ws-num">{todo} to do, {inProgress} in progress, {done} done</span>
+          </p>
+          <div className="ws-meter" style={{ marginTop: "0.6rem" }} aria-hidden="true">
+            <span style={{ width: `${actions.length ? Math.round((done / actions.length) * 100) : 0}%` }} />
+          </div>
+          <p className="ws-muted ws-small" style={{ marginTop: "0.6rem" }}>
+            Finishing actions does not promise more customers. It makes sure the basics are in place for people who look for you.
+          </p>
+        </section>
       </div>
 
-      {!business.googlePlaceId && (
-        <motion.div {...fadeUp(3)}>
-          <ConnectGoogleCard businessId={business.id} enabled={googleEnabled} />
-        </motion.div>
-      )}
+      {!business.googlePlaceId && <ConnectGoogleCard businessId={business.id} enabled={googleEnabled} />}
 
-      {/* Action items */}
-      <motion.div {...fadeUp(3)}>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <div className="section-line" />
-            <span className="text-[10px] tracking-[0.3em] uppercase" style={{ color: "#C9A96E" }}>
-              Action Items
-            </span>
-          </div>
-          {actionItems.length > 0 && (
-            <span className="badge badge-gold">{actionItems.length} open</span>
-          )}
+      <section aria-labelledby="next-actions" className="ws-stack">
+        <div className="ws-row" style={{ justifyContent: "space-between" }}>
+          <h2 id="next-actions" className="ws-h2">Your next three actions</h2>
+          {open.length > 3 && <Link className="ws-link ws-small" href={`/actions?business=${business.id}`}>See the full action plan ({open.length} open)</Link>}
+          {open.length <= 3 && actions.length > 0 && <Link className="ws-link ws-small" href={`/actions?business=${business.id}`}>See the full action plan</Link>}
         </div>
-
-        {actionItems.length === 0 ? (
-          <div
-            className="p-6 text-center"
-            style={{ background: "rgba(9,45,34,0.2)", border: "1px solid rgba(201,169,110,0.07)" }}
-          >
-            <p className="text-xs" style={{ color: "rgba(250,247,242,0.3)" }}>
-              No action items yet. Your AI audit will generate a priority list here.
-            </p>
-          </div>
+        {view.state === "none" && actions.length === 0 ? (
+          <Notice>Your actions appear here after your first check.</Notice>
         ) : (
-          <div className="space-y-2">
-            {actionItems.map((item, i) => (
-              <motion.div
-                key={item.id}
-                className="action-item"
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.35, delay: i * 0.06 }}
-              >
-                <div
-                  className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5"
-                  style={{ background: priorityColor(item.priority) }}
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium mb-0.5" style={{ color: "#FAF7F2" }}>
-                    {item.title}
-                  </div>
-                  {item.description && (
-                    <div className="text-xs leading-relaxed" style={{ color: "rgba(250,247,242,0.45)" }}>
-                      {item.description}
-                    </div>
-                  )}
-                </div>
-                {item.category && (
-                  <span className="badge badge-gold shrink-0">{item.category}</span>
-                )}
-              </motion.div>
-            ))}
-          </div>
+          <ActionPlan businessId={business.id} items={actions} now={now} filter="open" limit={3} />
         )}
-      </motion.div>
+      </section>
 
-      {/* Score is zero: prompt */}
-      {currentScore === 0 && (
-        <motion.div
-          className="p-5 flex items-center gap-5"
-          style={{
-            background: "rgba(201,169,110,0.05)",
-            border: "1px solid rgba(201,169,110,0.15)",
-          }}
-          {...fadeUp(4)}
-        >
-          <div className="text-2xl">🔍</div>
-          <div>
-            <div className="text-sm font-medium mb-1" style={{ color: "#FAF7F2" }}>
-              Run your first visibility audit
-            </div>
-            <p className="text-xs" style={{ color: "rgba(250,247,242,0.5)" }}>
-              Your score will be calculated after we audit your Google Business profile, social media, and website.
-            </p>
-          </div>
-          <button
-            onClick={runAudit}
-            disabled={auditing}
-            className="btn-gold px-5 py-2 text-xs tracking-[0.15em] uppercase shrink-0 ml-auto disabled:opacity-50"
-          >
-            {auditing ? "Auditing…" : "Start Audit"}
-          </button>
-        </motion.div>
-      )}
-
-      {auditError && (
-        <div
-          className="p-3 text-xs"
-          style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", color: "#fca5a5" }}
-        >
-          {auditError}
-        </div>
-      )}
+      <section className="ws-card ws-card--quiet" aria-labelledby="not-measured-title">
+        <h2 id="not-measured-title" className="ws-h3">Not measured yet</h2>
+        <p className="ws-muted ws-small" style={{ marginTop: "0.3rem" }}>
+          This score is about the basics. It does not tell you how you show up in search, what your reviews say, or whether AI assistants mention you.
+        </p>
+        <div style={{ marginTop: "0.5rem" }}><StatusBadge tone="gold">Reviews and Google need a connection</StatusBadge></div>
+      </section>
     </div>
   );
 }

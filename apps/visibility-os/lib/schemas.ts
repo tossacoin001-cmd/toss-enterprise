@@ -24,4 +24,16 @@ export const createBusinessSchema = z.object({
   phoneNumber: optionalTrimmed(30),
   website: optionalTrimmed(300),
   instagramHandle: optionalTrimmed(60).transform((v) => (v ? v.replace(/^@/, "") : v)),
+  // A free check made before signing up, to be saved to this account along with the business.
+  scanId: optionalTrimmed(64),
+});
+
+/** What the owner may change on an existing business. The Google link and the owner are not editable here. */
+export const editBusinessSchema = createBusinessSchema.pick({
+  name: true,
+  category: true,
+  city: true,
+  phoneNumber: true,
+  website: true,
+  instagramHandle: true,
 });

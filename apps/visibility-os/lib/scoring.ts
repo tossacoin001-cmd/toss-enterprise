@@ -24,6 +24,8 @@ export type BusinessInput = {
 };
 
 export type ActionItemDraft = {
+  /** The finding this came from (like page.title), so a rescan updates the item instead of duplicating it. */
+  key: string;
   title: string;
   description: string;
   priority: "LOW" | "MEDIUM" | "HIGH";
@@ -71,6 +73,7 @@ async function checkWebsiteAndSocial(
     engineDeps
   );
   const draft = (f: Finding): ActionItemDraft => ({
+    key: f.id,
     title: f.title,
     description: `${f.why} ${f.fix}`,
     priority: f.priority,
@@ -108,6 +111,7 @@ async function checkGooglePresence(
     }
   } else {
     actionItems.push({
+      key: "google.profile",
       title: "Claim your Google Business Profile",
       description:
         "You have no Google Business Profile connected. Use \"Connect your Google Business Profile\" on this page to find and link your listing. This is the single highest-impact fix on this list.",
@@ -120,6 +124,7 @@ async function checkGooglePresence(
     score += 20;
   } else {
     actionItems.push({
+      key: "profile.phone",
       title: "Add a phone number customers can call",
       description:
         "No phone number is on file. A visible number (ideally WhatsApp-enabled) turns searches into conversations.",

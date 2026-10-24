@@ -24,6 +24,8 @@ export type FixView = {
 };
 
 export type ResultView = {
+  /** The saved scan this result is, so signing up can keep it. */
+  scanId: string;
   state: "running" | "incomplete" | "normal" | "could_not_open" | "dead_domain" | "certificate" | "no_website";
   title: string;
   headline: string;
@@ -106,6 +108,7 @@ const NOT_SCORED = (label: string) => ({ kind: "not_scored" as const, label });
 
 function emptyView(title: string, state: ResultView["state"], headline: string, id: string, retry: boolean): ResultView {
   return {
+    scanId: id,
     state, title, headline, nextStep: null, score: NOT_SCORED(retry ? "No score, because the check did not finish." : "Your score will show here."),
     fixes: [], good: [], couldNot: [], couldNotNote: null, notices: [], notMeasured: [], nextLevel: [], watch: { text: "", free: true },
     signUp: { show: false, text: "", dismissible: true, emailRequired: false, cardRequired: false },
@@ -180,6 +183,7 @@ export function buildView(api: ScanApi, ctx: ViewContext): ResultView {
   if (report.site?.movedToOtherDomain) notices.push(`Your address leads to ${host}, so we checked that site.`);
 
   return {
+    scanId: api.id,
     state, title, headline, nextStep, score, fixes,
     good: report.findings.filter((f) => f.state === "found" && f.points > 0).map((f) => ({ id: f.id, title: f.title })),
     couldNot,

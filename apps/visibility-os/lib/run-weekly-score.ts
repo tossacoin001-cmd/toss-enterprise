@@ -4,6 +4,7 @@ import { db } from "./db";
 import { scoreBusiness, type BusinessInput, type ActionItemDraft } from "./scoring";
 import { compareScans, slimFindings, type ChangeSet } from "./value/changes";
 import type { Finding } from "./scan";
+import { reconcileActions, type ExistingAction } from "./workspace/actions";
 
 /** A business with its most recent score first (caller orders desc, takes 1). */
 export type BusinessForScoring = BusinessInput & {
@@ -51,6 +52,9 @@ export async function runAndPersistScore(
     changes = compareScans({ findings: lastFindings! }, result.report);
   }
 
+  const existingActions = (await db.actionItem.findMany({ where: { businessId: business.id } })) as unknown as ExistingAction[];
+  const plan = reconcileActions(existingActions, result.actionItems, Date.now());
+
   const [score] = await db.$transaction([
     db.visibilityScore.create({
       data: {
@@ -64,17 +68,24 @@ export async function runAndPersistScore(
         findings: slimFindings(result.report.findings) as unknown as Prisma.InputJsonValue,
       },
     }),
-    // Regenerate open recommendations; in-progress and done items are kept.
-    db.actionItem.deleteMany({ where: { businessId: business.id, status: "PENDING" } }),
-    db.actionItem.createMany({
-      data: result.actionItems.map((item) => ({
-        businessId: business.id,
-        title: item.title,
-        description: item.description,
-        priority: item.priority,
-        category: item.category,
-      })),
-    }),
+    // Update the list instead of rebuilding it: no duplicates, notes and done items are kept (see lib/workspace/actions.ts).
+    ...(plan.remove.length ? [db.actionItem.deleteMany({ where: { id: { in: plan.remove }, businessId: business.id } })] : []),
+    ...plan.update.map((u) => db.actionItem.update({ where: { id: u.id }, data: u.patch })),
+    ...(plan.create.length
+      ? [
+          db.actionItem.createMany({
+            data: plan.create.map((item) => ({
+              businessId: business.id,
+              key: item.key,
+              title: item.title,
+              description: item.description,
+              priority: item.priority,
+              category: item.category,
+            })),
+            skipDuplicates: true,
+          }),
+        ]
+      : []),
   ]);
 
   return { score, previous, actionItems: result.actionItems, changes };

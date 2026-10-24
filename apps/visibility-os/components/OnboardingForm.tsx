@@ -1,8 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, ChevronRight, Building2, MapPin, Link, AtSign } from "lucide-react";
+import { Button, Notice } from "@/components/ui";
 import GooglePlaceSearch, { type SelectedPlace } from "./GooglePlaceSearch";
 
 const CATEGORIES = [
@@ -17,54 +16,48 @@ const CATEGORIES = [
   "Fashion & Clothing",
   "Technology",
   "Consulting",
+  "Creator or personal brand",
   "Other",
 ];
 
-const steps = [
-  { id: 1, label: "Business Name", icon: Building2 },
-  { id: 2, label: "Category", icon: Building2 },
-  { id: 3, label: "Location", icon: MapPin },
-  { id: 4, label: "Online Presence", icon: Link },
-];
+const STEPS = ["Your business", "Where people find you", "Google listing"];
 
-export default function OnboardingForm({ googleEnabled = true }: { googleEnabled?: boolean }) {
+export type OnboardingInitial = {
+  name?: string;
+  category?: string;
+  city?: string;
+  website?: string;
+  instagramHandle?: string;
+  /** A free check made before signing up. Its details fill the form, and it is saved to this account when the business is. */
+  scanId?: string;
+};
+
+/**
+ * Adds a business in three short steps. Only a name is needed. Everything else says why we ask and can
+ * be left blank. The first check runs before the dashboard opens, capped so a slow site never traps the owner here.
+ */
+export default function OnboardingForm({ googleEnabled = true, initial = {} }: { googleEnabled?: boolean; initial?: OnboardingInitial }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState(false);
   const [error, setError] = useState("");
-
   const [form, setForm] = useState({
-    name: "",
-    category: "",
-    city: "",
+    name: initial.name ?? "",
+    category: initial.category ?? "",
+    city: initial.city ?? "",
     country: "NG",
     phoneNumber: "",
-    website: "",
-    instagramHandle: "",
+    website: initial.website ?? "",
+    instagramHandle: initial.instagramHandle ?? "",
   });
   const [place, setPlace] = useState<SelectedPlace | null>(null);
 
-  function update(key: string, value: string) {
+  const update = (key: string, value: string) => {
     setForm((f) => ({ ...f, [key]: value }));
     setError("");
-  }
+  };
 
-  function canProceed() {
-    if (step === 1) return form.name.trim().length >= 2;
-    if (step === 2) return form.category.length > 0;
-    if (step === 3) return form.city.trim().length >= 2;
-    return true;
-  }
-
-  function next() {
-    if (!canProceed()) return;
-    if (step < steps.length) {
-      setStep((s) => s + 1);
-    } else {
-      submit();
-    }
-  }
+  const nameOk = form.name.trim().length >= 2;
 
   async function submit() {
     setSubmitting(true);
@@ -73,22 +66,17 @@ export default function OnboardingForm({ googleEnabled = true }: { googleEnabled
       const res = await fetch("/api/businesses", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, googlePlaceId: place?.placeId ?? null }),
+        body: JSON.stringify({ ...form, googlePlaceId: place?.placeId ?? null, scanId: initial.scanId }),
       });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error ?? "Something went wrong");
-      }
-      setDone(true);
-      // Run the first audit before landing on the dashboard, so the user
-      // arrives to a real score instead of an empty shell. Capped so a slow
-      // website check can never trap them on this screen. The place search's
-      // session token rides along so this Details call closes out (and bills
-      // as) the same session as the autocomplete keystrokes above.
-      const { business } = await res.json().catch(() => ({ business: null }));
-      if (business?.id) {
+      const data = (await res.json().catch(() => ({}))) as { business?: { id: string }; error?: string };
+      if (!res.ok) throw new Error(data.error ?? "We could not save your business. Please try again.");
+
+      // Run the first check before landing on the dashboard, so the owner arrives to a real result.
+      // Capped so a slow website can never trap them here. The place search's session token rides
+      // along so this call closes out the same Google session as the typing above.
+      if (data.business?.id) {
         await Promise.race([
-          fetch(`/api/businesses/${business.id}/score`, {
+          fetch(`/api/businesses/${data.business.id}/score`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ placeSessionToken: place?.sessionToken }),
@@ -98,227 +86,88 @@ export default function OnboardingForm({ googleEnabled = true }: { googleEnabled
       }
       router.push("/dashboard");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to save. Please try again.");
-    } finally {
+      setError(e instanceof Error ? e.message : "We could not save your business. Please try again.");
       setSubmitting(false);
     }
   }
 
-  if (done) {
+  if (submitting) {
     return (
-      <motion.div
-        className="text-center py-10"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div
-          className="w-16 h-16 mx-auto mb-6 flex items-center justify-center"
-          style={{ border: "1px solid rgba(74,222,128,0.3)", background: "rgba(74,222,128,0.05)" }}
-        >
-          <CheckCircle size={28} style={{ color: "#4ade80" }} />
-        </div>
-        <h3 className="font-display text-2xl font-light mb-2" style={{ color: "#FAF7F2" }}>
-          Business connected!
-        </h3>
-        <p className="text-sm" style={{ color: "rgba(250,247,242,0.5)" }}>
-          Running your first visibility audit…
-        </p>
-      </motion.div>
+      <div className="ws-card" role="status" aria-live="polite" style={{ textAlign: "center", padding: "2rem 1rem" }}>
+        <p className="ws-h2">Checking {form.name || "your business"}</p>
+        <p className="ws-muted" style={{ marginTop: "0.4rem" }}>This usually takes under a minute. Your first result opens as soon as it is ready.</p>
+      </div>
     );
   }
 
   return (
-    <div className="max-w-lg mx-auto">
-      {/* Step progress */}
-      <div className="flex items-center gap-0 mb-10">
-        {steps.map((s, i) => (
-          <div key={s.id} className="flex items-center flex-1">
-            <div
-              className="w-7 h-7 flex items-center justify-center text-xs shrink-0 transition-colors duration-300"
-              style={{
-                background: step > s.id ? "#C9A96E" : step === s.id ? "rgba(201,169,110,0.15)" : "rgba(9,45,34,0.3)",
-                border: step >= s.id ? "1px solid #C9A96E" : "1px solid rgba(201,169,110,0.15)",
-                color: step > s.id ? "#092D22" : step === s.id ? "#C9A96E" : "rgba(250,247,242,0.3)",
-                fontWeight: 600,
-              }}
-            >
-              {step > s.id ? "✓" : s.id}
-            </div>
-            <div className="text-[10px] ml-2 tracking-wide hidden sm:block" style={{
-              color: step >= s.id ? "rgba(250,247,242,0.6)" : "rgba(250,247,242,0.25)"
-            }}>
-              {s.label}
-            </div>
-            {i < steps.length - 1 && (
-              <div
-                className="flex-1 h-px mx-3"
-                style={{ background: step > s.id ? "rgba(201,169,110,0.4)" : "rgba(201,169,110,0.1)" }}
-              />
-            )}
-          </div>
-        ))}
+    <form className="ws-card ws-stack" onSubmit={(e) => { e.preventDefault(); if (step < STEPS.length) { if (step === 1 && !nameOk) return; setStep(step + 1); } else void submit(); }} noValidate>
+      <div>
+        <p className="ws-small ws-muted">Step {step} of {STEPS.length}</p>
+        <h2 className="ws-h2">{STEPS[step - 1]}</h2>
+        <div className="ws-meter" style={{ marginTop: "0.5rem" }} aria-hidden="true"><span style={{ width: `${(step / STEPS.length) * 100}%` }} /></div>
       </div>
 
-      {/* Step content */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={step}
-          initial={{ opacity: 0, x: 16 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -16 }}
-          transition={{ duration: 0.25 }}
-        >
-          {step === 1 && (
-            <div>
-              <h2 className="font-display text-3xl font-light mb-2" style={{ color: "#FAF7F2" }}>
-                What&apos;s your business called?
-              </h2>
-              <p className="text-sm mb-8" style={{ color: "rgba(250,247,242,0.5)" }}>
-                Enter the name exactly as it appears on Google.
-              </p>
-              <input
-                className="input-field text-base"
-                placeholder="e.g. Lagos Grill House"
-                value={form.name}
-                onChange={(e) => update("name", e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && next()}
-                autoFocus
-              />
-            </div>
-          )}
+      {initial.scanId && step === 1 && <Notice tone="info">We filled in what you told us on the free check. Change anything that is wrong.</Notice>}
 
-          {step === 2 && (
-            <div>
-              <h2 className="font-display text-3xl font-light mb-2" style={{ color: "#FAF7F2" }}>
-                What type of business?
-              </h2>
-              <p className="text-sm mb-6" style={{ color: "rgba(250,247,242,0.5)" }}>
-                This helps us tailor your visibility strategy.
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                {CATEGORIES.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => update("category", cat)}
-                    className="p-3 text-left text-xs transition-all duration-200"
-                    style={{
-                      background: form.category === cat ? "rgba(201,169,110,0.12)" : "rgba(9,45,34,0.2)",
-                      border: form.category === cat ? "1px solid #C9A96E" : "1px solid rgba(201,169,110,0.08)",
-                      color: form.category === cat ? "#C9A96E" : "rgba(250,247,242,0.6)",
-                    }}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div>
-              <h2 className="font-display text-3xl font-light mb-2" style={{ color: "#FAF7F2" }}>
-                Where are you located?
-              </h2>
-              <p className="text-sm mb-8" style={{ color: "rgba(250,247,242,0.5)" }}>
-                Your city helps us check local search visibility.
-              </p>
-              <div className="space-y-3">
-                <input
-                  className="input-field"
-                  placeholder="City (e.g. Lagos, Abuja, Port Harcourt)"
-                  value={form.city}
-                  onChange={(e) => update("city", e.target.value)}
-                  autoFocus
-                />
-                <select
-                  className="input-field"
-                  value={form.country}
-                  onChange={(e) => update("country", e.target.value)}
-                >
-                  <option value="NG">Nigeria</option>
-                  <option value="GH">Ghana</option>
-                  <option value="KE">Kenya</option>
-                  <option value="ZA">South Africa</option>
-                  <option value="GB">United Kingdom</option>
-                  <option value="US">United States</option>
-                  <option value="ZZ">Other</option>
-                </select>
-              </div>
-            </div>
-          )}
-
-          {step === 4 && (
-            <div>
-              <h2 className="font-display text-3xl font-light mb-2" style={{ color: "#FAF7F2" }}>
-                Online presence
-              </h2>
-              <p className="text-sm mb-8" style={{ color: "rgba(250,247,242,0.5)" }}>
-                Optional: add what you have. We&apos;ll audit these for you.
-              </p>
-              <div className="space-y-3">
-                <GooglePlaceSearch selected={place} onSelect={setPlace} enabled={googleEnabled} />
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <AtSign size={14} style={{ color: "rgba(201,169,110,0.4)" }} />
-                  </div>
-                  <input
-                    className="input-field pl-8"
-                    placeholder="Instagram handle (e.g. @mybusiness)"
-                    value={form.instagramHandle}
-                    onChange={(e) => update("instagramHandle", e.target.value)}
-                  />
-                </div>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <Link size={14} style={{ color: "rgba(201,169,110,0.4)" }} />
-                  </div>
-                  <input
-                    className="input-field pl-8"
-                    placeholder="Website URL (optional)"
-                    value={form.website}
-                    onChange={(e) => update("website", e.target.value)}
-                  />
-                </div>
-                <input
-                  className="input-field"
-                  placeholder="Phone number (optional)"
-                  value={form.phoneNumber}
-                  onChange={(e) => update("phoneNumber", e.target.value)}
-                />
-              </div>
-            </div>
-          )}
-        </motion.div>
-      </AnimatePresence>
-
-      {/* Error */}
-      {error && (
-        <p className="text-xs mt-4" style={{ color: "#ef4444" }}>{error}</p>
+      {step === 1 && (
+        <div className="ws-stack">
+          <div>
+            <label className="ws-label" htmlFor="ob-name">Business name</label>
+            <input id="ob-name" className="ws-input" value={form.name} onChange={(e) => update("name", e.target.value)} maxLength={120} autoComplete="organization" aria-describedby="ob-name-hint" required />
+            <p id="ob-name-hint" className="ws-hint">The name customers know you by. This is the only thing we need.</p>
+          </div>
+          <div>
+            <label className="ws-label" htmlFor="ob-category">What you do <span className="ws-muted">(optional)</span></label>
+            <select id="ob-category" className="ws-select" value={form.category} onChange={(e) => update("category", e.target.value)}>
+              <option value="">Choose one</option>
+              {CATEGORIES.map((c) => (<option key={c} value={c}>{c}</option>))}
+            </select>
+            <p className="ws-hint">Helps us give advice that fits your kind of work.</p>
+          </div>
+          <div>
+            <label className="ws-label" htmlFor="ob-city">City or area <span className="ws-muted">(optional)</span></label>
+            <input id="ob-city" className="ws-input" value={form.city} onChange={(e) => update("city", e.target.value)} maxLength={80} autoComplete="address-level2" />
+            <p className="ws-hint">Helps us give local advice. We do not show it to anyone.</p>
+          </div>
+        </div>
       )}
 
-      {/* Navigation */}
-      <div className="flex items-center justify-between mt-8">
-        {step > 1 ? (
-          <button
-            onClick={() => setStep((s) => s - 1)}
-            className="text-xs tracking-wide"
-            style={{ color: "rgba(250,247,242,0.4)" }}
-          >
-            ← Back
-          </button>
-        ) : (
-          <div />
-        )}
-        <button
-          onClick={next}
-          disabled={!canProceed() || submitting}
-          className="btn-gold flex items-center gap-2 px-8 py-3 text-xs tracking-[0.2em] uppercase disabled:opacity-40"
-        >
-          {submitting ? "Saving…" : step < steps.length ? "Continue" : "Launch Dashboard"}
-          {!submitting && <ChevronRight size={13} />}
-        </button>
+      {step === 2 && (
+        <div className="ws-stack">
+          <p className="ws-muted ws-small">Add what you have. Leave anything blank that you do not have yet. We check public pages only.</p>
+          <div>
+            <label className="ws-label" htmlFor="ob-website">Website <span className="ws-muted">(optional)</span></label>
+            <input id="ob-website" className="ws-input" value={form.website} onChange={(e) => update("website", e.target.value)} placeholder="yourbusiness.com" inputMode="url" autoCapitalize="none" maxLength={300} />
+            <p className="ws-hint">We open your home page to check it. No website? Leave this empty and we will show you where to start.</p>
+          </div>
+          <div>
+            <label className="ws-label" htmlFor="ob-ig">Instagram handle <span className="ws-muted">(optional)</span></label>
+            <input id="ob-ig" className="ws-input" value={form.instagramHandle} onChange={(e) => update("instagramHandle", e.target.value)} placeholder="@yourbusiness" autoCapitalize="none" maxLength={60} />
+            <p className="ws-hint">We cannot look inside Instagram, so we take your word for it and do not count it in your score.</p>
+          </div>
+          <div>
+            <label className="ws-label" htmlFor="ob-phone">Phone or WhatsApp number <span className="ws-muted">(optional)</span></label>
+            <input id="ob-phone" className="ws-input" value={form.phoneNumber} onChange={(e) => update("phoneNumber", e.target.value)} inputMode="tel" autoComplete="tel" maxLength={30} />
+            <p className="ws-hint">So we can tell you whether customers can see how to reach you.</p>
+          </div>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="ws-stack">
+          <p className="ws-muted ws-small">Optional. Your Google listing adds your rating and reviews to your score. You can do this later from your overview.</p>
+          <GooglePlaceSearch selected={place} onSelect={setPlace} enabled={googleEnabled} />
+          <p className="ws-hint">Finding your listing does not prove you own it, and we never change it.</p>
+        </div>
+      )}
+
+      {error && <Notice tone="danger" live="assertive">{error}</Notice>}
+
+      <div className="ws-row" style={{ justifyContent: "space-between" }}>
+        {step > 1 ? <Button variant="ghost" onClick={() => setStep(step - 1)}>Back</Button> : <span />}
+        <Button type="submit" disabled={step === 1 && !nameOk}>{step < STEPS.length ? "Continue" : "Add my business and run my first check"}</Button>
       </div>
-    </div>
+    </form>
   );
 }
