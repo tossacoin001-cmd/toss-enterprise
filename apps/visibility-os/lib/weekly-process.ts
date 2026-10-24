@@ -8,6 +8,7 @@ import { isDeliverableEmail } from "./utils";
 import { unsubscribeUrl } from "./unsubscribe";
 import { runAndPersistScore } from "./run-weekly-score";
 import { buildDigestEmail, computeDelta, type DigestEntry } from "./weekly-digest";
+import { claimUser, releaseUser, type ClaimDb } from "./weekly-claim";
 import { WEEKLY_INTERVAL_MS, type RunDeps, type UserOutcome } from "./weekly-run";
 
 export type DueUser = Prisma.UserGetPayload<{
@@ -17,6 +18,17 @@ export type DueUser = Prisma.UserGetPayload<{
 export function dbRunDeps(): RunDeps<DueUser> {
   return {
     now: () => Date.now(),
+    async claim(user) {
+      if (!(await claimUser(db as unknown as ClaimDb, user.id, Date.now()))) return false;
+      // Another run may have finished this user between our lookup and our claim; look again before sending.
+      const fresh = await db.user.findUnique({ where: { id: user.id }, select: { lastDigestAt: true } });
+      if (fresh?.lastDigestAt && fresh.lastDigestAt.getTime() > Date.now() - WEEKLY_INTERVAL_MS) {
+        await releaseUser(db as unknown as ClaimDb, user.id);
+        return false;
+      }
+      return true;
+    },
+    release: (user) => releaseUser(db as unknown as ClaimDb, user.id),
 
     async findDueUsers(limit, excludeIds) {
       const cutoff = new Date(Date.now() - WEEKLY_INTERVAL_MS);
@@ -45,12 +57,13 @@ export function dbRunDeps(): RunDeps<DueUser> {
     async processUser(user): Promise<UserOutcome> {
       const results = await Promise.allSettled(
         user.businesses.map(async (business): Promise<DigestEntry> => {
-          const { score, previous, actionItems } = await runAndPersistScore(business);
+          const { score, previous, actionItems, changes } = await runAndPersistScore(business);
           return {
             name: business.name,
             total: score.total,
             delta: computeDelta(previous, score),
             topActionItem: actionItems[0] ?? null,
+            changes,
           };
         })
       );

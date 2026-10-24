@@ -22,7 +22,7 @@ async function scan(input: Parameters<typeof runScan>[0], routes: Routes, deps: 
   const dns = fakeLookup();
   const clock = { t: 1_800_000_000_000 };
   const report = await runScan(input, {
-    fetch: net.fetch, lookup: dns.lookup, now: () => clock.t, certDaysLeft: async () => 90, timeoutMs: 80, retryDelayMs: 0, ...deps,
+    fetch: net.fetch, lookup: dns.lookup, now: () => clock.t, certDaysLeft: async () => 90, timeoutMs: 80, retryDelayMs: 0, confirmMissing: async () => "gone", ...deps,
   });
   return { report, net, clock };
 }
@@ -128,6 +128,13 @@ describe("things that are certain", () => {
     const { report } = await scan({ website: "https://nope.example/" }, { "*": netError("ENOTFOUND") });
     expect(f(report, "site.reachable")).toMatchObject({ state: "missing", priority: "HIGH", cause: "domain_not_found", earned: 0 });
     expect(report.score.website).toBe(0);
+  });
+
+  it("EN-02: a lookup that fails on OUR side is never reported as 'this address does not exist'", async () => {
+    const { report } = await scan({ website: "https://toss.example/" }, { "*": netError("ENOTFOUND") }, { confirmMissing: async () => "exists" });
+    expect(f(report, "site.reachable")).toMatchObject({ state: "could_not_check", cause: "connection_failed" });
+    expect(report.score.website).toBeNull();
+    expect(report.findings.map((x) => `${x.title} ${x.why}`).join(" ")).not.toMatch(/does not exist/i);
   });
 
   it("an expired certificate is certain, high priority, and not hidden behind a fallback", async () => {

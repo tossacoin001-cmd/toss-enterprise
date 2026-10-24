@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2026-10-11",
+  "scannedAt": "2026-10-12",
   "report": {
     "path": "website",
     "findings": [
@@ -138,127 +138,50 @@
       {
         "id": "social.present",
         "group": "social",
-        "state": "missing",
+        "state": "found",
         "priority": "MEDIUM",
-        "title": "We found no social media for your business",
+        "title": "You are active on social media",
         "why": "Customers look at Instagram or Facebook to see if a business is real.",
-        "fix": "Open an account on the platform your customers use, and link it from your website.",
+        "fix": "Nothing to fix here. Keep it up to date.",
         "minutes": 20,
         "points": 40,
-        "earned": 0
+        "earned": 40
       },
       {
         "id": "social.linked",
         "group": "social",
-        "state": "missing",
+        "state": "found",
         "priority": "MEDIUM",
-        "title": "Your website does not link to your social media",
-        "why": "Visitors who like what they see look for your social pages, and a link makes it easy.",
-        "fix": "Add your Instagram, Facebook or TikTok link in the footer of your website.",
+        "title": "Your website links to your social media",
+        "why": "Visitors who like what they see can follow you in one tap.",
+        "fix": "Nothing to fix here. Keep it up to date.",
         "minutes": 10,
         "points": 30,
-        "earned": 0
+        "earned": 30
       },
       {
         "id": "social.verified",
         "group": "social",
-        "state": "missing",
+        "state": "found",
         "priority": "MEDIUM",
-        "title": "We found no social profile to check",
-        "why": "Without a profile there is nothing for customers to follow.",
-        "fix": "Open one account and link it from your website.",
+        "title": "Your social links lead to live profiles",
+        "why": "Customers who tap your social links find real, active pages.",
+        "fix": "Nothing to fix here. Keep it up to date.",
         "minutes": 10,
         "points": 30,
-        "earned": 0,
-        "detail": "none_found"
+        "earned": 30
       }
     ],
-    "fixes": [
-      {
-        "id": "social.linked",
-        "group": "social",
-        "state": "missing",
-        "priority": "MEDIUM",
-        "title": "Your website does not link to your social media",
-        "why": "Visitors who like what they see look for your social pages, and a link makes it easy.",
-        "fix": "Add your Instagram, Facebook or TikTok link in the footer of your website.",
-        "minutes": 10,
-        "points": 30,
-        "earned": 0
-      },
-      {
-        "id": "social.verified",
-        "group": "social",
-        "state": "missing",
-        "priority": "MEDIUM",
-        "title": "We found no social profile to check",
-        "why": "Without a profile there is nothing for customers to follow.",
-        "fix": "Open one account and link it from your website.",
-        "minutes": 10,
-        "points": 30,
-        "earned": 0,
-        "detail": "none_found"
-      },
-      {
-        "id": "social.present",
-        "group": "social",
-        "state": "missing",
-        "priority": "MEDIUM",
-        "title": "We found no social media for your business",
-        "why": "Customers look at Instagram or Facebook to see if a business is real.",
-        "fix": "Open an account on the platform your customers use, and link it from your website.",
-        "minutes": 20,
-        "points": 40,
-        "earned": 0
-      }
-    ],
-    "topFixes": [
-      {
-        "id": "social.linked",
-        "group": "social",
-        "state": "missing",
-        "priority": "MEDIUM",
-        "title": "Your website does not link to your social media",
-        "why": "Visitors who like what they see look for your social pages, and a link makes it easy.",
-        "fix": "Add your Instagram, Facebook or TikTok link in the footer of your website.",
-        "minutes": 10,
-        "points": 30,
-        "earned": 0
-      },
-      {
-        "id": "social.verified",
-        "group": "social",
-        "state": "missing",
-        "priority": "MEDIUM",
-        "title": "We found no social profile to check",
-        "why": "Without a profile there is nothing for customers to follow.",
-        "fix": "Open one account and link it from your website.",
-        "minutes": 10,
-        "points": 30,
-        "earned": 0,
-        "detail": "none_found"
-      },
-      {
-        "id": "social.present",
-        "group": "social",
-        "state": "missing",
-        "priority": "MEDIUM",
-        "title": "We found no social media for your business",
-        "why": "Customers look at Instagram or Facebook to see if a business is real.",
-        "fix": "Open an account on the platform your customers use, and link it from your website.",
-        "minutes": 20,
-        "points": 40,
-        "earned": 0
-      }
-    ],
+    "fixes": [],
+    "topFixes": [],
     "couldNotCheck": [],
     "score": {
       "website": 100,
-      "social": 0,
-      "total": 50,
-      "earned": 100,
+      "social": 100,
+      "total": 100,
+      "earned": 200,
       "possible": 200,
-      "pointsAvailable": 100
+      "pointsAvailable": 0
     },
     "site": {
       "finalUrl": "https://tossvisibilityos.com/",

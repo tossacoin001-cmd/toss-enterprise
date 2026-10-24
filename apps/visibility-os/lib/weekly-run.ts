@@ -21,6 +21,9 @@ export type RunDeps<U extends { id: string }> = {
   /** Users due for a run, oldest first, never including `excludeIds`. */
   findDueUsers(limit: number, excludeIds: string[]): Promise<U[]>;
   processUser(user: U): Promise<UserOutcome>;
+  /** Takes a short lease on a user so overlapping runs cannot both email them. Omitted means no leasing. */
+  claim?(user: U): Promise<boolean>;
+  release?(user: U): Promise<void>;
   now(): number;
 };
 
@@ -29,6 +32,8 @@ export type RunSummary = {
   emailsSent: number;
   skippedNoEmail: number;
   skippedOptedOut: number;
+  /** Users another run was already working on. */
+  skippedClaimed: number;
   failed: number;
   /** True when the budget ran out while users were still due. */
   budgetExhausted: boolean;
@@ -47,6 +52,7 @@ export async function runWeekly<U extends { id: string }>(
     emailsSent: 0,
     skippedNoEmail: 0,
     skippedOptedOut: 0,
+    skippedClaimed: 0,
     failed: 0,
     budgetExhausted: false,
   };
@@ -65,17 +71,25 @@ export async function runWeekly<U extends { id: string }>(
     if (batch.length === 0) break;
 
     const outcomes = await Promise.all(
-      batch.map(async (user): Promise<[string, UserOutcome]> => {
+      batch.map(async (user): Promise<[string, UserOutcome | "claimed_elsewhere"]> => {
+        if (deps.claim && !(await deps.claim(user))) return [user.id, "claimed_elsewhere"];
         try {
           return [user.id, await deps.processUser(user)];
         } catch (e) {
           console.error("[weekly-run] user failed", user.id, e);
           return [user.id, "failed"];
+        } finally {
+          await deps.release?.(user).catch(() => undefined);
         }
       })
     );
 
     for (const [id, outcome] of outcomes) {
+      if (outcome === "claimed_elsewhere") {
+        summary.skippedClaimed += 1;
+        failedThisRun.push(id);
+        continue;
+      }
       summary.usersProcessed += 1;
       if (outcome === "sent") summary.emailsSent += 1;
       else if (outcome === "skipped_no_email") summary.skippedNoEmail += 1;

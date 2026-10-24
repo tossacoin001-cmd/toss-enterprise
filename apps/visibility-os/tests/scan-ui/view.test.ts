@@ -20,7 +20,7 @@ const site = (page: string | Route): Record<string, Route> => ({
 });
 
 async function report(input: Parameters<typeof runScan>[0], routes: Record<string, Route>): Promise<ScanReport> {
-  return runScan(input, { fetch: fakeNet(routes).fetch, lookup: fakeLookup().lookup, now: () => NOW, certDaysLeft: async () => 90, timeoutMs: 80, retryDelayMs: 0 });
+  return runScan(input, { fetch: fakeNet(routes).fetch, lookup: fakeLookup().lookup, now: () => NOW, certDaysLeft: async () => 90, timeoutMs: 80, retryDelayMs: 0, confirmMissing: async () => "gone" });
 }
 const api = (result: ScanReport | null, over: Partial<ScanApi> = {}): ScanApi => ({
   id: "a".repeat(32), status: result ? "done" : "running", result, createdAt: NOW - 30_000, ...over,
@@ -77,12 +77,13 @@ describe("XP-07: the first screen names the one most valuable next step", () => 
     expect(v.nextStep!.why.length).toBeGreaterThan(10);
   });
 
-  it("with nothing to fix, says so warmly instead of inventing work", async () => {
+  it("with nothing to fix, says so warmly and points to the next level instead of 'nothing to do'", async () => {
     const withSocial = html({ ld: [{ "@type": "BeautySalon" }], body: '<a href="tel:+2348031234567">c</a><a href="https://x.com/tossspa">x</a>' });
     const v = view(await report({ website: "https://toss.example/" }, { ...site(withSocial), "https://x.com/tossspa": res("ok") }));
-    expect(v.nextStep).toBeNull();
     expect(v.fixes).toEqual([]);
-    expect(v.fixes.filter((f) => f.id.startsWith("page."))).toEqual([]);
+    expect(v.headline).toMatch(/ready to be found/i);
+    expect(v.nextStep).not.toBeNull();
+    expect(v.nextStep!.title).toBe(v.nextLevel[0].title);
     expect(v.headline).not.toMatch(/undefined|null/);
   });
 });

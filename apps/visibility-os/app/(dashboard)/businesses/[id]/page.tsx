@@ -3,26 +3,19 @@ import { notFound, redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import DashboardClient from "@/app/(dashboard)/dashboard/DashboardClient";
 import { isPlacesConfigured } from "@/lib/google-places";
+import { serverNow } from "@/lib/workspace/clock";
 
 async function getBusiness(userId: string, businessId: string) {
   return db.business.findFirst({
     where: { id: businessId, userId },
     include: {
       visibilityScores: { orderBy: { recordedAt: "desc" }, take: 1 },
-      actionItems: {
-        where: { status: { not: "DONE" } },
-        orderBy: [{ priority: "desc" }, { createdAt: "desc" }],
-        take: 5,
-      },
+      actionItems: { orderBy: [{ priority: "desc" }, { createdAt: "desc" }] },
     },
   });
 }
 
-export default async function BusinessDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function BusinessDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
@@ -49,9 +42,10 @@ export default async function BusinessDetailPage({
     <DashboardClient
       business={business}
       score={business.visibilityScores[0] ?? null}
-      actionItems={business.actionItems}
+      actions={business.actionItems}
       allBusinesses={allBusinesses}
       googleEnabled={isPlacesConfigured()}
+      now={serverNow()}
     />
   );
 }

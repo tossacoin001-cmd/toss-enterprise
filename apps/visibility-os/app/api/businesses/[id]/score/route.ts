@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { requireMutationAccess } from "@/lib/billing/access";
 import { runAndPersistScore } from "@/lib/run-weekly-score";
 
 export const maxDuration = 30;
@@ -11,6 +12,9 @@ export async function POST(
 ) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const held = await requireMutationAccess(userId);
+  if (held) return held;
 
   const { id } = await params;
 
@@ -31,7 +35,7 @@ export async function POST(
       return NextResponse.json({ error: "Business not found" }, { status: 404 });
     }
 
-    const { score, actionItems } = await runAndPersistScore(business, placeSessionToken);
+    const { score, actionItems } = await runAndPersistScore(business, placeSessionToken, { recheck: false });
 
     return NextResponse.json(
       { score, actionItemCount: actionItems.length },
