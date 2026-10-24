@@ -1,4 +1,5 @@
 import { ClerkProvider } from "@clerk/nextjs";
+import "../workspace.css";
 import DashboardShell from "@/components/DashboardShell";
 
 // The provider lives here, not in the root layout: signed-in pages need Clerk

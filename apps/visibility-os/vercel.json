@@ -3,5 +3,5 @@
   "installCommand": "pnpm install",
   "buildCommand": "cd ../../ && if [ \"$VERCEL_ENV\" = \"production\" ]; then pnpm --filter @toss/visibility-os exec prisma migrate deploy; fi && pnpm --filter \"@toss/visibility-os...\" build",
   "outputDirectory": ".next",
-  "crons": [{ "path": "/api/cron/weekly-score", "schedule": "0 7 * * *" }]
+  "crons": [{ "path": "/api/cron/weekly-score", "schedule": "0 7 * * *" }, { "path": "/api/cron/cleanup-scans", "schedule": "30 3 * * *" }]
 }

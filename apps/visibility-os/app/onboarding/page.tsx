@@ -2,40 +2,39 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import OnboardingForm from "@/components/OnboardingForm";
+import { PageHeader } from "@/components/ui";
+import { getAccess } from "@/lib/billing/access";
 import { isPlacesConfigured } from "@/lib/google-places";
+import { prefillFromScan, type ScanRow } from "@/lib/workspace/claim";
+import { serverNow } from "@/lib/workspace/clock";
 
-export default async function OnboardingPage() {
+export default async function OnboardingPage({ searchParams }: { searchParams: Promise<{ scan?: string }> }) {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  // If user already has 3 businesses, redirect to dashboard
+  // Over the business limit already: go to the list, which says why. (redirect throws, so it must be outside the try.)
+  let count = 0;
   try {
-    const count = await db.business.count({ where: { userId } });
-    if (count >= 3) redirect("/businesses");
+    count = await db.business.count({ where: { userId } });
   } catch {
     // DB not configured: allow through
   }
+  const limit = (await getAccess(userId).catch(() => null))?.businessLimit ?? 3;
+  if (count >= limit) redirect("/businesses");
+
+  // A free check made before signing up fills the form. Only one this user may use: never someone else's.
+  const { scan: scanId } = await searchParams;
+  let initial = {};
+  if (scanId && /^[0-9a-f]{32,64}$/.test(scanId)) {
+    const row = (await db.scan.findUnique({ where: { id: scanId } }).catch(() => null)) as ScanRow | null;
+    initial = prefillFromScan(row, userId, serverNow()) ?? {};
+  }
 
   return (
-    <div
-      className="min-h-screen px-6 py-16"
-      style={{ background: "linear-gradient(180deg, #092D22 0%, #050E09 60%)" }}
-    >
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="mb-12">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="section-line" />
-            <span className="text-xs tracking-[0.35em] uppercase" style={{ color: "#C9A96E" }}>
-              Setup
-            </span>
-          </div>
-          <p className="text-xs mb-1" style={{ color: "rgba(250,247,242,0.4)" }}>
-            About two minutes, four short steps
-          </p>
-        </div>
-
-        <OnboardingForm googleEnabled={isPlacesConfigured()} />
+    <div className="ws-root min-h-screen px-4 py-10">
+      <div className="ws-stack" style={{ maxWidth: 560, margin: "0 auto" }}>
+        <PageHeader title="Add your business" description="About two minutes. Only the name is needed." />
+        <OnboardingForm googleEnabled={isPlacesConfigured()} initial={initial} />
       </div>
     </div>
   );

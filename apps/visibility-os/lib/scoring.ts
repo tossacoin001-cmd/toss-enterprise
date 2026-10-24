@@ -1,6 +1,6 @@
 import "server-only";
 import { getPlaceDetails } from "./google-places";
-import { runScan, type Finding, type ScanDeps } from "./scan";
+import { runScan, type Finding, type ScanDeps, type ScanReport } from "./scan";
 import { isSafeExternalUrl } from "./url-safety";
 
 /**
@@ -24,6 +24,8 @@ export type BusinessInput = {
 };
 
 export type ActionItemDraft = {
+  /** The finding this came from (like page.title), so a rescan updates the item instead of duplicating it. */
+  key: string;
   title: string;
   description: string;
   priority: "LOW" | "MEDIUM" | "HIGH";
@@ -38,6 +40,8 @@ export type ScoreResult = {
   reviewCount: number;
   avgRating: number;
   actionItems: ActionItemDraft[];
+  /** What the scan found, kept so the weekly watch can say what changed. */
+  report: ScanReport;
 };
 
 export { isSafeExternalUrl };
@@ -57,7 +61,7 @@ async function checkWebsiteAndSocial(
   b: BusinessInput,
   previous: PreviousScores | undefined,
   engineDeps: ScanDeps | undefined
-): Promise<{ website: WebsiteCheck; social: WebsiteCheck }> {
+): Promise<{ website: WebsiteCheck; social: WebsiteCheck; report: ScanReport }> {
   const report = await runScan(
     {
       website: b.website,
@@ -69,6 +73,7 @@ async function checkWebsiteAndSocial(
     engineDeps
   );
   const draft = (f: Finding): ActionItemDraft => ({
+    key: f.id,
     title: f.title,
     description: `${f.why} ${f.fix}`,
     priority: f.priority,
@@ -78,6 +83,7 @@ async function checkWebsiteAndSocial(
   return {
     website: { score: report.score.website ?? previous?.websiteScore ?? 0, actionItems: items("website") },
     social: { score: report.score.social ?? previous?.socialScore ?? 0, actionItems: items("social") },
+    report,
   };
 }
 
@@ -105,6 +111,7 @@ async function checkGooglePresence(
     }
   } else {
     actionItems.push({
+      key: "google.profile",
       title: "Claim your Google Business Profile",
       description:
         "You have no Google Business Profile connected. Use \"Connect your Google Business Profile\" on this page to find and link your listing. This is the single highest-impact fix on this list.",
@@ -117,6 +124,7 @@ async function checkGooglePresence(
     score += 20;
   } else {
     actionItems.push({
+      key: "profile.phone",
       title: "Add a phone number customers can call",
       description:
         "No phone number is on file. A visible number (ideally WhatsApp-enabled) turns searches into conversations.",
@@ -137,7 +145,7 @@ export async function scoreBusiness(
   previousGoogleData?: PreviousScores,
   engineDeps?: ScanDeps
 ): Promise<ScoreResult> {
-  const [{ website, social }, google] = await Promise.all([
+  const [{ website, social, report }, google] = await Promise.all([
     checkWebsiteAndSocial(b, previousGoogleData, engineDeps),
     checkGooglePresence(b, placeSessionToken, previousGoogleData),
   ]);
@@ -157,5 +165,6 @@ export async function scoreBusiness(
     reviewCount: google.reviewCount,
     avgRating: google.avgRating,
     actionItems,
+    report,
   };
 }

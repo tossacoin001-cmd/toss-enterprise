@@ -1,0 +1,142 @@
+/*
+ * The signed-in workspace: a warm ivory page, white surfaces, deep forest green for navigation and the
+ * main action, and a little muted gold as a small accent. Built for daylight and long use, not for glow.
+ * Every colour is a token; components use the classes below, never literal colours.
+ * Handoff section 3. Contrast checked in tests/workspace/design-tokens.test.ts.
+ *
+ * Scoped to .ws-root so the public pages (which keep their own deep green look) are not affected.
+ */
+.ws-root {
+  --ws-bg: #f6f2e9;
+  --ws-surface: #ffffff;
+  --ws-surface-2: #fbf9f4;
+  --ws-ink: #14231b;
+  --ws-muted: #54635a;
+  --ws-line: #ddd6c6;
+  --ws-line-strong: #837b66;
+  --ws-nav: #0d3f2e;
+  --ws-nav-ink: #f6f2e9;
+  --ws-nav-muted: #b8cbc1;
+  --ws-accent: #145240;
+  --ws-accent-ink: #ffffff;
+  --ws-gold: #6c5420;
+  --ws-gold-soft: #f1e8d0;
+  --ws-good: #1b6b3e;
+  --ws-good-soft: #e3f1e8;
+  --ws-warn: #7a5a0c;
+  --ws-warn-soft: #f7ecc8;
+  --ws-danger: #a5301f;
+  --ws-danger-soft: #f8e1dc;
+  --ws-info: #1c4f86;
+  --ws-info-soft: #e1ecf8;
+  --ws-focus: #1a5fb4;
+  --ws-radius: 10px;
+  --ws-radius-sm: 8px;
+  --ws-shadow: 0 1px 2px rgba(20, 35, 27, 0.06), 0 1px 1px rgba(20, 35, 27, 0.04);
+
+  background: var(--ws-bg);
+  color: var(--ws-ink);
+  color-scheme: light;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.ws-root :where(h1, h2, h3, p) { margin: 0; }
+.ws-root :focus-visible { outline: 3px solid var(--ws-focus); outline-offset: 2px; }
+
+/* Type: sans for everything in the workspace; the brand serif stays on the public pages. */
+.ws-h1 { font-size: 1.6rem; line-height: 1.2; font-weight: 650; letter-spacing: -0.01em; text-wrap: balance; }
+.ws-h2 { font-size: 1.1rem; line-height: 1.3; font-weight: 650; }
+.ws-h3 { font-size: 0.95rem; line-height: 1.35; font-weight: 600; }
+.ws-muted { color: var(--ws-muted); }
+.ws-small { font-size: 0.85rem; }
+.ws-num { font-variant-numeric: tabular-nums; }
+
+/* Surfaces */
+.ws-card {
+  background: var(--ws-surface);
+  border: 1px solid var(--ws-line);
+  border-radius: var(--ws-radius);
+  box-shadow: var(--ws-shadow);
+  padding: 1.1rem;
+}
+.ws-card--quiet { background: var(--ws-surface-2); box-shadow: none; }
+.ws-stack > * + * { margin-top: 1rem; }
+.ws-row { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.ws-grid { display: grid; gap: 1rem; }
+@media (min-width: 900px) { .ws-grid--2 { grid-template-columns: 1.4fr 1fr; } }
+
+/* Buttons: one primary action per section */
+.ws-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  min-height: 44px; padding: 0 1.1rem; border-radius: var(--ws-radius-sm);
+  font: inherit; font-weight: 600; font-size: 0.92rem; text-decoration: none; cursor: pointer;
+  border: 1.5px solid var(--ws-accent); background: var(--ws-accent); color: var(--ws-accent-ink);
+}
+.ws-btn:hover:not(:disabled) { background: #0f4333; border-color: #0f4333; }
+.ws-btn--secondary { background: var(--ws-surface); color: var(--ws-accent); }
+.ws-btn--secondary:hover:not(:disabled) { background: var(--ws-good-soft); border-color: var(--ws-accent); }
+.ws-btn--ghost { background: transparent; border-color: transparent; color: var(--ws-accent); }
+.ws-btn--ghost:hover:not(:disabled) { background: var(--ws-good-soft); }
+.ws-btn--danger { background: var(--ws-danger); border-color: var(--ws-danger); }
+.ws-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.ws-btn--small { min-height: 44px; padding: 0 0.9rem; font-size: 0.88rem; }
+
+/* Fields */
+.ws-label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.3rem; }
+.ws-hint { color: var(--ws-muted); font-size: 0.85rem; margin-top: 0.25rem; }
+.ws-input, .ws-select, .ws-textarea {
+  width: 100%; min-height: 44px; padding: 0.6rem 0.8rem; font: inherit; color: var(--ws-ink);
+  background: var(--ws-surface); border: 1.5px solid var(--ws-line-strong); border-radius: var(--ws-radius-sm);
+}
+.ws-textarea { min-height: 88px; resize: vertical; }
+.ws-field-error { color: var(--ws-danger); font-size: 0.88rem; margin-top: 0.3rem; font-weight: 500; }
+
+/* Status: always words as well as colour */
+.ws-badge {
+  display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.15rem 0.6rem;
+  border-radius: 999px; font-size: 0.8rem; font-weight: 600; background: var(--ws-surface-2);
+  color: var(--ws-ink); border: 1px solid var(--ws-line);
+}
+.ws-badge--good { background: var(--ws-good-soft); color: var(--ws-good); border-color: transparent; }
+.ws-badge--warn { background: var(--ws-warn-soft); color: var(--ws-warn); border-color: transparent; }
+.ws-badge--danger { background: var(--ws-danger-soft); color: var(--ws-danger); border-color: transparent; }
+.ws-badge--info { background: var(--ws-info-soft); color: var(--ws-info); border-color: transparent; }
+.ws-badge--gold { background: var(--ws-gold-soft); color: var(--ws-gold); border-color: transparent; }
+
+/* Notices: info, success, warning, danger */
+.ws-notice { border-radius: var(--ws-radius-sm); padding: 0.75rem 0.9rem; border: 1px solid var(--ws-line); background: var(--ws-surface-2); font-size: 0.92rem; }
+.ws-notice--good { background: var(--ws-good-soft); border-color: #bcdcc8; }
+.ws-notice--warn { background: var(--ws-warn-soft); border-color: #e6d18a; }
+.ws-notice--danger { background: var(--ws-danger-soft); border-color: #eab5ab; }
+.ws-notice--info { background: var(--ws-info-soft); border-color: #b9d1ec; }
+
+.ws-link { color: var(--ws-accent); text-decoration: underline; text-underline-offset: 3px; font-weight: 500; }
+
+/* Navigation: deep forest, light text */
+.ws-sidebar { background: var(--ws-nav); color: var(--ws-nav-ink); }
+.ws-nav-item {
+  display: flex; align-items: center; gap: 0.75rem; min-height: 44px; padding: 0 0.9rem;
+  border-radius: var(--ws-radius-sm); color: var(--ws-nav-muted); text-decoration: none; font-weight: 500; font-size: 0.95rem;
+  width: 100%; background: transparent; border: 0; cursor: pointer; text-align: left; font-family: inherit;
+}
+.ws-nav-item:hover { background: rgba(255, 255, 255, 0.08); color: var(--ws-nav-ink); }
+.ws-nav-item[aria-current="page"] { background: rgba(255, 255, 255, 0.14); color: #fff; box-shadow: inset 3px 0 0 #d9bf7f; }
+.ws-sidebar :focus-visible { outline-color: #ffe9a8; }
+
+.ws-topbar { background: var(--ws-surface); border-bottom: 1px solid var(--ws-line); }
+
+/* Progress */
+.ws-meter { height: 8px; border-radius: 999px; background: var(--ws-line); overflow: hidden; }
+.ws-meter > span { display: block; height: 100%; background: var(--ws-accent); border-radius: 999px; }
+
+/* Print: a report should print cleanly */
+@media print {
+  .ws-root { background: #fff; }
+  .ws-sidebar, .ws-topbar, .ws-no-print { display: none !important; }
+  .ws-card { box-shadow: none; break-inside: avoid; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ws-btn, .ws-nav-item { transition: background-color 0.15s ease, border-color 0.15s ease; }
+}

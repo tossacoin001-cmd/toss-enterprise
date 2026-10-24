@@ -1,4 +1,5 @@
 import { ClerkProvider } from "@clerk/nextjs";
+import "../workspace.css";
 
 // Onboarding saves with signed-in fetch calls, so Clerk's script must run here
 // to keep the session token fresh while the owner fills the form. ADR-0014.

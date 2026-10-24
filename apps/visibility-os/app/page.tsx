@@ -189,7 +189,9 @@ export default function Home() {
           <a href="https://toss-enterprise.vercel.app" className="underline underline-offset-4" style={{ color: "#C9A96E" }}>
             Toss Enterprise
           </a>
-          . <Link href="/privacy" className="underline underline-offset-4" style={{ color: "#C9A96E" }}>Privacy</Link>
+          . <Link href="/pricing" className="underline underline-offset-4" style={{ color: "#C9A96E" }}>Pricing</Link>
+          {" · "}
+          <Link href="/privacy" className="underline underline-offset-4" style={{ color: "#C9A96E" }}>Privacy</Link>
           {" · "}
           <Link href="/terms" className="underline underline-offset-4" style={{ color: "#C9A96E" }}>Terms</Link>
           {socialLinks.map(([name, url]) => (
