@@ -7,7 +7,8 @@ const auth = vi.fn();
 vi.mock("@clerk/nextjs/server", () => ({ auth: () => auth(), currentUser: async () => ({ emailAddresses: [{ emailAddress: "a@b.co" }], firstName: "A", lastName: "B" }) }));
 
 const access = vi.fn();
-vi.mock("@/lib/billing/access", () => ({ requireMutationAccess: () => access() }));
+const limit = vi.fn();
+vi.mock("@/lib/billing/access", () => ({ requireMutationAccess: () => access(), getAccess: async () => ({ businessLimit: limit() }) }));
 
 const SCAN = "a".repeat(32);
 const db = {
@@ -28,6 +29,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   auth.mockResolvedValue({ userId: "user1" });
   access.mockResolvedValue(null);
+  limit.mockReturnValue(3);
   db.$transaction.mockImplementation(async (fn: (tx: unknown) => unknown) => fn(db));
   db.user.findUnique.mockResolvedValue({ id: "user1" });
   db.business.count.mockResolvedValue(0);
@@ -53,6 +55,15 @@ describe("who and how many", () => {
     access.mockResolvedValue(new Response(JSON.stringify({ error: "Your free trial ended, so changes are paused." }), { status: 403 }));
     const res = await call({ name: "Toss Spa" });
     expect(res.status).toBe(403);
+    expect(db.business.create).not.toHaveBeenCalled();
+  });
+
+  it("a Starter package allows one business and the message says so", async () => {
+    limit.mockReturnValue(1);
+    db.business.count.mockResolvedValue(1);
+    const res = await call({ name: "Second" });
+    expect(res.status).toBe(403);
+    expect((await res.json()).error).toMatch(/up to 1 business on your package/i);
     expect(db.business.create).not.toHaveBeenCalled();
   });
 

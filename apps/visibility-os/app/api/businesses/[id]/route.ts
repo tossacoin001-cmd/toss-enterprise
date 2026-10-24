@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { getPlaceDetails, isPlacesConfigured } from "@/lib/google-places";
-import { requireMutationAccess } from "@/lib/billing/access";
+import { requireGoogleAccess, requireMutationAccess } from "@/lib/billing/access";
 import { runAndPersistScore } from "@/lib/run-weekly-score";
 import { editBusinessSchema } from "@/lib/schemas";
 
@@ -22,6 +22,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
   const held = await requireMutationAccess(userId);
   if (held) return held;
+
+  const noGoogle = await requireGoogleAccess(userId);
+  if (noGoogle) return noGoogle;
 
   if (!isPlacesConfigured()) {
     return NextResponse.json({ error: "Google connection opens soon." }, { status: 503 });

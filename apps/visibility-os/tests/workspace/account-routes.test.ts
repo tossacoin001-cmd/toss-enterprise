@@ -6,7 +6,8 @@ const auth = vi.fn();
 const deleteUser = vi.fn(async (_id: string) => undefined);
 vi.mock("@clerk/nextjs/server", () => ({ auth: () => auth(), clerkClient: async () => ({ users: { deleteUser } }) }));
 const access = vi.fn();
-vi.mock("@/lib/billing/access", () => ({ requireMutationAccess: () => access() }));
+const google = vi.fn();
+vi.mock("@/lib/billing/access", () => ({ requireMutationAccess: () => access(), requireGoogleAccess: () => google() }));
 const db = {
   user: { updateMany: vi.fn(async (_a: unknown) => ({ count: 1 })), deleteMany: vi.fn(async (_a: unknown) => ({ count: 1 })) },
   scan: { deleteMany: vi.fn(async (_a: unknown) => ({ count: 0 })) },
@@ -24,6 +25,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   auth.mockResolvedValue({ userId: "u1" });
   access.mockResolvedValue(null);
+  google.mockResolvedValue(null);
   db.user.updateMany.mockResolvedValue({ count: 1 });
   db.business.updateMany.mockResolvedValue({ count: 1 });
 });
@@ -89,5 +91,14 @@ describe("editing a business", () => {
   it("says not found for someone else's business", async () => {
     db.business.updateMany.mockResolvedValue({ count: 0 });
     expect((await biz.PUT(req("PUT", { name: "Spa" }), { params: Promise.resolve({ id: "other" }) })).status).toBe(404);
+  });
+});
+
+describe("connecting Google is part of the Growth package", () => {
+  it("is refused for a package without it, before anything is looked up", async () => {
+    google.mockResolvedValue(new Response(JSON.stringify({ error: "Connecting your Google listing is part of the Growth package." }), { status: 403 }));
+    const res = await biz.PATCH(req("PATCH", { googlePlaceId: "abc" }), { params: Promise.resolve({ id: "b1" }) });
+    expect(res.status).toBe(403);
+    expect(db.business.updateMany).not.toHaveBeenCalled();
   });
 });

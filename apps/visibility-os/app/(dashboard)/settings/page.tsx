@@ -1,11 +1,10 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Notice, PageHeader } from "@/components/ui";
+import { Button, PageHeader } from "@/components/ui";
 import DataControls from "@/components/workspace/DataControls";
 import { db } from "@/lib/db";
 import { getAccess, trialEnforced } from "@/lib/billing/access";
-import { BUSINESS_LIMIT } from "@/lib/billing/policy";
 
 export default async function SettingsPage() {
   const { userId } = await auth();
@@ -42,18 +41,20 @@ export default async function SettingsPage() {
             <p style={{ marginTop: "0.6rem", fontWeight: 600 }}>{access.label}</p>
             <p className="ws-muted ws-small">{access.detail}</p>
             {!access.canMutate && !trialEnforced() ? (
-              <p className="ws-muted ws-small" style={{ marginTop: "0.4rem" }}>Nothing is paused for now. Paid plans are not on sale yet, so changes stay open.</p>
+              <p className="ws-muted ws-small" style={{ marginTop: "0.4rem" }}>Nothing is paused yet. We will tell you before changes are paused, and you can pick a package on the plans page.</p>
             ) : null}
           </>
         ) : (
           <p style={{ marginTop: "0.6rem" }}>We could not load your access details just now. Your data is safe. Please refresh in a moment.</p>
         )}
-        <ul className="ws-muted ws-small" style={{ marginTop: "0.6rem", paddingLeft: "1.2rem" }}>
-          <li>Up to {BUSINESS_LIMIT} businesses.</li>
-          <li>A check of your website and social links, a list of what to do, and a weekly email about what changed.</li>
-        </ul>
+        {access ? (
+          <ul className="ws-muted ws-small" style={{ marginTop: "0.6rem", paddingLeft: "1.2rem" }}>
+            <li>Up to {access.businessLimit} business{access.businessLimit === 1 ? "" : "es"}.</li>
+            <li>{access.google ? "Google listing connection is included." : "Google listing connection is part of the Growth package."}</li>
+          </ul>
+        ) : null}
         <div style={{ marginTop: "0.8rem" }}>
-          <Notice tone="info">Paid plans are not on sale yet. We will tell you before anything changes, and we will never charge you without your say.</Notice>
+          <Button href="/plans" variant="secondary">See plans and prices</Button>
         </div>
       </section>
 

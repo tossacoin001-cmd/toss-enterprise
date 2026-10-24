@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { Button, EmptyState, PageHeader, StatusBadge } from "@/components/ui";
-import { BUSINESS_LIMIT } from "@/lib/billing/policy";
+import { getAccess } from "@/lib/billing/access";
 import { describeScore } from "@/lib/workspace/score-state";
 import { serverNow } from "@/lib/workspace/clock";
 
@@ -34,13 +34,14 @@ export default async function BusinessesPage() {
 
   const businesses = await getBusinesses(userId);
   const now = serverNow();
-  const canAdd = businesses.length < BUSINESS_LIMIT;
+  const limit = (await getAccess(userId).catch(() => null))?.businessLimit ?? 1;
+  const canAdd = businesses.length < limit;
 
   return (
     <div className="ws-stack" style={{ maxWidth: 900, margin: "0 auto" }}>
       <PageHeader
         title="Businesses"
-        description={`${businesses.length} of ${BUSINESS_LIMIT} businesses.`}
+        description={`${businesses.length} of ${limit} business${limit === 1 ? "" : "es"} on your package.`}
         actions={canAdd ? <Button href="/onboarding" variant="secondary">Add a business</Button> : undefined}
       />
 

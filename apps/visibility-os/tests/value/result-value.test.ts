@@ -114,7 +114,10 @@ describe("the reason to stay: someone watches it for you", () => {
       expect(v.watch.text).toMatch(/every week/i);
       expect(v.watch.text).toMatch(/tell you|let you know/i);
       expect(v.watch.text).toMatch(/(stops|breaks|ends|goes)/i);
-      expect(v.watch.free).toBe(true); // the first month of watching is free, so trust comes before payment
+      expect(v.watch.free).toBe(true); // a free week first, so trust comes before payment
+      expect(v.watch.text).toMatch(/7 days/);
+      expect(v.watch.text).not.toMatch(/₦|naira/i); // results are read worldwide; prices live on the pricing page
+      expect(v.watch.text).not.toMatch(/early access|while we build/i);
       expect(readingGrade(v.watch.text)).toBeLessThanOrEqual(9);
     }
   });

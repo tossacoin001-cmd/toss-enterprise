@@ -6,3 +6,7 @@
 
 /** Businesses one account may have. Shown and enforced from this single value. */
 export const BUSINESS_LIMIT = 3;
+
+/** What to tell someone who has reached the number of businesses their package allows. */
+export const limitMessage = (limit: number): string =>
+  `You can add up to ${limit} business${limit === 1 ? "" : "es"} on your package. See the plans page to add more.`;

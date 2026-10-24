@@ -102,7 +102,7 @@ const NEXT_LEVEL: PlanStep[] = [
   { id: "next.fresh", title: "Post or update something every week", why: "A page that is kept up to date looks alive, and gives people a reason to come back.", cost: "free", minutes: 15 },
 ];
 
-const WATCH_TEXT = "Sign up and we check again every week. We tell you if something stops working, like your site not opening or your security certificate ending. It is free while we are in early access.";
+const WATCH_TEXT = "Sign up and we check again every week. We tell you if something stops working, like your site not opening or your security certificate ending. Try it free for 7 days, with no card. Prices are on our pricing page.";
 
 const NOT_SCORED = (label: string) => ({ kind: "not_scored" as const, label });
 

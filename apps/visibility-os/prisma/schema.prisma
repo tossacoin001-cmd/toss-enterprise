@@ -97,6 +97,8 @@ model Subscription {
   userId            String   @unique
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   plan              Plan
+  // MONTHLY or ANNUAL: what was paid for, which sets the length of the period.
+  interval          String   @default("MONTHLY")
   status            String
   currentPeriodEnd  DateTime
   cancelAtPeriodEnd Boolean  @default(false)

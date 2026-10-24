@@ -3,8 +3,8 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { createBusinessSchema } from "@/lib/schemas";
 import { pendingEmail } from "@/lib/utils";
-import { BUSINESS_LIMIT } from "@/lib/billing/policy";
-import { requireMutationAccess } from "@/lib/billing/access";
+import { limitMessage } from "@/lib/billing/policy";
+import { getAccess, requireMutationAccess } from "@/lib/billing/access";
 import { createWithinLimit, type LimitDb } from "@/lib/billing/limit";
 import { claimScan, type ScanDb } from "@/lib/workspace/claim";
 
@@ -49,9 +49,10 @@ export async function POST(req: Request) {
     }
 
     const { scanId, ...fields } = parsed.data;
-    const made = await createWithinLimit(db as unknown as LimitDb, userId, fields, BUSINESS_LIMIT);
+    const { businessLimit } = await getAccess(userId);
+    const made = await createWithinLimit(db as unknown as LimitDb, userId, fields, businessLimit);
     if (!made.ok) {
-      return NextResponse.json({ error: `You can add up to ${BUSINESS_LIMIT} businesses.` }, { status: 403 });
+      return NextResponse.json({ error: limitMessage(businessLimit) }, { status: 403 });
     }
     const business = made.business;
 

@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useClerk } from "@clerk/nextjs";
-import { LayoutDashboard, ListChecks, Building2, BarChart3, Settings, LogOut, X } from "lucide-react";
+import { LayoutDashboard, ListChecks, Building2, BarChart3, CreditCard, Settings, LogOut, X } from "lucide-react";
 
 // Every item goes somewhere real. Anything not built yet is simply not listed.
 const navItems = [
@@ -10,6 +10,7 @@ const navItems = [
   { href: "/actions", label: "Action plan", icon: ListChecks },
   { href: "/reports", label: "Reports", icon: BarChart3 },
   { href: "/businesses", label: "Businesses", icon: Building2 },
+  { href: "/plans", label: "Plans", icon: CreditCard },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 

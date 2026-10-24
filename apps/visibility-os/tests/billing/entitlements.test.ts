@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { TRIAL_DAYS, accessFor, guardMutation, startTrialIfNeeded, type AccessFacts, type TrialDb } from "@/lib/billing/entitlements";
+import { TRIAL_DAYS, accessFor, guardGoogle, guardMutation, startTrialIfNeeded, type AccessFacts, type TrialDb } from "@/lib/billing/entitlements";
 
 // Access has one source of truth. The seven-day trial starts once, exactly, and needs no card; the public
 // scan is a separate thing and is not affected. Handoff section 6.
@@ -58,10 +58,11 @@ describe("the trial", () => {
 
 describe("paid and in-between states (used when billing is switched on)", () => {
   const paid = (status: NonNullable<AccessFacts["subscription"]>["status"], extra: Partial<NonNullable<AccessFacts["subscription"]>> = {}) =>
-    facts({ plan: "GROWTH", subscription: { status, currentPeriodEnd: new Date(T0 + 20 * DAY), cancelAtPeriodEnd: false, ...extra } });
+    facts({ plan: "GROWTH", subscription: { plan: "GROWTH", interval: "MONTHLY", status, currentPeriodEnd: new Date(T0 + 20 * DAY), cancelAtPeriodEnd: false, ...extra } });
 
   it("a paid, active subscription can use and change everything, whatever the trial did", () => {
-    const a = accessFor(paid("active"), T0 + 30 * DAY);
+    const a = accessFor(paid("active"), T0 + 10 * DAY);
+    expect(accessFor(paid("active"), T0 + 30 * DAY).state).toBe("expired"); // the paid period ran out
     expect(a).toMatchObject({ state: "paid_active", canUse: true, canMutate: true });
   });
 
@@ -150,7 +151,7 @@ describe("startTrialIfNeeded: the trial starts once, and only once", () => {
 describe("guardMutation: the server says no, with a reason a person can act on", () => {
   it("lets an active trial and a paid account make changes", () => {
     expect(guardMutation(accessFor(facts(), T0), true)).toEqual({ ok: true });
-    expect(guardMutation(accessFor(facts({ plan: "GROWTH", subscription: { status: "active", currentPeriodEnd: new Date(T0 + DAY), cancelAtPeriodEnd: false } }), T0), true)).toEqual({ ok: true });
+    expect(guardMutation(accessFor(facts({ plan: "GROWTH", subscription: { plan: "GROWTH", interval: "MONTHLY", status: "active", currentPeriodEnd: new Date(T0 + DAY), cancelAtPeriodEnd: false } }), T0), true)).toEqual({ ok: true });
   });
 
   it("holds changes back after the trial, when enforcement is on, and names the date", () => {
@@ -162,5 +163,70 @@ describe("guardMutation: the server says no, with a reason a person can act on",
 
   it("while enforcement is off (paid plans are not on sale yet), nothing is held back", () => {
     expect(guardMutation(accessFor(facts(), T0 + 8 * DAY), false)).toEqual({ ok: true });
+  });
+});
+
+describe("packages", () => {
+  const sub = (plan: "STARTER" | "GROWTH" | "AGENCY", status: "active" | "past_due" | "pending" = "active", extra: object = {}) =>
+    facts({ plan, subscription: { plan, interval: "MONTHLY", status, currentPeriodEnd: new Date(T0 + 20 * DAY), cancelAtPeriodEnd: false, ...extra } });
+
+  it("the free trial works like Growth: three businesses and Google", () => {
+    const a = accessFor(facts(), T0);
+    expect(a.businessLimit).toBe(3);
+    expect(a.google).toBe(true);
+    expect(a.paid).toBe(false);
+    expect(accessFor(facts({ trialStartedAt: null, trialEndsAt: null }), T0).businessLimit).toBe(3);
+  });
+
+  it.each([
+    ["STARTER", 1, false],
+    ["GROWTH", 3, true],
+    ["AGENCY", 10, true],
+  ] as const)("%s allows %i businesses, Google %s", (plan, limit, google) => {
+    const a = accessFor(sub(plan), T0);
+    expect(a.state).toBe("paid_active");
+    expect(a.businessLimit).toBe(limit);
+    expect(a.google).toBe(google);
+    expect(a.paid).toBe(true);
+    expect(a.canMutate).toBe(true);
+  });
+
+  it("keeps the package's limits when a payment is late or the subscription is ending", () => {
+    expect(accessFor(sub("STARTER", "past_due"), T0).businessLimit).toBe(1);
+    expect(accessFor(sub("AGENCY", "active", { cancelAtPeriodEnd: true }), T0)).toMatchObject({ businessLimit: 10, google: true, state: "cancelled_at_period_end" });
+  });
+
+  it("the label names the package and the date it renews", () => {
+    const a = accessFor(sub("STARTER"), T0);
+    expect(a.label).toBe("Starter package");
+    expect(a.detail).toMatch(/runs until/i);
+  });
+
+  it("an ended trial or subscription cannot connect Google or change anything", () => {
+    const ended = accessFor(facts(), T0 + 8 * DAY);
+    expect(ended.google).toBe(false);
+    expect(ended.canMutate).toBe(false);
+  });
+});
+
+describe("guardGoogle", () => {
+  const starter = accessFor(facts({ plan: "STARTER", subscription: { plan: "STARTER", interval: "MONTHLY", status: "active", currentPeriodEnd: new Date(T0 + DAY), cancelAtPeriodEnd: false } }), T0);
+  const growth = accessFor(facts({ plan: "GROWTH", subscription: { plan: "GROWTH", interval: "MONTHLY", status: "active", currentPeriodEnd: new Date(T0 + DAY), cancelAtPeriodEnd: false } }), T0);
+  it("lets Growth and the trial through", () => {
+    expect(guardGoogle(growth, true)).toEqual({ ok: true });
+    expect(guardGoogle(accessFor(facts(), T0), true)).toEqual({ ok: true });
+  });
+  it("tells a Starter customer which package has it, whether or not enforcement is on", () => {
+    for (const enforced of [true, false]) {
+      const g = guardGoogle(starter, enforced);
+      expect(g).toMatchObject({ ok: false, status: 403 });
+      expect((g as { error: string }).error).toMatch(/Growth/);
+    }
+  });
+  it("when the trial has ended and enforcement is off, nothing new is locked", () => {
+    expect(guardGoogle(accessFor(facts(), T0 + 8 * DAY), false)).toEqual({ ok: true });
+  });
+  it("when the trial has ended and enforcement is on, Google is held back", () => {
+    expect(guardGoogle(accessFor(facts(), T0 + 8 * DAY), true)).toMatchObject({ ok: false, status: 403 });
   });
 });

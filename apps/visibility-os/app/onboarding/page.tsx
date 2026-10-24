@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import OnboardingForm from "@/components/OnboardingForm";
 import { PageHeader } from "@/components/ui";
-import { BUSINESS_LIMIT } from "@/lib/billing/policy";
+import { getAccess } from "@/lib/billing/access";
 import { isPlacesConfigured } from "@/lib/google-places";
 import { prefillFromScan, type ScanRow } from "@/lib/workspace/claim";
 import { serverNow } from "@/lib/workspace/clock";
@@ -19,7 +19,8 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
   } catch {
     // DB not configured: allow through
   }
-  if (count >= BUSINESS_LIMIT) redirect("/businesses");
+  const limit = (await getAccess(userId).catch(() => null))?.businessLimit ?? 3;
+  if (count >= limit) redirect("/businesses");
 
   // A free check made before signing up fills the form. Only one this user may use: never someone else's.
   const { scan: scanId } = await searchParams;

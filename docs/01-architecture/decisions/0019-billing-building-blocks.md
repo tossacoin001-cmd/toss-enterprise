@@ -1,6 +1,6 @@
 # ADR-0019: Billing building blocks before checkout
 
-- **Status:** Accepted
+- **Status:** Accepted; the payment provider part is superseded by ADR-0021 (Paystack)
 - **Date:** 2026-10-23
 - **Deciders:** Yusuf Azeez (founder), Claude Code
 

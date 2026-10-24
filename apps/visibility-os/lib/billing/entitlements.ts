@@ -1,5 +1,6 @@
 import { dateText } from "@/lib/workspace/history";
 import { BUSINESS_LIMIT } from "./policy";
+import { PLANS, type Interval, type PlanId } from "./plans";
 
 /**
  * What an account may do, in one place. The seven-day workspace trial starts once, needs no card and is
@@ -11,7 +12,7 @@ import { BUSINESS_LIMIT } from "./policy";
 export const TRIAL_DAYS = 7;
 const DAY = 86_400_000;
 
-export type SubscriptionFacts = { status: "pending" | "active" | "past_due" | "ended"; currentPeriodEnd: Date; cancelAtPeriodEnd: boolean };
+export type SubscriptionFacts = { plan: PlanId; interval: Interval; status: "pending" | "active" | "past_due" | "ended"; currentPeriodEnd: Date; cancelAtPeriodEnd: boolean };
 
 export type AccessFacts = {
   plan: "FREE" | "STARTER" | "GROWTH" | "AGENCY";
@@ -41,12 +42,16 @@ export type Access = {
   canMutate: boolean;
   canExport: boolean;
   businessLimit: number;
+  /** May connect a Google listing. Starts in the Growth package; the trial has it. */
+  google: boolean;
+  /** Has a live paid package (not a trial). */
+  paid: boolean;
 };
 
 const plural = (n: number) => `${n} day${n === 1 ? "" : "s"}`;
 
 export function accessFor(f: AccessFacts, now: number): Access {
-  const base = { canUse: true, canExport: true, businessLimit: BUSINESS_LIMIT, endsAt: f.trialEndsAt, endsText: f.trialEndsAt ? dateText(f.trialEndsAt) : null, daysLeft: null as number | null };
+  const base = { canUse: true, canExport: true, businessLimit: BUSINESS_LIMIT, google: false, paid: false, endsAt: f.trialEndsAt, endsText: f.trialEndsAt ? dateText(f.trialEndsAt) : null, daysLeft: null as number | null };
   const trialActive = f.trialEndsAt !== null && now < f.trialEndsAt.getTime();
   const trialNotStarted = f.trialStartedAt === null || f.trialEndsAt === null;
   const trialDays = f.trialEndsAt ? Math.min(TRIAL_DAYS, Math.max(0, Math.ceil((f.trialEndsAt.getTime() - now) / DAY))) : null;
@@ -54,29 +59,32 @@ export function accessFor(f: AccessFacts, now: number): Access {
   const sub = f.subscription;
   if (sub) {
     const until = dateText(sub.currentPeriodEnd);
-    if (sub.status === "active" && !sub.cancelAtPeriodEnd) {
-      return { ...base, state: "paid_active", label: "Subscription active", detail: `Your subscription renews around ${until}.`, canMutate: true, endsAt: sub.currentPeriodEnd, endsText: until };
+    const pkg = PLANS[sub.plan];
+    const owned = { businessLimit: pkg.businessLimit, google: pkg.google, paid: true, endsAt: sub.currentPeriodEnd, endsText: until };
+    const open = now < sub.currentPeriodEnd.getTime();
+    if (sub.status === "active" && !sub.cancelAtPeriodEnd && open) {
+      return { ...base, ...owned, state: "paid_active", label: `${pkg.name} package`, detail: `Your package runs until ${until}. Pay again before then to keep it.`, canMutate: true };
     }
-    if (sub.status === "active" && sub.cancelAtPeriodEnd) {
-      const open = now < sub.currentPeriodEnd.getTime();
-      return open
-        ? { ...base, state: "cancelled_at_period_end", label: "Subscription ending", detail: `You cancelled. You keep full access until ${until}.`, canMutate: true, endsAt: sub.currentPeriodEnd, endsText: until }
-        : { ...base, state: "expired", label: "Subscription ended", detail: `Your subscription ended on ${until}. You can still see and download your data.`, canMutate: false, endsAt: sub.currentPeriodEnd, endsText: until };
+    if (sub.status === "active" && sub.cancelAtPeriodEnd && open) {
+      return { ...base, ...owned, state: "cancelled_at_period_end", label: "Package ending", detail: `You will not be charged again. You keep full access until ${until}.`, canMutate: true };
+    }
+    if (sub.status === "active") {
+      return { ...base, businessLimit: pkg.businessLimit, state: "expired", label: "Package ended", detail: `Your ${pkg.name} package ended on ${until}. You can still see and download your data.`, canMutate: false, endsAt: sub.currentPeriodEnd, endsText: until };
     }
     if (sub.status === "past_due") {
-      return { ...base, state: "past_due", label: "Payment needed", detail: "We could not take your last payment. Nothing has been switched off. Please update your payment.", canMutate: true };
+      return { ...base, ...owned, state: "past_due", label: "Payment needed", detail: "We could not take your last payment. Nothing has been switched off. Please pay again.", canMutate: true };
     }
     if (sub.status === "pending") {
-      return { ...base, state: "payment_pending", label: "Payment pending", detail: "We are waiting for your payment to be confirmed. Until then, your trial rules apply.", canMutate: trialNotStarted || trialActive, daysLeft: trialDays };
+      return { ...base, google: trialNotStarted || trialActive, state: "payment_pending", label: "Payment pending", detail: "We are waiting for your payment to be confirmed. Until then, your trial rules apply.", canMutate: trialNotStarted || trialActive, daysLeft: trialDays };
     }
-    return { ...base, state: "expired", label: "Subscription ended", detail: "Your subscription has ended. You can still see and download your data.", canMutate: false };
+    return { ...base, state: "expired", label: "Package ended", detail: "Your package has ended. You can still see and download your data.", canMutate: false };
   }
 
   if (trialNotStarted) {
-    return { ...base, state: "trial_not_started", label: "Free trial", detail: `Your ${TRIAL_DAYS}-day free trial starts the first time you use your workspace. No payment is needed.`, canMutate: true, endsAt: null, endsText: null };
+    return { ...base, google: true, state: "trial_not_started", label: "Free trial", detail: `Your ${TRIAL_DAYS}-day free trial starts the first time you use your workspace. No payment is needed.`, canMutate: true, endsAt: null, endsText: null };
   }
   if (trialActive) {
-    return { ...base, state: "trial_active", label: `Free trial: ${plural(trialDays ?? 0)} left`, detail: `Your free trial ends on ${base.endsText}. No payment is needed.`, canMutate: true, daysLeft: trialDays };
+    return { ...base, google: true, state: "trial_active", label: `Free trial: ${plural(trialDays ?? 0)} left`, detail: `Your free trial ends on ${base.endsText}. No payment is needed.`, canMutate: true, daysLeft: trialDays };
   }
   return { ...base, state: "trial_ended", label: "Free trial ended", detail: `Your free trial ended on ${base.endsText}. You can still see and download your data.`, canMutate: false, daysLeft: 0 };
 }
@@ -87,6 +95,14 @@ export type Guard = { ok: true } | { ok: false; status: 403; error: string };
 export function guardMutation(access: Access, enforced: boolean): Guard {
   if (!enforced || access.canMutate) return { ok: true };
   return { ok: false, status: 403, error: `Your free trial ended on ${access.endsText ?? "an earlier date"}, so changes are paused. You can still see your data and download it.` };
+}
+
+/** Connecting Google starts in the Growth package. A paid Starter is always told; others only once pausing is on. */
+export function guardGoogle(access: Access, enforced: boolean): Guard {
+  if (access.google) return { ok: true };
+  if (!enforced && !access.paid) return { ok: true };
+  const error = access.paid ? "Connecting your Google listing is part of the Growth package. You can move up from the plans page." : `Your free trial ended on ${access.endsText ?? "an earlier date"}, so changes are paused. You can still see your data and download it.`;
+  return { ok: false, status: 403, error };
 }
 
 export interface TrialDb {
