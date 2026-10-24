@@ -1,4 +1,4 @@
-import type { Evidence, Finding, Priority, ScanReport } from "@/lib/scan/types";
+import type { Evidence, Finding, Priority } from "@/lib/scan/types";
 
 /**
  * The weekly watch: what changed since last time, in plain words. It must be right in both directions:
@@ -24,7 +24,10 @@ const RANK: Record<Priority, number> = { HIGH: 0, MEDIUM: 1, LOW: 2 };
 const byImportance = (a: Change, b: Change) => RANK[a.priority] - RANK[b.priority] || a.id.localeCompare(b.id);
 const sentence = (s: string) => (/[.!?]$/.test(s) ? s : `${s}.`);
 
-export function compareScans(prev: Pick<ScanReport, "findings">, next: Pick<ScanReport, "findings">): ChangeSet {
+/** What a comparison needs from a finding, so a saved (slimmed) one works as well as a fresh one. */
+export type Comparable = Pick<Finding, "id" | "state" | "title" | "points" | "earned" | "priority">;
+
+export function compareScans(prev: { findings: Comparable[] }, next: { findings: Comparable[] }): ChangeSet {
   const before = new Map(prev.findings.map((f) => [f.id, f]));
   const alerts: Change[] = [];
   const good: Change[] = [];

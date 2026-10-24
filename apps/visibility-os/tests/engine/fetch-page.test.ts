@@ -67,7 +67,8 @@ describe("EN-01: every way a request can fail is classified", () => {
   it.each([
     ["exists", "an independent resolver finds the name"],
     ["unsure", "the independent resolver cannot be reached or is not sure"],
-  ] as const)("EN-02: a lookup that fails on our side is never called 'does not exist' (%s: %s)", async (verdict, _why) => {
+  ] as const)("EN-02: a lookup that fails on our side is never called 'does not exist' (%s: %s)", async (verdict, why) => {
+    expect(why.length).toBeGreaterThan(5);
     const { result, net } = await run("https://nope.example/", {}, {}, fakeLookup({ "nope.example": dnsError("ENOTFOUND") }), { confirmMissing: async () => verdict });
     expect(result).toMatchObject({ ok: false, cause: "connection_failed", retried: true });
     if (!result.ok) expect(isCertainCause(result.cause)).toBe(false);

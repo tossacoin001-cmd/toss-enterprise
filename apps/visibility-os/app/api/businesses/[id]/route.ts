@@ -3,7 +3,9 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { getPlaceDetails, isPlacesConfigured } from "@/lib/google-places";
+import { requireGoogleAccess, requireMutationAccess } from "@/lib/billing/access";
 import { runAndPersistScore } from "@/lib/run-weekly-score";
+import { editBusinessSchema } from "@/lib/schemas";
 
 export const maxDuration = 30;
 
@@ -17,6 +19,12 @@ const connectSchema = z.object({
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const held = await requireMutationAccess(userId);
+  if (held) return held;
+
+  const noGoogle = await requireGoogleAccess(userId);
+  if (noGoogle) return noGoogle;
 
   if (!isPlacesConfigured()) {
     return NextResponse.json({ error: "Google connection opens soon." }, { status: 503 });
@@ -56,5 +64,29 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   } catch (e) {
     console.error("[PATCH /api/businesses/:id]", e);
     return NextResponse.json({ error: "Could not connect the listing. Please try again." }, { status: 500 });
+  }
+}
+
+/** Edits the business details the owner typed. The owner and the Google link are never changed here. */
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { userId } = await auth();
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const held = await requireMutationAccess(userId);
+  if (held) return held;
+
+  const json: unknown = await req.json().catch(() => null);
+  const parsed = editBusinessSchema.safeParse(json);
+  if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid input" }, { status: 400 });
+
+  const { id } = await params;
+  try {
+    const r = await db.business.updateMany({ where: { id, userId }, data: parsed.data });
+    if (r.count === 0) return NextResponse.json({ error: "Business not found" }, { status: 404 });
+    const business = await db.business.findFirst({ where: { id, userId } });
+    return NextResponse.json({ business });
+  } catch (e) {
+    console.error("[PUT /api/businesses/:id]", e instanceof Error ? e.message : "failed");
+    return NextResponse.json({ error: "Something went wrong on our side. Please try again." }, { status: 500 });
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button, Notice } from "@/components/ui";
 import GooglePlaceSearch, { type SelectedPlace } from "./GooglePlaceSearch";
 
 interface ConnectGoogleCardProps {
@@ -39,33 +40,16 @@ export default function ConnectGoogleCard({ businessId, enabled }: ConnectGoogle
   }
 
   return (
-    <div
-      className="p-5"
-      style={{ background: "rgba(9,45,34,0.3)", border: "1px solid rgba(201,169,110,0.15)" }}
-    >
-      <div className="text-sm font-medium mb-1" style={{ color: "#FAF7F2" }}>
-        Connect your Google Business Profile
-      </div>
-      <p className="text-xs mb-4" style={{ color: "rgba(250,247,242,0.5)" }}>
-        This is the biggest lever on your score. Once connected we track your reviews and rating too.
+    <section className="ws-card" aria-labelledby="connect-google-title">
+      <h2 id="connect-google-title" className="ws-h2">Connect your Google Business Profile</h2>
+      <p className="ws-muted ws-small" style={{ marginTop: "0.3rem" }}>
+        This adds your Google listing to your score, and lets us track your reviews and rating. Finding your listing does not prove you own it.
       </p>
-      <div className="space-y-3">
+      <div className="ws-stack" style={{ marginTop: "0.8rem" }}>
         <GooglePlaceSearch selected={place} onSelect={setPlace} enabled={enabled} />
-        {enabled && (
-          <button
-            onClick={connect}
-            disabled={!place || saving}
-            className="btn-gold px-5 py-2 text-xs tracking-[0.15em] uppercase disabled:opacity-40"
-          >
-            {saving ? "Connecting…" : "Connect listing"}
-          </button>
-        )}
-        {error && (
-          <p className="text-xs" style={{ color: "#fca5a5" }}>
-            {error}
-          </p>
-        )}
+        {enabled && <Button disabled={!place || saving} onClick={connect}>{saving ? "Connecting..." : "Connect listing"}</Button>}
+        {error && <Notice tone="danger" live="assertive">{error}</Notice>}
       </div>
-    </div>
+    </section>
   );
 }

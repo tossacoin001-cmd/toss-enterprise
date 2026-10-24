@@ -29,6 +29,7 @@ describe("buildDigestEmail", () => {
     total: 70,
     delta: { scoreDelta: 0, reviewDelta: 0, ratingDelta: 0 },
     topActionItem: {
+      key: "social.present",
       title: "Add your Instagram handle",
       description: "Customers check it first.",
       priority: "MEDIUM",

@@ -3,10 +3,17 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { createBusinessSchema } from "@/lib/schemas";
 import { pendingEmail } from "@/lib/utils";
+import { limitMessage } from "@/lib/billing/policy";
+import { getAccess, requireMutationAccess } from "@/lib/billing/access";
+import { createWithinLimit, type LimitDb } from "@/lib/billing/limit";
+import { claimScan, type ScanDb } from "@/lib/workspace/claim";
 
 export async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const held = await requireMutationAccess(userId);
+  if (held) return held;
 
   let json: unknown;
   try {
@@ -41,19 +48,21 @@ export async function POST(req: Request) {
       });
     }
 
-    const count = await db.business.count({ where: { userId } });
-    if (count >= 3) {
-      return NextResponse.json(
-        { error: "Business limit reached for your plan" },
-        { status: 403 }
-      );
+    const { scanId, ...fields } = parsed.data;
+    const { businessLimit } = await getAccess(userId);
+    const made = await createWithinLimit(db as unknown as LimitDb, userId, fields, businessLimit);
+    if (!made.ok) {
+      return NextResponse.json({ error: limitMessage(businessLimit) }, { status: 403 });
+    }
+    const business = made.business;
+
+    // Save the free check this business came from to the account. A failure here never loses the business.
+    let scan: string | null = null;
+    if (scanId) {
+      scan = await claimScan(db as unknown as ScanDb, scanId, userId, Date.now()).then((r) => r.status).catch(() => null);
     }
 
-    const business = await db.business.create({
-      data: { ...parsed.data, userId },
-    });
-
-    return NextResponse.json({ business }, { status: 201 });
+    return NextResponse.json({ business, scan }, { status: 201 });
   } catch (e) {
     console.error("[POST /api/businesses]", e);
     return NextResponse.json({ error: "Failed to save business" }, { status: 500 });

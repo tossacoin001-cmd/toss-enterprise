@@ -9,7 +9,7 @@ import { slimFindings } from "@/lib/value/changes";
 
 const db = {
   visibilityScore: { create: vi.fn((args: { data: Record<string, unknown> }) => ({ id: "new", recordedAt: new Date(), ...args.data })) },
-  actionItem: { deleteMany: vi.fn(() => ({})), createMany: vi.fn(() => ({})) },
+  actionItem: { findMany: vi.fn(async () => []), deleteMany: vi.fn(() => ({})), createMany: vi.fn(() => ({})), update: vi.fn(() => ({})) },
   $transaction: vi.fn(async (ops: unknown[]) => Promise.all(ops)),
 };
 vi.mock("@/lib/db", () => ({ db }));

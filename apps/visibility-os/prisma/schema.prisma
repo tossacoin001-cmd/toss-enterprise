@@ -19,9 +19,15 @@ model User {
   // Set when a weekly run finishes for this user; the cron skips anyone run in the last 6 days.
   lastDigestAt  DateTime?
   digestOptOut  Boolean    @default(false)
+  // Short lease taken while the weekly run works on this user, so overlapping runs cannot both email them.
+  weeklyClaimAt DateTime?
+  // The seven-day workspace trial. Set once, the first time the account uses its workspace; never reset.
+  trialStartedAt DateTime?
+  trialEndsAt    DateTime?
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
   businesses Business[]
+  subscription Subscription?
 }
 
 model Business {
@@ -71,10 +77,60 @@ model ActionItem {
   priority    Priority     @default(MEDIUM)
   status      ActionStatus @default(PENDING)
   category    String?
+  // The finding this item came from, so a rescan updates the item instead of duplicating it. Null on items made before keys existed.
+  key         String?
+  // The owner's own words about this action.
+  note        String?
+  completedAt DateTime?
+  // Set when the owner marked it done but a fresh check still found the problem. Cleared when the check passes or the item is reopened.
+  lastSeenFailingAt DateTime?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
+  @@unique([businessId, key])
   @@index([businessId])
+}
+
+// One subscription per account, moved only by verified, de-duplicated provider events.
+model Subscription {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan              Plan
+  // MONTHLY or ANNUAL: what was paid for, which sets the length of the period.
+  interval          String   @default("MONTHLY")
+  status            String
+  currentPeriodEnd  DateTime
+  cancelAtPeriodEnd Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+// One row per weekly run: when it ran and what it did, so a missed or partial run can be seen.
+model WeeklyRun {
+  id               String    @id @default(cuid())
+  startedAt        DateTime
+  finishedAt       DateTime?
+  usersProcessed   Int       @default(0)
+  emailsSent       Int       @default(0)
+  skippedNoEmail   Int       @default(0)
+  skippedOptedOut  Int       @default(0)
+  skippedClaimed   Int       @default(0)
+  failed           Int       @default(0)
+  budgetExhausted  Boolean   @default(false)
+
+  @@index([startedAt])
+}
+
+// Every provider event we have handled, so a repeat delivery changes nothing.
+model BillingEvent {
+  id         String   @id @default(cuid())
+  provider   String
+  eventId    String
+  type       String
+  receivedAt DateTime @default(now())
+
+  @@unique([provider, eventId])
 }
 
 enum Plan {
