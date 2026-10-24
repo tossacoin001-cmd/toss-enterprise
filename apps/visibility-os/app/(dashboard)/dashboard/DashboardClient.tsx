@@ -107,7 +107,7 @@ export default function DashboardClient({ business, score, actions, allBusinesse
                 </Notice>
               )}
 
-              <ul className="ws-stack ws-small" style={{ listStyle: "none", padding: 0, margin: 0 }}>
+              <ul className="ws-stack ws-small" style={{ listStyle: "none", padding: 0, margin: "0.9rem 0 0" }}>
                 <li className="ws-row" style={{ justifyContent: "space-between" }}><span>Website</span><span className="ws-num">{partText(view.parts.website)}</span></li>
                 <li className="ws-row" style={{ justifyContent: "space-between" }}><span>Social</span><span className="ws-num">{partText(view.parts.social)}</span></li>
                 <li className="ws-row" style={{ justifyContent: "space-between" }}><span>Google</span><span className="ws-num">{partText(view.parts.google)}</span></li>
