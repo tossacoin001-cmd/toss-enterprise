@@ -2,7 +2,7 @@
 CREATE TABLE IF NOT EXISTS "Subscription" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "plan" "Plan" NOT NULL,
+    "plan" TEXT NOT NULL,
     "status" TEXT NOT NULL,
     "currentPeriodEnd" TIMESTAMP(3) NOT NULL,
     "cancelAtPeriodEnd" BOOLEAN NOT NULL DEFAULT false,

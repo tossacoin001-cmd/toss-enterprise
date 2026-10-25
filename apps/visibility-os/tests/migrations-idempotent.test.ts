@@ -32,6 +32,11 @@ describe.each(FOLDERS)("%s", (folder) => {
     }
   });
 
+  it("does not depend on a database type, because production does not have them all (it has no \"Plan\" type)", () => {
+    expect(text).not.toMatch(/"(Plan|Priority|ActionStatus)"\s+(NOT NULL|NULL|DEFAULT|,|\))/);
+    expect(text).not.toMatch(/CREATE TYPE|::"(Plan|Priority|ActionStatus)"/);
+  });
+
   it("drops nothing", () => {
     expect(text).not.toMatch(/DROP\s+(TABLE|COLUMN|INDEX)/i);
   });
