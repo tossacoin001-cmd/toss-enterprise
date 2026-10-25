@@ -1,8 +1,8 @@
 -- AlterTable
-ALTER TABLE "User" ADD COLUMN "weeklyClaimAt" TIMESTAMP(3);
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "weeklyClaimAt" TIMESTAMP(3);
 
 -- CreateTable
-CREATE TABLE "WeeklyRun" (
+CREATE TABLE IF NOT EXISTS "WeeklyRun" (
     "id" TEXT NOT NULL,
     "startedAt" TIMESTAMP(3) NOT NULL,
     "finishedAt" TIMESTAMP(3),
@@ -18,4 +18,4 @@ CREATE TABLE "WeeklyRun" (
 );
 
 -- CreateIndex
-CREATE INDEX "WeeklyRun_startedAt_idx" ON "WeeklyRun"("startedAt");
+CREATE INDEX IF NOT EXISTS "WeeklyRun_startedAt_idx" ON "WeeklyRun"("startedAt");
