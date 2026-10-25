@@ -10,6 +10,7 @@ const FOLDERS = [
   "20261023020000_billing_foundations",
   "20261024000000_weekly_run_reliability",
   "20261024010000_subscription_interval",
+  "20261025000000_user_plan_text",
 ];
 const sql = (f: string) => readFileSync(new URL(`../prisma/migrations/${f}/migration.sql`, import.meta.url), "utf8");
 
@@ -30,6 +31,11 @@ describe.each(FOLDERS)("%s", (folder) => {
     for (const m of text.matchAll(/ADD CONSTRAINT\s+"([^"]+)"/g)) {
       expect(text, `constraint ${m[1]} must be inside a guard`).toMatch(new RegExp(`pg_constraint[\\s\\S]*${m[1]}|${m[1]}[\\s\\S]*pg_constraint`));
     }
+  });
+
+  it("does not depend on a database type, because production does not have them all (it has no \"Plan\" type)", () => {
+    expect(text).not.toMatch(/"(Plan|Priority|ActionStatus)"\s+(NOT NULL|NULL|DEFAULT|,|\))/);
+    expect(text).not.toMatch(/CREATE TYPE|::"(Plan|Priority|ActionStatus)"/);
   });
 
   it("drops nothing", () => {
