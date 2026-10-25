@@ -10,6 +10,7 @@ const FOLDERS = [
   "20261023020000_billing_foundations",
   "20261024000000_weekly_run_reliability",
   "20261024010000_subscription_interval",
+  "20261025000000_user_plan_text",
 ];
 const sql = (f: string) => readFileSync(new URL(`../prisma/migrations/${f}/migration.sql`, import.meta.url), "utf8");
 

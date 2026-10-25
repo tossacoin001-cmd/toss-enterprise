@@ -15,7 +15,8 @@ model User {
   id         String     @id
   email      String     @unique
   name       String?
-  plan       Plan       @default(FREE)
+  // FREE, STARTER, GROWTH or AGENCY. Plain text on purpose: production has no database type for it. Paid access comes from Subscription.
+  plan       String     @default("FREE")
   // Set when a weekly run finishes for this user; the cron skips anyone run in the last 6 days.
   lastDigestAt  DateTime?
   digestOptOut  Boolean    @default(false)
@@ -132,13 +133,6 @@ model BillingEvent {
   receivedAt DateTime @default(now())
 
   @@unique([provider, eventId])
-}
-
-enum Plan {
-  FREE
-  STARTER
-  GROWTH
-  AGENCY
 }
 
 enum Priority {

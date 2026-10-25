@@ -15,7 +15,7 @@ const DAY = 86_400_000;
 export type SubscriptionFacts = { plan: PlanId; interval: Interval; status: "pending" | "active" | "past_due" | "ended"; currentPeriodEnd: Date; cancelAtPeriodEnd: boolean };
 
 export type AccessFacts = {
-  plan: "FREE" | "STARTER" | "GROWTH" | "AGENCY";
+  plan: string;
   trialStartedAt: Date | null;
   trialEndsAt: Date | null;
   subscription: SubscriptionFacts | null;
